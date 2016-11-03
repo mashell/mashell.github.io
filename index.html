@@ -4,19 +4,19 @@
   <meta charset="utf-8">
   
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
-  <title>Mashell</title>
+  <title>mashell</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="还有什么比不浪费时间更有意义的事呢？">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Mashell">
+<meta property="og:title" content="mashell">
 <meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="Mashell">
+<meta property="og:site_name" content="mashell">
 <meta property="og:description" content="还有什么比不浪费时间更有意义的事呢？">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Mashell">
+<meta name="twitter:title" content="mashell">
 <meta name="twitter:description" content="还有什么比不浪费时间更有意义的事呢？">
   
-    <link rel="alternative" href="/atom.xml" title="Mashell" type="application/atom+xml">
+    <link rel="alternative" href="/atom.xml" title="mashell" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -37,7 +37,7 @@
 		</a>
 
 		<hgroup>
-		  <h1 class="header-author"><a href="/">Mashell</a></h1>
+		  <h1 class="header-author"><a href="/">mashell</a></h1>
 		</hgroup>
 
 		
@@ -92,7 +92,7 @@
       <nav id="mobile-nav">
   	<div class="overlay">
   		<div class="slider-trigger"></div>
-  		<h1 class="header-author js-mobile-header hide">Mashell</h1>
+  		<h1 class="header-author js-mobile-header hide">mashell</h1>
   	</div>
 	<div class="intrude-less">
 		<header id="header" class="inner">
@@ -102,7 +102,7 @@
 			
 			</div>
 			<hgroup>
-			  <h1 class="header-author">Mashell</h1>
+			  <h1 class="header-author">mashell</h1>
 			</hgroup>
 			
 			<p class="header-subtitle">你热爱生命吗？那别浪费时间</p>
@@ -149,16 +149,9 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>#React Native banner的实现</p>
-<p>##用到的组件以及方法</p>
-<ul>
-<li>ScrollView，用于banner的展示</li>
-<li>TimerMixin定时器</li>
-</ul>
-<p>##Banner的实现</p>
-<h3 id="分析需求"><a href="#分析需求" class="headerlink" title="分析需求"></a>分析需求</h3><p><img src="http://img0.ph.126.net/2EXGL-CvPClqQF73pfVo4g==/6632195864628989856.png" alt=""></p>
+        <h1 id="React-Nametive-banner的实现"><a href="#React-Nametive-banner的实现" class="headerlink" title="React Nametive banner的实现"></a>React Nametive banner的实现</h1><h2 id="分析需求"><a href="#分析需求" class="headerlink" title="分析需求"></a>分析需求</h2><p><img src="http://img0.ph.126.net/2EXGL-CvPClqQF73pfVo4g==/6632195864628989856.png" alt=""></p>
 <ol>
-<li><p>banner中滚动的图片，其实就是一个水平的scrollView，内容为一张一张的图片，然后通过定时器让他定时滚动</p>
+<li><p>banner中滚动的图片，其实就是一个水平的scrollView，内容为止一张一张的图片，然后通过定时器让他定时滚动</p>
 </li>
 <li><p>banner最下方是一个View，</p>
 </li>
@@ -167,108 +160,42 @@
 <li>其中左边部分是图片对应的文字解释,是一个Text</li>
 <li>右边是指示器，圆点个数与图片个数相同，两种颜色的圆点其实也是文字, &amp;bull； 他是html中特殊的符号，显示出来就是一个圆点，我们通过设置字体颜色就可以显示出两种不同的指示器点了,是一个View里面包裹了一个Text和指示器View指示器中包裹着圆点的Text</li>
 </ul>
-<p>###实现过程</p>
-<ul>
-<li><p>写在前面， 我们看看state和props中有哪些我们需要用到的自定义属性</p>
-  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">getDefaultProps()&#123;</span><br><span class="line">       return &#123;</span><br><span class="line">       		//banner的定时器自动滚动时间</span><br><span class="line">           intervalTime: 3000</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;,</span><br><span class="line"></span><br><span class="line">   getInitialState()&#123;</span><br><span class="line">       return &#123;</span><br><span class="line">       	//banner的全部数据，一个数组</span><br><span class="line">           bannerArray: [],</span><br><span class="line">           //banner左下方显示的文字描述</span><br><span class="line">           bannerText: &apos;&apos;,</span><br><span class="line">           //banner显示第几页图片的属性</span><br><span class="line">           currentPage: 0,</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;,</span><br></pre></td></tr></table></figure>
+<h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><h3 id="写在前面，-我们看看state和props中有哪些我们需要用到的自定义属性"><a href="#写在前面，-我们看看state和props中有哪些我们需要用到的自定义属性" class="headerlink" title="写在前面， 我们看看state和props中有哪些我们需要用到的自定义属性"></a>写在前面， 我们看看state和props中有哪些我们需要用到的自定义属性</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">getDefaultProps()&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">       <span class="comment">//banner的定时器自动滚动时间</span></span><br><span class="line">            intervalTime: <span class="number">3000</span></span><br><span class="line">     &#125;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    getInitialState()&#123;</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">        	<span class="comment">//banner的全部数据，一个数组</span></span><br><span class="line">            bannerArray: [],</span><br><span class="line">            <span class="comment">//banner左下方显示的文字描述</span></span><br><span class="line">            bannerText: <span class="string">''</span>,</span><br><span class="line">            <span class="comment">//banner显示第几页图片的属性</span></span><br><span class="line">            currentPage: <span class="number">0</span>,</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br></pre></td></tr></table></figure>
+<h3 id="获取网络数据，并且将数据保存在state中，"><a href="#获取网络数据，并且将数据保存在state中，" class="headerlink" title="获取网络数据，并且将数据保存在state中，"></a>获取网络数据，并且将数据保存在state中，</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">getBannerData()&#123;</span><br><span class="line">   fetch(<span class="string">'http://www.mywebsite.com/getBanner'</span>)</span><br><span class="line">    .then((response)=&gt;response.json())</span><br><span class="line">     .then((responderJson)=&gt; &#123;</span><br><span class="line">      <span class="keyword">var</span> jsonData = responderJson.data;</span><br><span class="line">            <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">             bannerArray: jsonData,</span><br><span class="line">              <span class="comment">//让banner左下角默认显示第一个文字描述</span></span><br><span class="line">                bannerText: jsonData[<span class="number">0</span>].banner_desc</span><br><span class="line">              &#125;)</span><br><span class="line">          &#125;)</span><br><span class="line">         .catch((error)=&gt; &#123;</span><br><span class="line">            <span class="built_in">console</span>.error(error);</span><br><span class="line">         &#125;);</span><br><span class="line">    &#125;,</span><br></pre></td></tr></table></figure>
+<h3 id="代码中添加ScrollView组件"><a href="#代码中添加ScrollView组件" class="headerlink" title="代码中添加ScrollView组件"></a>代码中添加ScrollView组件</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ScrollView</span></span><br><span class="line">	<span class="attr">style</span>=<span class="string">&#123;styles.scrollStyle&#125;</span></span><br><span class="line">	//使用<span class="attr">refs</span>属性，导出<span class="attr">scrollview</span>组件，方便后面 第六步 操作<span class="attr">scrollvIew</span></span><br><span class="line">    <span class="attr">ref</span>=<span class="string">"bannerScroll"</span></span><br><span class="line">    //让<span class="attr">scrollview</span>水平滚动</span><br><span class="line">    <span class="attr">horizontal</span>=<span class="string">&#123;true&#125;</span></span><br><span class="line">    //显示滚动条</span><br><span class="line">    <span class="attr">showsHorizontalScrollIndicator</span>=<span class="string">&#123;false&#125;</span></span><br><span class="line">    //设置弹性滚动</span><br><span class="line">    <span class="attr">pagingEnabled</span>=<span class="string">&#123;true&#125;</span></span><br><span class="line">    //监听<span class="attr">scroll</span>滚动</span><br><span class="line">    <span class="attr">onMomentumScrollEnd</span>=<span class="string">&#123;(e)</span>=&gt;</span>this.onAnimationEnd(e)&#125;</span><br><span class="line">    //开始拖拽时banner停止自滚动</span><br><span class="line">    onScrollBeginDrag=&#123;this.onScrollBeginDrag&#125;</span><br><span class="line">    //停止拖拽时banner开始自滚动</span><br><span class="line">    onScrollEndDrag=&#123;this.onScrollEndDrag&#125;&gt;</span><br><span class="line">         </span><br><span class="line">    //为scrollview填充图片的方法</span><br><span class="line">    &#123;this.renderBannerImg()&#125;</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">ScrollView</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="为scrollview中添加图片"><a href="#为scrollview中添加图片" class="headerlink" title="为scrollview中添加图片"></a>为scrollview中添加图片</h3><p>建立一个数组，数组中添加图片，图片的uri为第二步网络请求中得到的数据，并将数据返回给scrollview</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">renderBannerImg()&#123;</span><br><span class="line">	<span class="keyword">var</span> allBanner = [];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.state.bannerArray.length; i++) &#123;</span><br><span class="line">        allBanner.push(<span class="xml"><span class="tag">&lt;<span class="name">Image</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span></span><br><span class="line">        <span class="attr">source</span>=<span class="string">&#123;&#123;uri:this.state.bannerArray[i].banner_pic&#125;&#125;</span></span><br><span class="line">        <span class="attr">style</span>=<span class="string">&#123;styles.bannerImage&#125;/</span>&gt;</span>)</span><br><span class="line">     &#125;</span><br><span class="line">      return allBanner;</span><br><span class="line">   &#125;</span></span><br></pre></td></tr></table></figure>
+<p><strong>到目前为止，banner中的图片已经被我们实现出来了，我们接着实现图片下方的View</strong></p>
+<h3 id="下方文字提示以及指示器的view"><a href="#下方文字提示以及指示器的view" class="headerlink" title="下方文字提示以及指示器的view"></a>下方文字提示以及指示器的view</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">View</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerTextContainer&#125;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">Text</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerTextStyle&#125;</span>&gt;</span>&#123;this.state.bannerText&#125;<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">View</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerPointContainer&#125;</span>&gt;</span>&#123;this.renderBannerPoint()&#125;<span class="tag">&lt;/<span class="name">View</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">View</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="为指示器添加圆点"><a href="#为指示器添加圆点" class="headerlink" title="为指示器添加圆点"></a>为指示器添加圆点</h3><ul>
+<li><p>为了让指示器的圆点显示随着上方图片的变化而变化，我们需要先在state中设置一个currentPage属性，并且通过scrollview的横坐标值计算出当前是第几张图片，并且更新currentPage，后面指示器圆点显示会根据currentPage值改变而改变</p>
+</li>
+<li><p>监听横坐标值我们需要设置实现onMomentumScrollEnd方法</p>
 </li>
 </ul>
-<ol>
-<li><p>获取网络数据，并且将数据保存在state中，</p>
-<pre><code>getBannerData(){
-    fetch(&apos;http://www.mywebsite.com/getBanner&apos;)
-     .then((response)=&gt;response.json())
-     .then((responderJson)=&gt; {
-        var jsonData = responderJson.data;
-        this.setState({
-            bannerArray: jsonData,
-            //让banner左下角默认显示第一个文字描述
-            bannerText: jsonData[0].banner_desc
-        })
-    })
-    .catch((error)=&gt; {
-        console.error(error);
-    });
-},
-</code></pre><p> <strong><em>这里接口替换成你们的获取banner图片和文字描述的接口</em></strong></p>
-</li>
-</ol>
-<ol>
-<li><p>代码中添加ScrollView组件</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">  </span><br><span class="line">&lt;ScrollView</span><br><span class="line">	style=&#123;styles.scrollStyle&#125;</span><br><span class="line">	<span class="comment">//使用refs属性，导出scrollview组件，方便后面 第六步 操作scrollvIew</span></span><br><span class="line">       ref=<span class="string">"bannerScroll"</span></span><br><span class="line">       <span class="comment">//让scrollview水平滚动</span></span><br><span class="line">       horizontal=&#123;<span class="literal">true</span>&#125;</span><br><span class="line">       <span class="comment">//显示滚动条</span></span><br><span class="line">       showsHorizontalScrollIndicator=&#123;<span class="literal">false</span>&#125;</span><br><span class="line">       <span class="comment">//设置弹性滚动</span></span><br><span class="line">       pagingEnabled=&#123;<span class="literal">true</span>&#125;</span><br><span class="line">       <span class="comment">//监听scroll滚动</span></span><br><span class="line">       onMomentumScrollEnd=&#123;(e)=&gt;<span class="keyword">this</span>.onAnimationEnd(e)&#125;</span><br><span class="line">       <span class="comment">//开始拖拽时banner停止自滚动</span></span><br><span class="line">        onScrollBeginDrag=&#123;<span class="keyword">this</span>.onScrollBeginDrag&#125;</span><br><span class="line">        <span class="comment">//停止拖拽时banner开始自滚动</span></span><br><span class="line">        onScrollEndDrag=&#123;<span class="keyword">this</span>.onScrollEndDrag&#125;&gt;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//为scrollview填充图片的方法</span></span><br><span class="line">        &#123;<span class="keyword">this</span>.renderBannerImg()&#125;</span><br><span class="line"></span><br><span class="line">   &lt;<span class="regexp">/ScrollView&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<ol>
-<li><p>为scrollview中添加图片 </p>
-<p> 建立一个数组，数组中添加图片，图片的uri为第二步网络请求中得到的数据，并将数据返回给scrollview</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">renderBannerImg()&#123;</span><br><span class="line">	var allBanner = [];</span><br><span class="line">       for (var i = 0; i &lt; this.state.bannerArray.length; i++) &#123;</span><br><span class="line">           allBanner.push(&lt;Image key=&#123;i&#125;</span><br><span class="line">           source=&#123;&#123;uri:this.state.bannerArray[i].banner_pic&#125;&#125;</span><br><span class="line">           style=&#123;styles.bannerImage&#125;/&gt;)</span><br><span class="line">       &#125;</span><br><span class="line">       return allBanner;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<pre><code>**到目前为止，banner中的图片已经被我们实现出来了，我们接着实现图片下方的View**
-</code></pre><ol>
-<li><p>下方文字提示以及指示器的view</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">	 &lt;View style=&#123;styles.bannerTextContainer&#125;&gt;</span><br><span class="line">	 	  //左边的文字提示</span><br><span class="line">		  &lt;Textstyle=&#123;styles.bannerTextStyle&gt;&#123;this.state.bannerText&#125;&lt;/Text&gt;</span><br><span class="line">          &lt;View style=&#123;styles.bannerPointContainer&#125;&gt;</span><br><span class="line">          </span><br><span class="line">          //右边的圆点指示器</span><br><span class="line">          &#123;this.renderBannerPoint()&#125;</span><br><span class="line">          </span><br><span class="line">          &lt;/View&gt;</span><br><span class="line">    &lt;/View&gt;</span><br><span class="line">    ```          </span><br><span class="line">5. 为指示器添加圆点的方法 </span><br><span class="line">  </span><br><span class="line">   1.  为了让指示器的圆点显示随着上方图片的变化而变化，我们需要先在state中设置一个currentPage属性，并且通过scrollview的横坐标值计算出当前是第几张图片，并且更新currentPage，后面指示器圆点显示会根据currentPage值改变而改变</span><br><span class="line"></span><br><span class="line">   2. 监听横坐标值我们需要设置实现onMomentumScrollEnd方法</span><br></pre></td></tr></table></figure>
-<p>onMomentumScrollEnd={(e)=&gt;this.onAnimationEnd(e)}</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
-<pre><code>   onAnimationEnd(e){
-    //计算出scrollView水平滚动的距离
-    var offsetX = e.nativeEvent.contentOffset.x;
-    //计算出当前页数,同时更新当前页数currentPage
-    var currentPage = Math.floor(offsetX / width)
-    var bannerText = this.state.bannerArray[currentPage].banner_desc;
-    this.setState({
-        currentPage: Math.floor(offsetX / width),
-        bannerText: bannerText
-    })
-},
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">   </span><br><span class="line">3. 得到了当前页数值，我们就依据这个currentPage设置圆点的显示</span><br></pre></td></tr></table></figure>
-
-renderBannerPoint(){
-    var pointArray = [];
-    for (var i = 0; i &lt; this.state.bannerArray.length; i++) {
-    //通过图片的位置计算出的当前页数来改变圆点的颜色，如果等于当前颜色就设置白色，证明是当前页数,反之
-        var fontColor = (i == this.state.currentPage) ? {color: &apos;white&apos;} : {color: &apos;rgba(220,220,220,0.8)&apos;};
-        pointArray.push(&lt;Text key={i} style={[styles.bannerPointStyle, fontColor]}&gt;&amp;bull;&lt;/Text&gt;)
-    }
-    return pointArray;
-},
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">   </span><br><span class="line">6. 到目前为止，静态的banner已经被我们实现出来了，我们接下来就要设置定时器，定时的更改currentPage，从而达到更改定时滚动图片以及圆点指示器的显示</span><br><span class="line">	- 定时器为第三方库，引入后我们再render中注册后，</span><br></pre></td></tr></table></figure>
-</code></pre><p> var TimerMixin = require(‘react-timer-mixin’);<br> mixins: [TimerMixin],</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- 通过this.setInterval(function(),1000)启动定时器，通过this.clearInterval(this.timer)停止定时器</span><br></pre></td></tr></table></figure>
-<p> startTimer(){</p>
-<pre><code>  //引入scrollView便于后续操作
-var scrollView = this.refs.bannerScroll;
-
-this.timer = this.setInterval(function () {
-
-    //设置指示器圆点变换
-    var timerPage = 0;
-    if (this.state.currentPage + 1 &gt;= this.state.bannerArray.length) {
-        timerPage = 0
-    } else {
-        timerPage = this.state.currentPage + 1;
-    }
-    this.setState({
-        currentPage: timerPage
-    })
-
-    //设置图片滚动变换,通过scrollResponderScrollTo可以滚动图片
-    var offsetX = timerPage * width;
-    scrollView.scrollResponderScrollTo({x: offsetX, y: 0, animated: true})
-    //intervalTime为我在props中设置的时间间隔属性
-}, this.props.intervalTime);
-</code></pre><p> },</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">7. 一个定时滚动的banner已经被我们实现了，当然我们需要在手动滚动banner时停止原本设置好的自动滚动，我们就得监听开始拖动banner和停止拖动banner的动作，当拖动时停止定时器，当停止拖动离开banner时启动定时器</span><br><span class="line"></span><br><span class="line">	**开始拖动banner**</span><br></pre></td></tr></table></figure>
-<p> onScrollBeginDrag(){</p>
-<pre><code>this.clearInterval(this.timer)
-</code></pre><p> },</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">**停止拖动banner**</span><br></pre></td></tr></table></figure>
-<p> onScrollEndDrag(){</p>
-<pre><code>this.startTimer()
-</code></pre><p> },<br> ```</p>
-</li>
-</ol>
-<p>##总结<br> 总的来说一个banner的实现主要用到scrollView的一些属性，然后通过定时器调用方法让scrollview自己滚动就达到了我们的目的了,是不是很简单呢[]~(￣▽￣)~*有疑问欢迎留言</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">onAnimationEnd(e)&#123;</span><br><span class="line"><span class="comment">//计算出scrollView水平滚动的距离</span></span><br><span class="line"><span class="keyword">var</span> offsetX = e.nativeEvent.contentOffset.x;</span><br><span class="line"><span class="comment">//计算出当前页数,同时更新当前页数currentPage</span></span><br><span class="line"><span class="keyword">var</span> currentPage = <span class="built_in">Math</span>.floor(offsetX / width)</span><br><span class="line"><span class="keyword">var</span> bannerText = <span class="keyword">this</span>.state.bannerArray[currentPage].banner_desc;</span><br><span class="line">	<span class="keyword">this</span>.setState(&#123;</span><br><span class="line">	   currentPage: <span class="built_in">Math</span>.floor(offsetX / width),</span><br><span class="line">	   bannerText: bannerText</span><br><span class="line">	  &#125;)</span><br><span class="line">	&#125;,</span><br></pre></td></tr></table></figure>
+<h3 id="设置圆点显示"><a href="#设置圆点显示" class="headerlink" title="设置圆点显示"></a>设置圆点显示</h3><p>得到了当前页数值，我们就依据这个currentPage设置圆点的显示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">renderBannerPoint()&#123;</span><br><span class="line">	   var pointArray = [];</span><br><span class="line">	   for (var i = 0; i &lt; this.state.bannerArray.length; i++) &#123;</span><br><span class="line">	   //通过图片的位置计算出的当前页数来改变圆点的颜色，如果等于当前颜色就设置白色，证明是当前页数,反之</span><br><span class="line">	    var fontColor = (i == this.state.currentPage) ? &#123;color: &apos;white&apos;&#125; : &#123;color: &apos;rgba(220,220,220,0.8)&apos;&#125;;</span><br><span class="line">	     pointArray.push(&lt;Text key=&#123;i&#125; style=&#123;[styles.bannerPointStyle, fontColor]&#125;&gt;&amp;bull;&lt;/Text&gt;)</span><br><span class="line">	     &#125;</span><br><span class="line">	    return pointArray;</span><br><span class="line">	 &#125;,</span><br></pre></td></tr></table></figure>
+<h3 id="设置定时器，让banner定时滚动"><a href="#设置定时器，让banner定时滚动" class="headerlink" title="设置定时器，让banner定时滚动"></a>设置定时器，让banner定时滚动</h3><p>到目前为止，静态的banner已经被我们实现出来了，我们接下来就要设置定时器，定时的更改currentPage，从而达到更改定时滚动图片以及圆点指示器的显示</p>
+<ul>
+<li>定时器为第三方库，引入后我们再render中注册后，</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> TimerMixin = <span class="built_in">require</span>(<span class="string">'react-timer-mixin'</span>);</span><br><span class="line">mixins: [TimerMixin],</span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过this.setInterval(function(),1000)启动定时器，通过this.clearInterval(this.timer)停止定时器</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">startTimer()&#123;</span><br><span class="line">   <span class="comment">//引入scrollView便于后续操作</span></span><br><span class="line">   <span class="keyword">var</span> scrollView = <span class="keyword">this</span>.refs.bannerScroll;</span><br><span class="line">   </span><br><span class="line">	<span class="comment">//开启定时器</span></span><br><span class="line">   <span class="keyword">this</span>.timer = <span class="keyword">this</span>.setInterval(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;   </span><br><span class="line">   <span class="comment">//设置指示器圆点变换</span></span><br><span class="line">   <span class="keyword">var</span> timerPage = <span class="number">0</span>;</span><br><span class="line">   <span class="keyword">if</span> (<span class="keyword">this</span>.state.currentPage + <span class="number">1</span> &gt;= <span class="keyword">this</span>.state.bannerArray.length) &#123;</span><br><span class="line">        timerPage = <span class="number">0</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          timerPage = <span class="keyword">this</span>.state.currentPage + <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">       <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">           currentPage: timerPage</span><br><span class="line">       &#125;)</span><br><span class="line"></span><br><span class="line">      <span class="comment">//设置图片滚动变换,通过scrollResponderScrollTo可以滚动图片</span></span><br><span class="line">      <span class="keyword">var</span> offsetX = timerPage * width;</span><br><span class="line">      scrollView.scrollResponderScrollTo(&#123;x: offsetX, y: <span class="number">0</span>, animated: <span class="literal">true</span>&#125;)</span><br><span class="line">   		&#125;, <span class="keyword">this</span>.props.intervalTime);</span><br><span class="line"> &#125;,</span><br></pre></td></tr></table></figure>
+<h3 id="设置滑动事件"><a href="#设置滑动事件" class="headerlink" title="设置滑动事件"></a>设置滑动事件</h3><p>一个定时滚动的banner已经被我们实现了，当然我们需要在手动滚动banner时停止原本设置好的自动滚动，我们就得监听开始拖动banner和停止拖动banner的动作，当拖动时停止定时器，当停止拖动离开banner时启动定时器</p>
+<p><strong>开始拖动banner</strong>    </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">onScrollBeginDrag()&#123;</span><br><span class="line">    <span class="keyword">this</span>.clearInterval(<span class="keyword">this</span>.timer)</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p><strong>停止拖动banner</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">onScrollEndDrag()&#123;</span><br><span class="line">   <span class="keyword">this</span>.startTimer()</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p> 总的来说一个banner的实现主要用到scrollView的一些属性，然后通过定时器调用方法让scrollview自己滚动就达到了我们的目的了,是不是很简单呢[]~(￣▽￣)~*有疑问欢迎留言</p>
+<p>##补充<br>虽然博客搭了很久，但是这次是第一次写文章，写的时候发现markdown本地预览和实际上hexo自动生成的文件不一样，折腾了一个多小时，发现了两个问题</p>
+<ul>
+<li>标题#号后面需要加一个空格，要不然hexo识别不了</li>
+<li>代码块```后面不能加空格！！切记，文章弄了很久还是格式错误就是这个原因，代码块语法后面千万别加空格 TT</li>
+</ul>
 
       
     </div>
@@ -303,7 +230,7 @@ this.timer = this.setInterval(function () {
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2016 Mashell
+    		&copy; 2016 mashell
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
