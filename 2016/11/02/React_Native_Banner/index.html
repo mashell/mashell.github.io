@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="react native," />
 
 
 
@@ -84,15 +84,45 @@
 
 
 
-<meta name="description" content="还有什么比不浪费时间更有意义的事呢？">
-<meta property="og:type" content="website">
-<meta property="og:title" content="mashell">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="分析需求
+
+banner中滚动的图片，其实就是一个水平的scrollView，内容为止一张一张的图片，然后通过定时器让他定时滚动
+
+banner最下方是一个View，
+
+
+
+其中左边部分是图片对应的文字解释,是一个Text
+右边是指示器，圆点个数与图片个数相同，两种颜色的圆点其实也是文字, &amp;amp;bull； 他是html中特殊的符号，显示出来就是一个圆点，我们通过设置字体颜色就可以显示出两种不">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React Native Banner的实现">
+<meta property="og:url" content="http://yoursite.com/2016/11/02/React_Native_Banner/index.html">
 <meta property="og:site_name" content="mashell">
-<meta property="og:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta property="og:description" content="分析需求
+
+banner中滚动的图片，其实就是一个水平的scrollView，内容为止一张一张的图片，然后通过定时器让他定时滚动
+
+banner最下方是一个View，
+
+
+
+其中左边部分是图片对应的文字解释,是一个Text
+右边是指示器，圆点个数与图片个数相同，两种颜色的圆点其实也是文字, &amp;amp;bull； 他是html中特殊的符号，显示出来就是一个圆点，我们通过设置字体颜色就可以显示出两种不">
+<meta property="og:image" content="http://o7q9l32cf.bkt.clouddn.com/6632195864628989856.png">
+<meta property="og:updated_time" content="2016-11-04T13:29:57.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="mashell">
-<meta name="twitter:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta name="twitter:title" content="React Native Banner的实现">
+<meta name="twitter:description" content="分析需求
+
+banner中滚动的图片，其实就是一个水平的scrollView，内容为止一张一张的图片，然后通过定时器让他定时滚动
+
+banner最下方是一个View，
+
+
+
+其中左边部分是图片对应的文字解释,是一个Text
+右边是指示器，圆点个数与图片个数相同，两种颜色的圆点其实也是文字, &amp;amp;bull； 他是html中特殊的符号，显示出来就是一个圆点，我们通过设置字体颜色就可以显示出两种不">
+<meta name="twitter:image" content="http://o7q9l32cf.bkt.clouddn.com/6632195864628989856.png">
 
 
 
@@ -113,10 +143,10 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2016/11/02/React_Native_Banner/"/>
 
 
-  <title> mashell </title>
+  <title> React Native Banner的实现 | mashell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -137,9 +167,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left 
-   page-home 
- ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
@@ -218,9 +246,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
   
@@ -240,10 +268,7 @@
             
             
               
-                
-                <a class="post-title-link" href="/2016/11/02/React_Native_Banner/" itemprop="url">
-                  React Native Banner的实现
-                </a>
+                React Native Banner的实现
               
             
           </h1>
@@ -299,9 +324,7 @@
       
 
       
-        
-          
-            <h2 id="分析需求"><a href="#分析需求" class="headerlink" title="分析需求"></a>分析需求</h2><p><img src="http://o7q9l32cf.bkt.clouddn.com/6632195864628989856.png" alt=""></p>
+        <h2 id="分析需求"><a href="#分析需求" class="headerlink" title="分析需求"></a>分析需求</h2><p><img src="http://o7q9l32cf.bkt.clouddn.com/6632195864628989856.png" alt=""></p>
 <ol>
 <li><p>banner中滚动的图片，其实就是一个水平的scrollView，内容为止一张一张的图片，然后通过定时器让他定时滚动</p>
 </li>
@@ -349,36 +372,45 @@
 <li>代码块```后面不能加空格！！切记，文章弄了很久还是格式错误就是这个原因，代码块语法后面千万别加空格 TT</li>
 </ul>
 
-          
+      
+    </div>
+
+    <div>
+      
         
+
       
     </div>
 
     <div>
       
-    </div>
+        
 
-    <div>
       
     </div>
 
     <footer class="post-footer">
       
-
+        <div class="post-tags">
+          
+            <a href="/tags/react-native/" rel="tag">#react native</a>
+          
+        </div>
       
 
       
+
       
-        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -386,6 +418,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/11/02/React_Native_Banner/"
+           data-title="React Native Banner的实现" data-url="http://yoursite.com/2016/11/02/React_Native_Banner/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -405,8 +445,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
@@ -449,6 +498,17 @@
 
       </section>
 
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分析需求"><span class="nav-number">1.</span> <span class="nav-text">分析需求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现过程"><span class="nav-number">2.</span> <span class="nav-text">实现过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#写在前面，-我们看看state和props中有哪些我们需要用到的自定义属性"><span class="nav-number">2.1.</span> <span class="nav-text">写在前面， 我们看看state和props中有哪些我们需要用到的自定义属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取网络数据，并且将数据保存在state中，"><span class="nav-number">2.2.</span> <span class="nav-text">获取网络数据，并且将数据保存在state中，</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码中添加ScrollView组件"><span class="nav-number">2.3.</span> <span class="nav-text">代码中添加ScrollView组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为scrollview中添加图片"><span class="nav-number">2.4.</span> <span class="nav-text">为scrollview中添加图片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#下方文字提示以及指示器的view"><span class="nav-number">2.5.</span> <span class="nav-text">下方文字提示以及指示器的view</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为指示器添加圆点"><span class="nav-number">2.6.</span> <span class="nav-text">为指示器添加圆点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置圆点显示"><span class="nav-number">2.7.</span> <span class="nav-text">设置圆点显示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置定时器，让banner定时滚动"><span class="nav-number">2.8.</span> <span class="nav-text">设置定时器，让banner定时滚动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置滑动事件"><span class="nav-number">2.9.</span> <span class="nav-text">设置滑动事件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充"><span class="nav-number">4.</span> <span class="nav-text">补充</span></a></li></ol></div>
+            
+          </div>
+        </section>
       
 
     </div>
@@ -545,6 +605,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
 
   
 
