@@ -1,757 +1,706 @@
-<!DOCTYPE html>
-<html>
-    <head>
-    <!-- Title -->
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
     
-    <title>
-        mashell
-    </title>
     
-    <!-- Favicons -->
-    <link rel="icon shortcut" type="image/ico" href="/img/favicon.png">
-    <link rel="icon" sizes="192x192" href="/img/favicon.png">
-    <link rel="apple-touch-icon" href="/img/favicon.png">
+  
+
+  
+
+  
+
+  
+
+  
+
+  
     
-    <!-- Meta & INfo -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#039BE5">
-    <meta name="author" content="mashell">
-    <meta name="description" content="还有什么比不浪费时间更有意义的事呢？">
-    <meta name="keywords" content="null">
     
-    <!--iOS -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <meta name="apple-mobile-web-app-title" content="Title">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="MobileOptimized" content="480">
-    
-    <!-- Add to homescreen for Chrome on Android -->
-    <meta name="mobile-web-app-capable" content="yes">
-    
-    <!-- Add to homescreen for Safari on iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="mashell">
-    
-    <!-- The Open Graph protocol -->
-    <meta property="og:url" content="http://mashell.cn">
-    <meta property="og:type" content="blog">
-    <meta property="og:title" content="mashell">
-    <meta property="og:description" content="还有什么比不浪费时间更有意义的事呢？">
-    
-     <!--[if lte IE 9]>
-        <link rel="stylesheet" href="/css/ie-blocker.css">
-        
-        
-            <script src="/js/ie-blocker.zhCN.js"></script>
-        
-    <![endif]-->
-    
-    <!-- Import CSS -->
-    <link rel="stylesheet" href="/css/material.min.css">
-    <link rel="stylesheet" href="/css/style.min.css">
-    <!-- Config CSS -->
-
-<!-- Theme Background -->
-
-    <style>
-        body{
-            background-color: #F5F5F5
-        }
-		
-        #scheme-Paradox .material-layout .something-else .mdl-card__supporting-text{
-            background-color: #fff;
-        }
-		
-        #scheme-Paradox .MD-burger-layer {
-            background-color: #666;
-        }
-		
-        #scheme-Paradox .material-back{
-            color: #666;
-        }
-		
-        .material-layout .material-post>.material-nav,
-		.material-layout .material-index>.material-nav,
-        .material-nav a,
-        #scheme-Paradox .material-post_container .material-back{
-            color: #666;
-        }
-    </style>
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
 
 
 
 
-<!-- Fade Effect -->
-
-    <style>
-        .fade {
-            transition: all 800ms linear;
-            -webkit-transform: translate3d(0,0,0);
-            -moz-transform: translate3d(0,0,0);
-            -ms-transform: translate3d(0,0,0);
-            -o-transform: translate3d(0,0,0);
-            transform: translate3d(0,0,0);
-            opacity: 1;
-        }
-
-        .fade.out{
-            opacity: 0;
-        }
-    </style>
 
 
-<!-- Other Styles -->
-<style>
-	body, html{
-		font-family: Roboto, "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
-	}
-	
-    a{
-        color: #039BE5
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta property="og:type" content="website">
+<meta property="og:title" content="mashell">
+<meta property="og:url" content="http://mashell.cn/index.html">
+<meta property="og:site_name" content="mashell">
+<meta property="og:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mashell">
+<meta name="twitter:description" content="还有什么比不浪费时间更有意义的事呢？">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
     }
-    
-    .mdl-card__media,
-    #search-label,
-    #search-form-label:after,
-    #scheme-Paradox .hot_tags-count,
-    #scheme-Paradox .sidebar_archives-count,
-    #scheme-Paradox .sidebar-colored .sidebar-header,
-    #scheme-Paradox .sidebar-colored .sidebar-badge{
-        background-color: #039BE5 !important
-    }
-    
-	/* Sidebar User Drop Down Menu Text Color */
-	#scheme-Paradox .sidebar-colored .sidebar-nav>.dropdown>.dropdown-menu>li>a:hover,
-    #scheme-Paradox .sidebar-colored .sidebar-nav>.dropdown>.dropdown-menu>li>a:focus{
-        color: #039BE5 !important
-    }
-    
-    #post_entry-right-info,
-    .sidebar-colored .sidebar-nav li:hover > a,
-    .sidebar-colored .sidebar-nav li:hover > a i,
-    .sidebar-colored .sidebar-nav li > a:hover,
-    .sidebar-colored .sidebar-nav li > a:hover i,
-    .sidebar-colored .sidebar-nav li > a:focus i,
-    .sidebar-colored .sidebar-nav > .open > a,
-    .sidebar-colored .sidebar-nav > .open > a:hover,
-    .sidebar-colored .sidebar-nav > .open > a:focus,
-    #ds-reset #ds-ctx .ds-ctx-entry .ds-ctx-head a{
-        color: #039BE5 !important
-    }
-    
-    .toTop{
-        background: #00BCD4 !important
-    }
-</style>
-	<script src="/js/jquery.min.js"></script>
-	
-	<!-- UC Browser Compatible-->
-	<script>
-		var agent = navigator.userAgent.toLowerCase();
-		if(agent.indexOf('ucbrowser')>0) {
-			document.write('<link rel="stylesheet" href="/css/uc.css">');
-		   alert('由于 UC 浏览器使用极旧的内核，而本网站使用了一些新的特性。\n为了您能更好的浏览，推荐使用 Chrome 或 Firefox 浏览器。');
-		}
-	</script>
-    
-    <!-- Custom Head -->
-    
-</head>
-	
-	
-
-    <body id="scheme-Paradox">
-
-		
-        <div class="material-layout  mdl-js-layout has-drawer is-upgraded">
-				
-			
-			
-            <!-- Main Container -->
-            <main class="material-layout__content" id="main">
-				
-                <!-- Top Anchor -->
-                <div id="top"></div>
-				
-				
-                <!-- Hamburger Button -->
-                <button class="MD-burger-icon sidebar-toggle">
-                    <span class="MD-burger-layer"></span>
-                </button>
-				
-				
-                <!-- Index Module -->
-<div class="material-index mdl-grid">
-	
-		<!-- Paradox Header -->
-		<!-- Daily pic -->
-<div class="mdl-card daily-pic mdl-cell mdl-cell--8-col index-top-block">
-    
-    <!-- Pic & Slogan -->
-    <div class="mdl-card__media mdl-color-text--grey-50" style="background-image:url(/img/daily_pic.png)">
-        <p class="index-top-block-slogan"><a href="#">Hi, nice to meet you</a></p>
-    </div>
-
-    <!-- Avatar & Name -->
-    <div class="mdl-card__supporting-text meta mdl-color-text--grey-600">
-        <!-- Author Avatar -->
-        <div id="author-avatar">
-            <img src="/img/avatar.png" width="32px" height="32px" alt="avatar">
-        </div>
-        <div>
-            <strong>mashell</strong>
-        </div>
-    </div>
-</div>
-
-		<!-- Blog info -->
-<div class="mdl-card something-else mdl-cell mdl-cell--8-col mdl-cell--4-col-desktop index-top-block">
-	
-    <!-- Search -->
-	
-	<!-- Google -->
-	<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable" method="post" action="">
-		<label id="search-label" class="mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--accent mdl-shadow--4dp" for="search">
-			<i class="material-icons mdl-color-text--white" role="presentation">search</i>
-		</label>
-
-		<form id="search-form" method="get" action="//google.com/search" accept-charset="UTF-8" class="mdl-textfield__expandable-holder" target="_blank">
-			<input class="mdl-textfield__input search-input" type="search" name="q" id="search" placeholder="">
-			<label id="search-form-label" class="mdl-textfield__label" for="search"></label>
-			
-			<input type="hidden" name="sitesearch" value="http://mashell.cn">
-		</form>
-	</div>
-
-
-
-
-
-
-    <!-- LOGO -->
-    <div class="something-else-logo mdl-color--white mdl-color-text--grey-600">
-        <a href="null">
-            <img src="/img/logo.png" alt="logo" />
-        </a>
-    </div>
-
-    <!-- Infomation -->
-    <div class="mdl-card__supporting-text meta meta--fill mdl-color-text--grey-600">
-        <!-- Blog Title -->
-        <div>
-            <strong>mashell</strong>
-        </div>
-        <div class="section-spacer"></div>
-        
-        <!-- Pages -->
-        <button id="show-pages-button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-            <i class="material-icons" role="presentation">view_carousel</i>
-            <span class="visuallyhidden">Pages</span>
-        </button>
-        <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="show-pages-button">
-            
-        </ul>
-        
-        <!-- Menu -->
-        <button id="menubtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-            <i class="material-icons" role="presentation">more_vert</i>
-            <span class="visuallyhidden">show menu</span>
-        </button>
-        <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="menubtn">
-            
-            <a class="index_share-link" href="null">
-                <li class="mdl-menu__item mdl-js-ripple-effect">
-                    文章 RSS
-                </li>
-            </a>
-            <a class="index_share-link" href="https://twitter.com/intent/tweet?text=mashell&url=http://mashell.cn/&via=mashell" target="_blank">
-                <li class="mdl-menu__item mdl-js-ripple-effect">
-                    分享到 Twitter
-                </li>
-            </a>
-            <a class="index_share-link" href="https://plus.google.com/share?url=http://mashell.cn/" target="_blank">
-                <li class="mdl-menu__item mdl-js-ripple-effect">
-                    分享到 Google+
-                </li>
-            </a>
-            <a class="index_share-link" href="http://service.weibo.com/share/share.php?appkey=&title=mashell&url=http://mashell.cn/&pic=&searchPic=false&style=simple" target="_blank">
-                <li class="mdl-menu__item mdl-js-ripple-effect">
-                    分享到微博
-                </li>
-            </a>
-        </ul>
-    </div>
-</div>
-
-	
-    
-    
-		
-			<!-- Paradox Thumbnail -->
-        	<div class="post_entry-module mdl-card mdl-cell mdl-cell--12-col fade out">
-    
-    <!-- Post Thumbnail -->
-	
-		
-			<!-- Random Thumbnail -->
-			<div class="post_thumbnail-random mdl-card__media mdl-color-text--grey-50">
-		
-	
-				
-		<!-- Post Title -->
-		<p class="article-headline-p"><a href="/2016/10/31/React_Native_Banner/">React Native Banner的实现</a></p>
-	</div>
-
-    <!-- Post Excerpt -->
-    <div class="mdl-color-text--grey-600 mdl-card__supporting-text post_entry-content">
-        
-          分析需求
-        
-        &nbsp;&nbsp;&nbsp;
-        <span>
-            <a href="/2016/10/31/React_Native_Banner/" target="_self">继续阅读</a>
-        </span>
-    </div>
-    <!-- Post_entry Info-->
-    <div id="post_entry-info">
-        <div id="post_entry-left-info" class="mdl-card__supporting-text meta mdl-color-text--grey-600 ">
-            <!-- Author Avatar -->
-            <div id="author-avatar">
-                <img src="/img/avatar.png" width="44px" height="44px" alt="mashell's avatar">
-            </div>
-            <div>
-                <strong>mashell</strong>
-                <span>10月 31, 2016</span>
-            </div>
-        </div>
-        <div id="post_entry-right-info">
-            <!-- Category -->
-            <span class="post_entry-category">
-                
-            </span>
-            
-            
-                <!-- Comment Number -->
-                &nbsp;|&nbsp;
-                <span class="post_entry-comment" >
-                        <span class="ds-thread-count" data-thread-key="undefined" data-count-type="comments"></span>
-                </span>
-            
-            
-            <!-- Post Views -->
-            <span class="post_entry-views">
-                
-            </span>
-        </div>
-    </div>
-            
-</div>
-
-		
-		
-    
-    
-	
-		<script>
-    
-    var randomNum;
-    
-    var locatePost = $(".something-else").next();
-    for(var i=0; i < 10; i++){
-        
-        randomNum = Math.floor(Math.random() * 5 + 1);
-        
-        locatePost.children(".post_thumbnail-random").attr('id', 'random_thumbnail-'+randomNum);
-        locatePost.children(".post_thumbnail-random").css('background-image', 'url(' + '/img/random/' + randomNum + '.png' + ')')
-        
-        locatePost = locatePost.next();
-    }
-    
+  };
 </script>
 
-	
 
-</div>
 
-				
-				
-					<!-- Overlay For Active Sidebar -->
-<div class="sidebar-overlay "></div>
 
-<!-- Material sidebar -->
-<aside id="sidebar" class="sidebar sidebar-colored  sidebar-fixed-left" role="navigation">
-	<div id="sidebar-main">
-	    <!-- Sidebar Header -->
-		<div class="sidebar-header header-cover" style="background-image: url(/img/sidebar_header.png);">
-    <!-- Top bar -->
-    <div class="top-bar"></div>
+  <link rel="canonical" href="http://mashell.cn/"/>
 
-    <!-- Sidebar toggle button -->
-    <button type="button" class="sidebar-toggle mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" style="display: initial;" data-upgraded=",MaterialButton,MaterialRipple">
-    <i class="material-icons">clear_all</i>
-    <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></button>
 
-    <!-- Sidebar Avatar -->
-    <div class="sidebar-image">
-        <img src="/img/avatar.png" alt="mashell's avatar">
-    </div>
+  <title> mashell </title>
+</head>
 
-    <!-- Sidebar Email -->
-    <a data-toggle="dropdown" class="sidebar-brand" href="#settings-dropdown">
-        mashell624@163.com
-        <b class="caret"></b>
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left 
+   page-home 
+ ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">mashell</span>
+      <span class="logo-line-after"><i></i></span>
     </a>
+  </div>
+  <p class="site-subtitle">你热爱生命吗？那别浪费时间</p>
 </div>
 
-		<!-- Sidebar Navigation  -->
-		<ul class="nav sidebar-nav">
-    <!-- User dropdown  -->
-    <li class="dropdown">
-        <ul id="settings-dropdown" class="dropdown-menu">
-			
-                <li>
-                    <a href="#" target="_blank" title="Email Me">
-						<i class="material-icons sidebar-material-icons sidebar-indent-left1pc-element">email</i>
-                        Email Me
-                    </a>
-                </li>
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
             
-        </ul>
-    </li>
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-schedule">
+          <a href="/schedule" rel="section">
+            
+            日程
+          </a>
+        </li>
+      
 
-    <!-- Homepage -->
-    <li id="sidebar-first-li">
-        <a href="/" target="_self">
-            <i class="material-icons sidebar-material-icons">home</i>
-             主页
-        </a>
-    </li>
+      
+    </ul>
+  
 
-    <!-- I'm Feeling Lucky -->
-<!--
-    <li class="dropdown">
-        <a href="" target="_self">
-            <i class="material-icons sidebar-material-icons">explore</i>
-             sidebar.imlucky
-        </a>
-    </li>
--->
+  
+</nav>
 
-	
-    <!-- Archives  -->
-    <li class="dropdown">
-        <a href="#" class="ripple-effect dropdown-toggle" data-toggle="dropdown">
-            <i class="material-icons sidebar-material-icons">inbox</i>
-             归档
-            <b class="caret"></b>
-        </a>
-        <ul class="dropdown-menu">
-            <li>
-            <a class="sidebar_archives-link" href="/archives/2016/10/">十月 2016<span class="sidebar_archives-count">1</span></a>
-        </ul>
-    </li>
+ </div>
+    </header>
 
-    <!-- Divider -->
-    <li class="divider"></li>
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+  <section id="posts" class="posts-expand">
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/10/31/React_Native_Banner/" itemprop="url">
+                  React Native Banner的实现
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-31T21:27:43+08:00" content="2016-10-31">
+              2016-10-31
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/31/React_Native_Banner/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/31/React_Native_Banner/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/10/31/React_Native_Banner/" class="leancloud_visitors" data-flag-title="React Native Banner的实现">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
 
 
-    <!-- Pages  -->
-	
+    <div class="post-body" itemprop="articleBody">
 
-    <!-- Article Numebr  -->
-    <li>
-        <a href="#">
-             文章总数
-             <span class="sidebar-badge">1</span>
-        </a>
-    </li>
+      
+      
+
+      
+        
+          
+            <h2 id="分析需求"><a href="#分析需求" class="headerlink" title="分析需求"></a>分析需求</h2><p><img src="http://o7q9l32cf.bkt.clouddn.com/6632195864628989856.png" alt=""></p>
+<ol>
+<li><p>banner中滚动的图片，其实就是一个水平的scrollView，内容为止一张一张的图片，然后通过定时器让他定时滚动</p>
+</li>
+<li><p>banner最下方是一个View，</p>
+</li>
+</ol>
+<ul>
+<li>其中左边部分是图片对应的文字解释,是一个Text</li>
+<li>右边是指示器，圆点个数与图片个数相同，两种颜色的圆点其实也是文字, &amp;bull； 他是html中特殊的符号，显示出来就是一个圆点，我们通过设置字体颜色就可以显示出两种不同的指示器点了,是一个View里面包裹了一个Text和指示器View指示器中包裹着圆点的Text</li>
+</ul>
+<h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><h3 id="写在前面，-我们看看state和props中有哪些我们需要用到的自定义属性"><a href="#写在前面，-我们看看state和props中有哪些我们需要用到的自定义属性" class="headerlink" title="写在前面， 我们看看state和props中有哪些我们需要用到的自定义属性"></a>写在前面， 我们看看state和props中有哪些我们需要用到的自定义属性</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">getDefaultProps()&#123;</div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">       <span class="comment">//banner的定时器自动滚动时间</span></div><div class="line">            intervalTime: <span class="number">3000</span></div><div class="line">     &#125;</div><div class="line">    &#125;,</div><div class="line"></div><div class="line">    getInitialState()&#123;</div><div class="line">        <span class="keyword">return</span> &#123;</div><div class="line">        	<span class="comment">//banner的全部数据，一个数组</span></div><div class="line">            bannerArray: [],</div><div class="line">            <span class="comment">//banner左下方显示的文字描述</span></div><div class="line">            bannerText: <span class="string">''</span>,</div><div class="line">            <span class="comment">//banner显示第几页图片的属性</span></div><div class="line">            currentPage: <span class="number">0</span>,</div><div class="line">        &#125;</div><div class="line">    &#125;,</div></pre></td></tr></table></figure>
+<h3 id="获取网络数据，并且将数据保存在state中，"><a href="#获取网络数据，并且将数据保存在state中，" class="headerlink" title="获取网络数据，并且将数据保存在state中，"></a>获取网络数据，并且将数据保存在state中，</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">getBannerData()&#123;</div><div class="line">   fetch(<span class="string">'http://www.mywebsite.com/getBanner'</span>)</div><div class="line">    .then(<span class="function">(<span class="params">response</span>)=&gt;</span>response.json())</div><div class="line">     .then(<span class="function">(<span class="params">responderJson</span>)=&gt;</span> &#123;</div><div class="line">      <span class="keyword">var</span> jsonData = responderJson.data;</div><div class="line">            <span class="keyword">this</span>.setState(&#123;</div><div class="line">             <span class="attr">bannerArray</span>: jsonData,</div><div class="line">              <span class="comment">//让banner左下角默认显示第一个文字描述</span></div><div class="line">                bannerText: jsonData[<span class="number">0</span>].banner_desc</div><div class="line">              &#125;)</div><div class="line">          &#125;)</div><div class="line">         .catch(<span class="function">(<span class="params">error</span>)=&gt;</span> &#123;</div><div class="line">            <span class="built_in">console</span>.error(error);</div><div class="line">         &#125;);</div><div class="line">    &#125;,</div></pre></td></tr></table></figure>
+<h3 id="代码中添加ScrollView组件"><a href="#代码中添加ScrollView组件" class="headerlink" title="代码中添加ScrollView组件"></a>代码中添加ScrollView组件</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">ScrollView</span></span></div><div class="line">	<span class="attr">style</span>=<span class="string">&#123;styles.scrollStyle&#125;</span></div><div class="line">	//使用<span class="attr">refs</span>属性，导出<span class="attr">scrollview</span>组件，方便后面 第六步 操作<span class="attr">scrollvIew</span></div><div class="line">    <span class="attr">ref</span>=<span class="string">"bannerScroll"</span></div><div class="line">    //让<span class="attr">scrollview</span>水平滚动</div><div class="line">    <span class="attr">horizontal</span>=<span class="string">&#123;true&#125;</span></div><div class="line">    //显示滚动条</div><div class="line">    <span class="attr">showsHorizontalScrollIndicator</span>=<span class="string">&#123;false&#125;</span></div><div class="line">    //设置弹性滚动</div><div class="line">    <span class="attr">pagingEnabled</span>=<span class="string">&#123;true&#125;</span></div><div class="line">    //监听<span class="attr">scroll</span>滚动</div><div class="line">    <span class="attr">onMomentumScrollEnd</span>=<span class="string">&#123;(e)</span>=&gt;this.onAnimationEnd(e)&#125;</div><div class="line">    //开始拖拽时banner停止自滚动</div><div class="line">    onScrollBeginDrag=&#123;this.onScrollBeginDrag&#125;</div><div class="line">    //停止拖拽时banner开始自滚动</div><div class="line">    onScrollEndDrag=&#123;this.onScrollEndDrag&#125;&gt;</div><div class="line">         </div><div class="line">    //为scrollview填充图片的方法</div><div class="line">    &#123;this.renderBannerImg()&#125;</div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">ScrollView</span>&gt;</span></div></pre></td></tr></table></figure>
+<h3 id="为scrollview中添加图片"><a href="#为scrollview中添加图片" class="headerlink" title="为scrollview中添加图片"></a>为scrollview中添加图片</h3><p>建立一个数组，数组中添加图片，图片的uri为第二步网络请求中得到的数据，并将数据返回给scrollview</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">renderBannerImg()&#123;</div><div class="line">	<span class="keyword">var</span> allBanner = [];</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.state.bannerArray.length; i++) &#123;</div><div class="line">        allBanner.push(<span class="xml"><span class="tag">&lt;<span class="name">Image</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span></span></span></div><div class="line">        <span class="attr">source</span>=<span class="string">&#123;&#123;uri:this.state.bannerArray[i].banner_pic&#125;&#125;</span></div><div class="line">        <span class="attr">style</span>=<span class="string">&#123;styles.bannerImage&#125;/</span>&gt;)</div><div class="line">     &#125;</div><div class="line">      return allBanner;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<p><strong>到目前为止，banner中的图片已经被我们实现出来了，我们接着实现图片下方的View</strong></p>
+<h3 id="下方文字提示以及指示器的view"><a href="#下方文字提示以及指示器的view" class="headerlink" title="下方文字提示以及指示器的view"></a>下方文字提示以及指示器的view</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">View</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerTextContainer&#125;</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">Text</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerTextStyle&#125;</span>&gt;</span>&#123;this.state.bannerText&#125;<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">View</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerPointContainer&#125;</span>&gt;</span>&#123;this.renderBannerPoint()&#125;<span class="tag">&lt;/<span class="name">View</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">View</span>&gt;</span></div></pre></td></tr></table></figure>
+<h3 id="为指示器添加圆点"><a href="#为指示器添加圆点" class="headerlink" title="为指示器添加圆点"></a>为指示器添加圆点</h3><ul>
+<li><p>为了让指示器的圆点显示随着上方图片的变化而变化，我们需要先在state中设置一个currentPage属性，并且通过scrollview的横坐标值计算出当前是第几张图片，并且更新currentPage，后面指示器圆点显示会根据currentPage值改变而改变</p>
+</li>
+<li><p>监听横坐标值我们需要设置实现onMomentumScrollEnd方法</p>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">onAnimationEnd(e)&#123;</div><div class="line"><span class="comment">//计算出scrollView水平滚动的距离</span></div><div class="line"><span class="keyword">var</span> offsetX = e.nativeEvent.contentOffset.x;</div><div class="line"><span class="comment">//计算出当前页数,同时更新当前页数currentPage</span></div><div class="line"><span class="keyword">var</span> currentPage = <span class="built_in">Math</span>.floor(offsetX / width)</div><div class="line"><span class="keyword">var</span> bannerText = <span class="keyword">this</span>.state.bannerArray[currentPage].banner_desc;</div><div class="line">	<span class="keyword">this</span>.setState(&#123;</div><div class="line">	   <span class="attr">currentPage</span>: <span class="built_in">Math</span>.floor(offsetX / width),</div><div class="line">	   <span class="attr">bannerText</span>: bannerText</div><div class="line">	  &#125;)</div><div class="line">	&#125;,</div></pre></td></tr></table></figure>
+<h3 id="设置圆点显示"><a href="#设置圆点显示" class="headerlink" title="设置圆点显示"></a>设置圆点显示</h3><p>得到了当前页数值，我们就依据这个currentPage设置圆点的显示</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">renderBannerPoint()&#123;</div><div class="line">	   var pointArray = [];</div><div class="line">	   for (var i = 0; i &lt; this.state.bannerArray.length; i++) &#123;</div><div class="line">	   //通过图片的位置计算出的当前页数来改变圆点的颜色，如果等于当前颜色就设置白色，证明是当前页数,反之</div><div class="line">	    var fontColor = (i == this.state.currentPage) ? &#123;color: &apos;white&apos;&#125; : &#123;color: &apos;rgba(220,220,220,0.8)&apos;&#125;;</div><div class="line">	     pointArray.push(&lt;Text key=&#123;i&#125; style=&#123;[styles.bannerPointStyle, fontColor]&#125;&gt;&amp;bull;&lt;/Text&gt;)</div><div class="line">	     &#125;</div><div class="line">	    return pointArray;</div><div class="line">	 &#125;,</div></pre></td></tr></table></figure>
+<h3 id="设置定时器，让banner定时滚动"><a href="#设置定时器，让banner定时滚动" class="headerlink" title="设置定时器，让banner定时滚动"></a>设置定时器，让banner定时滚动</h3><p>到目前为止，静态的banner已经被我们实现出来了，我们接下来就要设置定时器，定时的更改currentPage，从而达到更改定时滚动图片以及圆点指示器的显示</p>
+<ul>
+<li>定时器为第三方库，引入后我们再render中注册后，</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> TimerMixin = <span class="built_in">require</span>(<span class="string">'react-timer-mixin'</span>);</div><div class="line">mixins: [TimerMixin],</div></pre></td></tr></table></figure>
+<ul>
+<li>通过this.setInterval(function(),1000)启动定时器，通过this.clearInterval(this.timer)停止定时器</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">startTimer()&#123;</div><div class="line">   <span class="comment">//引入scrollView便于后续操作</span></div><div class="line">   <span class="keyword">var</span> scrollView = <span class="keyword">this</span>.refs.bannerScroll;</div><div class="line">   </div><div class="line">	<span class="comment">//开启定时器</span></div><div class="line">   <span class="keyword">this</span>.timer = <span class="keyword">this</span>.setInterval(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;   </div><div class="line">   <span class="comment">//设置指示器圆点变换</span></div><div class="line">   <span class="keyword">var</span> timerPage = <span class="number">0</span>;</div><div class="line">   <span class="keyword">if</span> (<span class="keyword">this</span>.state.currentPage + <span class="number">1</span> &gt;= <span class="keyword">this</span>.state.bannerArray.length) &#123;</div><div class="line">        timerPage = <span class="number">0</span></div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">          timerPage = <span class="keyword">this</span>.state.currentPage + <span class="number">1</span>;</div><div class="line">        &#125;</div><div class="line">       <span class="keyword">this</span>.setState(&#123;</div><div class="line">           <span class="attr">currentPage</span>: timerPage</div><div class="line">       &#125;)</div><div class="line"></div><div class="line">      <span class="comment">//设置图片滚动变换,通过scrollResponderScrollTo可以滚动图片</span></div><div class="line">      <span class="keyword">var</span> offsetX = timerPage * width;</div><div class="line">      scrollView.scrollResponderScrollTo(&#123;<span class="attr">x</span>: offsetX, <span class="attr">y</span>: <span class="number">0</span>, <span class="attr">animated</span>: <span class="literal">true</span>&#125;)</div><div class="line">   		&#125;, <span class="keyword">this</span>.props.intervalTime);</div><div class="line"> &#125;,</div></pre></td></tr></table></figure>
+<h3 id="设置滑动事件"><a href="#设置滑动事件" class="headerlink" title="设置滑动事件"></a>设置滑动事件</h3><p>一个定时滚动的banner已经被我们实现了，当然我们需要在手动滚动banner时停止原本设置好的自动滚动，我们就得监听开始拖动banner和停止拖动banner的动作，当拖动时停止定时器，当停止拖动离开banner时启动定时器</p>
+<p><strong>开始拖动banner</strong>    </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">onScrollBeginDrag()&#123;</div><div class="line">    <span class="keyword">this</span>.clearInterval(<span class="keyword">this</span>.timer)</div><div class="line">&#125;,</div></pre></td></tr></table></figure>
+<p><strong>停止拖动banner</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">onScrollEndDrag()&#123;</div><div class="line">   <span class="keyword">this</span>.startTimer()</div><div class="line">&#125;,</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p> 总的来说一个banner的实现主要用到scrollView的一些属性，然后通过定时器调用方法让scrollview自己滚动就达到了我们的目的了,是不是很简单呢[]~(￣▽￣)~*有疑问欢迎留言</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>虽然博客搭了很久，但是这次是第一次写文章，写的时候发现markdown本地预览和实际上hexo自动生成的文件不一样，折腾了一个多小时，发现了两个问题</p>
+<ul>
+<li>标题#号后面需要加一个空格，要不然hexo识别不了</li>
+<li>代码块```后面不能加空格！！切记，文章弄了很久还是格式错误就是这个原因，代码块语法后面千万别加空格 TT</li>
 </ul>
 
-		<!-- Sidebar Divider -->
-		<div class="sidebar-divider"></div>
+          
+        
+      
+    </div>
 
-		<!-- Sidebar Footer -->
-		<!-- 
-I'm glad you use this theme, the development is no so easy, I hope you can keep the copyright, I will thank you so much.
-If you still want to delete the copyrights, could you still retain the first one? Which namely "Theme Material"
-It will not impact the appearance and can give developers a lot of support :)
+    <div>
+      
+    </div>
 
-很高兴您使用并喜欢该主题，开发不易 十分谢谢与希望您可以保留一下版权声明。
-如果您仍然想删除的话 能否只保留第一项呢？即 "Theme Material"
-它不会影响美观并可以给开发者很大的支持。 :) 
--->
+    <div>
+      
+    </div>
 
-<!-- Theme Material -->
-<a href="https://github.com/viosey/hexo-theme-material"  class="sidebar-footer-text-a" target="_blank">
-	<div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
-		主题 - Material
-		<span class="sidebar-badge badge-circle">i</span>
-	</div>
-</a>
+    <footer class="post-footer">
+      
 
-<!-- Help & Support -->
-<!--
-<a href="mailto:hiviosey@gmail.com" class="sidebar-footer-text-a">
-    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
-		sidebar.help
-		<span class="mdl-button__ripple-container">
-			<span class="mdl-ripple"></span>
-		</span>
-	</div>
-</a>
--->
+      
 
-<!-- Feedback -->
-<!--
-<a href="https://github.com/viosey/hexo-theme-material/issues" target="_blank" class="sidebar-footer-text-a">
-    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
-         sidebar.feedback
-                    <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></div>
-</a>
--->
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
 
-<!-- Abount Theme -->
-<!--
-<a href="https://blog.viosey.com/index.php/Material.html" target="_blank" class="sidebar-footer-text-a">
-    <div class="sidebar-text mdl-button mdl-js-button mdl-js-ripple-effect sidebar-footer-text-div" data-upgraded=",MaterialButton,MaterialRipple">
-         sidebar.about_theme
-        <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></div>
-</a>-->
 
-	</div>
     
-    <!-- Sidebar Sponsor -->
-    
+  </section>
+
+  
 
 
-</aside>
+          </div>
+          
 
-				
-				
-				
-					<!-- Footer Top Button -->
-					<div class="toTop-wrap">
-    <a href="#top" class="toTop">
-        <i class="material-icons footer_top-i">expand_less</i>
-    </a>
+
+          
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
+               alt="mashell" />
+          <p class="site-author-name" itemprop="name">mashell</p>
+          <p class="site-description motion-element" itemprop="description">还有什么比不浪费时间更有意义的事呢？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">1</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mashell</span>
 </div>
-				
-				
-				<!--Footer-->
-<footer class="mdl-mini-footer" id="bottom">
-	
-	
-		<!-- Paradox Footer Left Section -->
-		<div class="mdl-mini-footer--left-section sns-list">
-    <!-- Twitter -->
-    
-    
-    
-    <!-- Facebook -->
-    
-    
-    
-    <!-- Google + -->
-    
-    
-    
-    <!-- Weibo -->
-    
-    <a href="http://weibo.com/u/5181439439" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-weibo.png);">
-        <span class="visuallyhidden">Weibo</span>
-    </button></a>
-    
-    
-    <!-- Instagram -->
-    
-    
-    
-    <!-- Tumblr -->
-    
-    
-    
-    <!-- Github -->
-    
-    <a href="https://github.com/mashell" target="view_window"><button class="mdl-mini-footer--social-btn social-btn" style="background-image: url(/img/footer/footer_ico-github.png);">
-        <span class="visuallyhidden">Github</span>
-    </button></a>
-    
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
 </div>
 
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
 
-		<!--Copyright-->
-		<div id="copyright">Copyright&nbsp;©&nbsp;<script type="text/javascript">var fd = new Date();document.write(fd.getFullYear());</script>&nbsp;mashell</div>
+        
 
-		<!-- Paradox Footer Right Section -->
+        
+      </div>
+    </footer>
 
-		<!-- 
-		I'm glad you use this theme, the development is no so easy, I hope you can keep the copyright.
-		It will not impact the appearance and can give developers a lot of support :)
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
 
-		很高兴您使用该主题，开发不易，希望您可以保留一下版权声明。
-		它不会影响美观并可以给开发者很大的支持。 :) 
-		-->
-
-		<div class="mdl-mini-footer--right-section">
-			<div>
-				<div class="footer-develop-div">Powered by <a href="https://hexo.io" target="_blank" class="footer-develop-a">Hexo</a></div>
-				<div class="footer-develop-div">Theme - <a href="https://github.com/viosey/hexo-theme-material" target="_blank" class="footer-develop-a">Material</a></div>
-			</div>
-		</div>
-	
-    
-</footer>
-                
-				<!-- Import File -->
-<script src="/js/js.min.js"></script>
-<script src="/js/nprogress.js"></script>
+  
 
 <script type="text/javascript">
-    NProgress.configure({
-        showSpinner: true
-    });
-    NProgress.start();
-    
-    $('#nprogress .bar').css({
-        'background': '#FF4081'
-    });
-    $('#nprogress .peg').css({
-        'box-shadow': '0 0 10px #FF4081, 0 0 15px #FF4081'
-    });
-    $('#nprogress .spinner-icon').css({
-        'border-top-color': '#FF4081',
-        'border-left-color': '#FF4081'
-    });
-    
-    setTimeout(function() {
-        NProgress.done();
-        $('.fade').removeClass('out');
-    }, 800);
-</script>
-
-
-	<script src="/js/smoothscroll.js"></script>
-
-
-
-    <!-- Leancloud -->
-	<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
-	<script>
-		AV.initialize("F8tDrPhvnflgmUOz88q2X3v8-gzGzoHsz", "7G2z5hgOyivnxFAKfLDqhTfK");
-	</script>
-    <script>
-	function showTime(Counter) {
-		var query = new AV.Query(Counter);
-		$(".leancloud-views_num").each(function() {
-			var url = $(this).attr("id").trim();
-			query.equalTo("url", url);
-			query.find({
-				success: function(results) {
-					if (results.length == 0) {
-						var content = '0 ' + $(document.getElementById(url)).text();
-						$(document.getElementById(url)).text(content);
-						return;
-					}
-					for (var i = 0; i < results.length; i++) {
-						var object = results[i];
-						var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
-						$(document.getElementById(url)).text(content);
-					}
-				},
-				error: function(object, error) {
-					console.log("Error: " + error.code + " " + error.message);
-				}
-			});
-
-		});
-	}
-
-	function addCount(Counter) {
-		var Counter = AV.Object.extend("Counter");
-		url = $(".leancloud-views_num").attr('id').trim();
-		title = $(".leancloud-views_num").attr('data-flag-title').trim();
-		var query = new AV.Query(Counter);
-		query.equalTo("url", url);
-		query.find({
-			success: function(results) {
-				if (results.length > 0) {
-					var counter = results[0];
-					counter.fetchWhenSave(true);
-					counter.increment("time");
-					counter.save(null, {
-						success: function(counter) {
-							var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
-							$(document.getElementById(url)).text(content);
-						},
-						error: function(counter, error) {
-							console.log('Failed to save Visitor num, with error message: ' + error.message);
-						}
-					});
-				} else {
-					var newcounter = new Counter();
-					newcounter.set("title", title);
-					newcounter.set("url", url);
-					newcounter.set("time", 1);
-					newcounter.save(null, {
-						success: function(newcounter) {
-							console.log("newcounter.get('time')="+newcounter.get('time'));
-							var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
-							$(document.getElementById(url)).text(content);
-						},
-						error: function(newcounter, error) {
-							console.log('Failed to create');
-						}
-					});
-				}
-			},
-			error: function(error) {
-				console.log('Error:' + error.code + " " + error.message);
-			}
-		});
-	}
-	$(function() {
-		var Counter = AV.Object.extend("Counter");
-		if ($('.leancloud-views_num').length == 1) {
-			addCount(Counter);
-		} else if ($('.post-title-link').length > 1) {
-			showTime(Counter);
-		}
-	}); 
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
 </script>
 
 
 
 
 
-    <!-- 多说公共 js 代码 start -->
-    <script type="text/javascript">
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
     var duoshuoQuery = {short_name:"mashell"};
-        (function() {
-            var ds = document.createElement('script');
-            ds.type = 'text/javascript';ds.async = true;
-            ds.src = 'https://static.duoshuo.com/embed.js';
-            ds.charset = 'UTF-8';
-            (document.getElementsByTagName('head')[0] 
-             || document.getElementsByTagName('body')[0]).appendChild(ds);
-        })();
-    </script>
-    <!-- 多说公共 js 代码 end -->
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
 
 
 
 
 
 
+  
+  
 
-            </main>
-        </div>
-		
-    </body>
-		
-	
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("F8tDrPhvnflgmUOz88q2X3v8-gzGzoHsz", "7G2z5hgOyivnxFAKfLDqhTfK");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
 </html>
