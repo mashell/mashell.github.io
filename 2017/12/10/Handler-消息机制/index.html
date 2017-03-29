@@ -84,15 +84,19 @@
 
 
 
-<meta name="description" content="还有什么比不浪费时间更有意义的事呢？">
-<meta property="og:type" content="website">
-<meta property="og:title" content="mashell">
-<meta property="og:url" content="http://mashell.cn/index.html">
+<meta name="description" content="Handler 消息机制今天我们来学习一下Handler的源码,在这之前我们回顾一下Handler的基本使用
+Handler的使用1.使用sendMessage的方式实现Handler(1) Handler自身实现handleMessage方法 主线程中(更新UI的地方，创建handler)，这里提一点，想要handler更新UI，那么handler的初始化必须在主线程，handler总是绑定创建">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Handler 消息机制">
+<meta property="og:url" content="http://mashell.cn/2017/12/10/Handler-消息机制/index.html">
 <meta property="og:site_name" content="mashell">
-<meta property="og:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta property="og:description" content="Handler 消息机制今天我们来学习一下Handler的源码,在这之前我们回顾一下Handler的基本使用
+Handler的使用1.使用sendMessage的方式实现Handler(1) Handler自身实现handleMessage方法 主线程中(更新UI的地方，创建handler)，这里提一点，想要handler更新UI，那么handler的初始化必须在主线程，handler总是绑定创建">
+<meta property="og:updated_time" content="2017-03-29T13:21:10.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="mashell">
-<meta name="twitter:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta name="twitter:title" content="Handler 消息机制">
+<meta name="twitter:description" content="Handler 消息机制今天我们来学习一下Handler的源码,在这之前我们回顾一下Handler的基本使用
+Handler的使用1.使用sendMessage的方式实现Handler(1) Handler自身实现handleMessage方法 主线程中(更新UI的地方，创建handler)，这里提一点，想要handler更新UI，那么handler的初始化必须在主线程，handler总是绑定创建">
 
 
 
@@ -113,10 +117,10 @@
 
 
 
-  <link rel="canonical" href="http://mashell.cn/"/>
+  <link rel="canonical" href="http://mashell.cn/2017/12/10/Handler-消息机制/"/>
 
 
-  <title> mashell </title>
+  <title> Handler 消息机制 | mashell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -137,9 +141,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left 
-   page-home 
- ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
@@ -218,9 +220,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
   
@@ -240,10 +242,7 @@
             
             
               
-                
-                <a class="post-title-link" href="/2017/12/10/Handler-消息机制/" itemprop="url">
-                  Handler 消息机制
-                </a>
+                Handler 消息机制
               
             
           </h1>
@@ -299,9 +298,7 @@
       
 
       
-        
-          
-            <h1 id="Handler-消息机制"><a href="#Handler-消息机制" class="headerlink" title="Handler 消息机制"></a>Handler 消息机制</h1><p>今天我们来学习一下Handler的源码,在这之前我们回顾一下Handler的基本使用</p>
+        <h1 id="Handler-消息机制"><a href="#Handler-消息机制" class="headerlink" title="Handler 消息机制"></a>Handler 消息机制</h1><p>今天我们来学习一下Handler的源码,在这之前我们回顾一下Handler的基本使用</p>
 <h2 id="Handler的使用"><a href="#Handler的使用" class="headerlink" title="Handler的使用"></a>Handler的使用</h2><h3 id="1-使用sendMessage的方式实现Handler"><a href="#1-使用sendMessage的方式实现Handler" class="headerlink" title="1.使用sendMessage的方式实现Handler"></a>1.使用sendMessage的方式实现Handler</h3><h4 id="1-Handler自身实现handleMessage方法"><a href="#1-Handler自身实现handleMessage方法" class="headerlink" title="(1) Handler自身实现handleMessage方法"></a>(1) Handler自身实现handleMessage方法</h4><p> <strong>主线程中</strong>(更新UI的地方，创建handler)，这里提一点，想要handler更新UI，那么handler的初始化必须在主线程，handler总是绑定创建他的线程，具体情况我们最后会说明，这里我们将疑问标记为 <strong>Q1</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">Handler uiHandler = new Handler()&#123;</div><div class="line">	@Override</div><div class="line">       public void handleMessage(Message msg) &#123;</div><div class="line">           switch (msg.what)&#123;</div><div class="line">               case 1:</div><div class="line">               MainActivity.this.statusTextView.setText(&quot;文件下载完成&quot;);</div><div class="line">                   break;</div><div class="line">           &#125;</div><div class="line">       &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
 <h4 id="2-Handler构造函数传入实现了handleMessage方法的CallBack对象"><a href="#2-Handler构造函数传入实现了handleMessage方法的CallBack对象" class="headerlink" title="(2) Handler构造函数传入实现了handleMessage方法的CallBack对象"></a>(2) Handler构造函数传入实现了handleMessage方法的CallBack对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">Handler.Callback callback = new Handler.Callback() &#123;</div><div class="line">            @Override</div><div class="line">            public boolean handleMessage(Message msg) &#123;</div><div class="line">            		 switch (msg.what)&#123;</div><div class="line">               		case 1:</div><div class="line">               			</div><div class="line">               			MainActivity.this.statusTextView.setText(&quot;文件下载完成&quot;);</div><div class="line">                    break;</div><div class="line">           &#125;</div><div class="line">                return false;</div><div class="line">            &#125;</div><div class="line">        &#125;;</div><div class="line">        </div><div class="line">Handler uiHandler = new Handler(callback);</div></pre></td></tr></table></figure>
@@ -409,16 +406,20 @@ throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);
 </blockquote>
 <p> 所以在Looper对象中通过sThreadLocal就可以找到其绑定的线程。ThreadLocal中有个set方法和get方法，可以通过set方法向ThreadLocal中存入一个对象，然后可以通过get方法取出存入的对象。ThreadLocal在new的时候使用了泛型，从上面的代码中我们可以看到此处的泛型类型是Looper，也就是我们通过ThreadLocal的set和get方法只能写入和读取Looper对象类型，如果我们调用其ThreadLocal的set方法传入一个Looper，将该Looper绑定给了该线程，相应的get就能获得该线程所绑定的Looper对象。</p>
 
-          
+      
+    </div>
+
+    <div>
+      
         
+
       
     </div>
 
     <div>
       
-    </div>
+        
 
-    <div>
       
     </div>
 
@@ -426,175 +427,32 @@ throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);
       
 
       
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
+              <a href="/2016/10/31/React_Native_Banner/" rel="next" title="React Native Banner的实现">
+                <i class="fa fa-chevron-left"></i> React Native Banner的实现
+              </a>
             
-              
-                
-                <a class="post-title-link" href="/2016/10/31/React_Native_Banner/" itemprop="url">
-                  React Native Banner的实现
-                </a>
-              
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
             
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-10-31T21:27:43+08:00" content="2016-10-31">
-              2016-10-31
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/10/31/React_Native_Banner/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/31/React_Native_Banner/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/10/31/React_Native_Banner/" class="leancloud_visitors" data-flag-title="React Native Banner的实现">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
+          </div>
         </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            <h2 id="分析需求"><a href="#分析需求" class="headerlink" title="分析需求"></a>分析需求</h2><p><img src="http://o7q9l32cf.bkt.clouddn.com/6632195864628989856.png" alt=""></p>
-<ol>
-<li><p>banner中滚动的图片，其实就是一个水平的scrollView，内容为止一张一张的图片，然后通过定时器让他定时滚动</p>
-</li>
-<li><p>banner最下方是一个View，</p>
-</li>
-</ol>
-<ul>
-<li>其中左边部分是图片对应的文字解释,是一个Text</li>
-<li>右边是指示器，圆点个数与图片个数相同，两种颜色的圆点其实也是文字, &amp;bull； 他是html中特殊的符号，显示出来就是一个圆点，我们通过设置字体颜色就可以显示出两种不同的指示器点了,是一个View里面包裹了一个Text和指示器View指示器中包裹着圆点的Text</li>
-</ul>
-<h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><h3 id="写在前面，-我们看看state和props中有哪些我们需要用到的自定义属性"><a href="#写在前面，-我们看看state和props中有哪些我们需要用到的自定义属性" class="headerlink" title="写在前面， 我们看看state和props中有哪些我们需要用到的自定义属性"></a>写在前面， 我们看看state和props中有哪些我们需要用到的自定义属性</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">getDefaultProps()&#123;</div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">       <span class="comment">//banner的定时器自动滚动时间</span></div><div class="line">            intervalTime: <span class="number">3000</span></div><div class="line">     &#125;</div><div class="line">    &#125;,</div><div class="line"></div><div class="line">    getInitialState()&#123;</div><div class="line">        <span class="keyword">return</span> &#123;</div><div class="line">        	<span class="comment">//banner的全部数据，一个数组</span></div><div class="line">            bannerArray: [],</div><div class="line">            <span class="comment">//banner左下方显示的文字描述</span></div><div class="line">            bannerText: <span class="string">''</span>,</div><div class="line">            <span class="comment">//banner显示第几页图片的属性</span></div><div class="line">            currentPage: <span class="number">0</span>,</div><div class="line">        &#125;</div><div class="line">    &#125;,</div></pre></td></tr></table></figure>
-<h3 id="获取网络数据，并且将数据保存在state中，"><a href="#获取网络数据，并且将数据保存在state中，" class="headerlink" title="获取网络数据，并且将数据保存在state中，"></a>获取网络数据，并且将数据保存在state中，</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">getBannerData()&#123;</div><div class="line">   fetch(<span class="string">'http://www.mywebsite.com/getBanner'</span>)</div><div class="line">    .then(<span class="function">(<span class="params">response</span>)=&gt;</span>response.json())</div><div class="line">     .then(<span class="function">(<span class="params">responderJson</span>)=&gt;</span> &#123;</div><div class="line">      <span class="keyword">var</span> jsonData = responderJson.data;</div><div class="line">            <span class="keyword">this</span>.setState(&#123;</div><div class="line">             <span class="attr">bannerArray</span>: jsonData,</div><div class="line">              <span class="comment">//让banner左下角默认显示第一个文字描述</span></div><div class="line">                bannerText: jsonData[<span class="number">0</span>].banner_desc</div><div class="line">              &#125;)</div><div class="line">          &#125;)</div><div class="line">         .catch(<span class="function">(<span class="params">error</span>)=&gt;</span> &#123;</div><div class="line">            <span class="built_in">console</span>.error(error);</div><div class="line">         &#125;);</div><div class="line">    &#125;,</div></pre></td></tr></table></figure>
-<h3 id="代码中添加ScrollView组件"><a href="#代码中添加ScrollView组件" class="headerlink" title="代码中添加ScrollView组件"></a>代码中添加ScrollView组件</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">ScrollView</span></span></div><div class="line">	<span class="attr">style</span>=<span class="string">&#123;styles.scrollStyle&#125;</span></div><div class="line">	//使用<span class="attr">refs</span>属性，导出<span class="attr">scrollview</span>组件，方便后面 第六步 操作<span class="attr">scrollvIew</span></div><div class="line">    <span class="attr">ref</span>=<span class="string">"bannerScroll"</span></div><div class="line">    //让<span class="attr">scrollview</span>水平滚动</div><div class="line">    <span class="attr">horizontal</span>=<span class="string">&#123;true&#125;</span></div><div class="line">    //显示滚动条</div><div class="line">    <span class="attr">showsHorizontalScrollIndicator</span>=<span class="string">&#123;false&#125;</span></div><div class="line">    //设置弹性滚动</div><div class="line">    <span class="attr">pagingEnabled</span>=<span class="string">&#123;true&#125;</span></div><div class="line">    //监听<span class="attr">scroll</span>滚动</div><div class="line">    <span class="attr">onMomentumScrollEnd</span>=<span class="string">&#123;(e)</span>=&gt;this.onAnimationEnd(e)&#125;</div><div class="line">    //开始拖拽时banner停止自滚动</div><div class="line">    onScrollBeginDrag=&#123;this.onScrollBeginDrag&#125;</div><div class="line">    //停止拖拽时banner开始自滚动</div><div class="line">    onScrollEndDrag=&#123;this.onScrollEndDrag&#125;&gt;</div><div class="line">         </div><div class="line">    //为scrollview填充图片的方法</div><div class="line">    &#123;this.renderBannerImg()&#125;</div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">ScrollView</span>&gt;</span></div></pre></td></tr></table></figure>
-<h3 id="为scrollview中添加图片"><a href="#为scrollview中添加图片" class="headerlink" title="为scrollview中添加图片"></a>为scrollview中添加图片</h3><p>建立一个数组，数组中添加图片，图片的uri为第二步网络请求中得到的数据，并将数据返回给scrollview</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">renderBannerImg()&#123;</div><div class="line">	<span class="keyword">var</span> allBanner = [];</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.state.bannerArray.length; i++) &#123;</div><div class="line">        allBanner.push(<span class="xml"><span class="tag">&lt;<span class="name">Image</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span></span></span></div><div class="line">        <span class="attr">source</span>=<span class="string">&#123;&#123;uri:this.state.bannerArray[i].banner_pic&#125;&#125;</span></div><div class="line">        <span class="attr">style</span>=<span class="string">&#123;styles.bannerImage&#125;/</span>&gt;)</div><div class="line">     &#125;</div><div class="line">      return allBanner;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<p><strong>到目前为止，banner中的图片已经被我们实现出来了，我们接着实现图片下方的View</strong></p>
-<h3 id="下方文字提示以及指示器的view"><a href="#下方文字提示以及指示器的view" class="headerlink" title="下方文字提示以及指示器的view"></a>下方文字提示以及指示器的view</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">View</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerTextContainer&#125;</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">Text</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerTextStyle&#125;</span>&gt;</span>&#123;this.state.bannerText&#125;<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">View</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerPointContainer&#125;</span>&gt;</span>&#123;this.renderBannerPoint()&#125;<span class="tag">&lt;/<span class="name">View</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">View</span>&gt;</span></div></pre></td></tr></table></figure>
-<h3 id="为指示器添加圆点"><a href="#为指示器添加圆点" class="headerlink" title="为指示器添加圆点"></a>为指示器添加圆点</h3><ul>
-<li><p>为了让指示器的圆点显示随着上方图片的变化而变化，我们需要先在state中设置一个currentPage属性，并且通过scrollview的横坐标值计算出当前是第几张图片，并且更新currentPage，后面指示器圆点显示会根据currentPage值改变而改变</p>
-</li>
-<li><p>监听横坐标值我们需要设置实现onMomentumScrollEnd方法</p>
-</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">onAnimationEnd(e)&#123;</div><div class="line"><span class="comment">//计算出scrollView水平滚动的距离</span></div><div class="line"><span class="keyword">var</span> offsetX = e.nativeEvent.contentOffset.x;</div><div class="line"><span class="comment">//计算出当前页数,同时更新当前页数currentPage</span></div><div class="line"><span class="keyword">var</span> currentPage = <span class="built_in">Math</span>.floor(offsetX / width)</div><div class="line"><span class="keyword">var</span> bannerText = <span class="keyword">this</span>.state.bannerArray[currentPage].banner_desc;</div><div class="line">	<span class="keyword">this</span>.setState(&#123;</div><div class="line">	   <span class="attr">currentPage</span>: <span class="built_in">Math</span>.floor(offsetX / width),</div><div class="line">	   <span class="attr">bannerText</span>: bannerText</div><div class="line">	  &#125;)</div><div class="line">	&#125;,</div></pre></td></tr></table></figure>
-<h3 id="设置圆点显示"><a href="#设置圆点显示" class="headerlink" title="设置圆点显示"></a>设置圆点显示</h3><p>得到了当前页数值，我们就依据这个currentPage设置圆点的显示</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">renderBannerPoint()&#123;</div><div class="line">	   var pointArray = [];</div><div class="line">	   for (var i = 0; i &lt; this.state.bannerArray.length; i++) &#123;</div><div class="line">	   //通过图片的位置计算出的当前页数来改变圆点的颜色，如果等于当前颜色就设置白色，证明是当前页数,反之</div><div class="line">	    var fontColor = (i == this.state.currentPage) ? &#123;color: &apos;white&apos;&#125; : &#123;color: &apos;rgba(220,220,220,0.8)&apos;&#125;;</div><div class="line">	     pointArray.push(&lt;Text key=&#123;i&#125; style=&#123;[styles.bannerPointStyle, fontColor]&#125;&gt;&amp;bull;&lt;/Text&gt;)</div><div class="line">	     &#125;</div><div class="line">	    return pointArray;</div><div class="line">	 &#125;,</div></pre></td></tr></table></figure>
-<h3 id="设置定时器，让banner定时滚动"><a href="#设置定时器，让banner定时滚动" class="headerlink" title="设置定时器，让banner定时滚动"></a>设置定时器，让banner定时滚动</h3><p>到目前为止，静态的banner已经被我们实现出来了，我们接下来就要设置定时器，定时的更改currentPage，从而达到更改定时滚动图片以及圆点指示器的显示</p>
-<ul>
-<li>定时器为第三方库，引入后我们再render中注册后，</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> TimerMixin = <span class="built_in">require</span>(<span class="string">'react-timer-mixin'</span>);</div><div class="line">mixins: [TimerMixin],</div></pre></td></tr></table></figure>
-<ul>
-<li>通过this.setInterval(function(),1000)启动定时器，通过this.clearInterval(this.timer)停止定时器</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">startTimer()&#123;</div><div class="line">   <span class="comment">//引入scrollView便于后续操作</span></div><div class="line">   <span class="keyword">var</span> scrollView = <span class="keyword">this</span>.refs.bannerScroll;</div><div class="line">   </div><div class="line">	<span class="comment">//开启定时器</span></div><div class="line">   <span class="keyword">this</span>.timer = <span class="keyword">this</span>.setInterval(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;   </div><div class="line">   <span class="comment">//设置指示器圆点变换</span></div><div class="line">   <span class="keyword">var</span> timerPage = <span class="number">0</span>;</div><div class="line">   <span class="keyword">if</span> (<span class="keyword">this</span>.state.currentPage + <span class="number">1</span> &gt;= <span class="keyword">this</span>.state.bannerArray.length) &#123;</div><div class="line">        timerPage = <span class="number">0</span></div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">          timerPage = <span class="keyword">this</span>.state.currentPage + <span class="number">1</span>;</div><div class="line">        &#125;</div><div class="line">       <span class="keyword">this</span>.setState(&#123;</div><div class="line">           <span class="attr">currentPage</span>: timerPage</div><div class="line">       &#125;)</div><div class="line"></div><div class="line">      <span class="comment">//设置图片滚动变换,通过scrollResponderScrollTo可以滚动图片</span></div><div class="line">      <span class="keyword">var</span> offsetX = timerPage * width;</div><div class="line">      scrollView.scrollResponderScrollTo(&#123;<span class="attr">x</span>: offsetX, <span class="attr">y</span>: <span class="number">0</span>, <span class="attr">animated</span>: <span class="literal">true</span>&#125;)</div><div class="line">   		&#125;, <span class="keyword">this</span>.props.intervalTime);</div><div class="line"> &#125;,</div></pre></td></tr></table></figure>
-<h3 id="设置滑动事件"><a href="#设置滑动事件" class="headerlink" title="设置滑动事件"></a>设置滑动事件</h3><p>一个定时滚动的banner已经被我们实现了，当然我们需要在手动滚动banner时停止原本设置好的自动滚动，我们就得监听开始拖动banner和停止拖动banner的动作，当拖动时停止定时器，当停止拖动离开banner时启动定时器</p>
-<p><strong>开始拖动banner</strong>    </p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">onScrollBeginDrag()&#123;</div><div class="line">    <span class="keyword">this</span>.clearInterval(<span class="keyword">this</span>.timer)</div><div class="line">&#125;,</div></pre></td></tr></table></figure>
-<p><strong>停止拖动banner</strong></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">onScrollEndDrag()&#123;</div><div class="line">   <span class="keyword">this</span>.startTimer()</div><div class="line">&#125;,</div></pre></td></tr></table></figure>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p> 总的来说一个banner的实现主要用到scrollView的一些属性，然后通过定时器调用方法让scrollview自己滚动就达到了我们的目的了,是不是很简单呢[]~(￣▽￣)~*有疑问欢迎留言</p>
-<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>虽然博客搭了很久，但是这次是第一次写文章，写的时候发现markdown本地预览和实际上hexo自动生成的文件不一样，折腾了一个多小时，发现了两个问题</p>
-<ul>
-<li>标题#号后面需要加一个空格，要不然hexo识别不了</li>
-<li>代码块```后面不能加空格！！切记，文章弄了很久还是格式错误就是这个原因，代码块语法后面千万别加空格 TT</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -602,6 +460,14 @@ throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/12/10/Handler-消息机制/"
+           data-title="Handler 消息机制" data-url="http://mashell.cn/2017/12/10/Handler-消息机制/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -621,8 +487,17 @@ throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
@@ -665,6 +540,17 @@ throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);
 
       </section>
 
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Handler-消息机制"><span class="nav-number">1.</span> <span class="nav-text">Handler 消息机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Handler的使用"><span class="nav-number">1.1.</span> <span class="nav-text">Handler的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-使用sendMessage的方式实现Handler"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.使用sendMessage的方式实现Handler</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Handler自身实现handleMessage方法"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">(1) Handler自身实现handleMessage方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Handler构造函数传入实现了handleMessage方法的CallBack对象"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">(2) Handler构造函数传入实现了handleMessage方法的CallBack对象</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-使用post实现Handler"><span class="nav-number">1.1.2.</span> <span class="nav-text">2.使用post实现Handler</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Handler-源码解析"><span class="nav-number">1.2.</span> <span class="nav-text">Handler 源码解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Handler"><span class="nav-number">1.2.1.</span> <span class="nav-text">Handler</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MessageQueue"><span class="nav-number">1.2.2.</span> <span class="nav-text">MessageQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Looper"><span class="nav-number">1.2.3.</span> <span class="nav-text">Looper</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结一下"><span class="nav-number">1.2.4.</span> <span class="nav-text">总结一下</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Q1-为什么Handler跟线程绑定起来了"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">Q1 为什么Handler跟线程绑定起来了</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q2-主线程中实例化-Handler-为什么不需要-初始化-looper"><span class="nav-number">1.2.4.2.</span> <span class="nav-text">Q2 主线程中实例化 Handler 为什么不需要 初始化 looper</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q3-ThreadLocal-是什么"><span class="nav-number">1.2.4.3.</span> <span class="nav-text">Q3 ThreadLocal  是什么</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+          </div>
+        </section>
       
 
     </div>
@@ -761,6 +647,10 @@ throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
 
   
 
