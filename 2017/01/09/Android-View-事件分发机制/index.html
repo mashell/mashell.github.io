@@ -84,15 +84,34 @@
 
 
 
-<meta name="description" content="还有什么比不浪费时间更有意义的事呢？">
-<meta property="og:type" content="website">
-<meta property="og:title" content="mashell">
-<meta property="og:url" content="http://mashell.cn/tags/react-native/index.html">
+<meta name="description" content="view有三个重要的方法：
+
+dispatchTouchEvent    是否消耗当前事件
+onIterceptTouchEvent  是否拦截，拦截了的话就不下发事件
+onTouchEvent        返回结果表示是否消耗当前事件
+onTouchListener 的 onTouch
+OnClickListener 的 onClick">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android View 事件分发机制">
+<meta property="og:url" content="http://mashell.cn/2017/01/09/Android-View-事件分发机制/index.html">
 <meta property="og:site_name" content="mashell">
-<meta property="og:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta property="og:description" content="view有三个重要的方法：
+
+dispatchTouchEvent    是否消耗当前事件
+onIterceptTouchEvent  是否拦截，拦截了的话就不下发事件
+onTouchEvent        返回结果表示是否消耗当前事件
+onTouchListener 的 onTouch
+OnClickListener 的 onClick">
+<meta property="og:updated_time" content="2017-04-01T02:43:06.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="mashell">
-<meta name="twitter:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta name="twitter:title" content="Android View 事件分发机制">
+<meta name="twitter:description" content="view有三个重要的方法：
+
+dispatchTouchEvent    是否消耗当前事件
+onIterceptTouchEvent  是否拦截，拦截了的话就不下发事件
+onTouchEvent        返回结果表示是否消耗当前事件
+onTouchListener 的 onTouch
+OnClickListener 的 onClick">
 
 
 
@@ -113,10 +132,10 @@
 
 
 
-  <link rel="canonical" href="http://mashell.cn/tags/react-native/"/>
+  <link rel="canonical" href="http://mashell.cn/2017/01/09/Android-View-事件分发机制/"/>
 
 
-  <title> 标签: react native | mashell </title>
+  <title> Android View 事件分发机制 | mashell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -137,7 +156,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
@@ -217,46 +236,147 @@
           <div id="content" class="content">
             
 
-  <div id="posts" class="posts-collapse">
-    <div class="collection-title">
-      <h2 >
-        react native
-        <small>标签</small>
-      </h2>
-    </div>
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
 
     
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Android View 事件分发机制
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-01-09T22:16:27+08:00" content="2017-01-09">
+              2017-01-09
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/01/09/Android-View-事件分发机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/09/Android-View-事件分发机制/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/01/09/Android-View-事件分发机制/" class="leancloud_visitors" data-flag-title="Android View 事件分发机制">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
       
 
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
+      
+        <p>view有三个重要的方法：</p>
+<ul>
+<li>dispatchTouchEvent    是否消耗当前事件</li>
+<li>onIterceptTouchEvent  是否拦截，拦截了的话就不下发事件</li>
+<li>onTouchEvent        返回结果表示是否消耗当前事件<ul>
+<li>onTouchListener 的 onTouch<ul>
+<li>OnClickListener 的 onClick</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 
-      <h1 class="post-title">
+      
+    </div>
+
+    <div>
+      
         
-            <a class="post-title-link" href="/2016/10/31/React_Native_Banner/" itemprop="url">
-              
-                <span itemprop="name">React Native Banner的实现</span>
-              
-            </a>
+
+      
+    </div>
+
+    <div>
+      
         
-      </h1>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-10-31T21:27:43+08:00"
-              content="2016-10-31" >
-          10-31
-        </time>
-      </div>
+      
+    </div>
 
-    </header>
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/15/Android-内存泄露解析/" rel="next" title="Android 内存泄露解析">
+                <i class="fa fa-chevron-left"></i> Android 内存泄露解析
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/10/八种单例模式/" rel="prev" title="java 九种单例模式">
+                java 九种单例模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </article>
 
 
-    
-  </div>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -264,6 +384,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/01/09/Android-View-事件分发机制/"
+           data-title="Android View 事件分发机制" data-url="http://mashell.cn/2017/01/09/Android-View-事件分发机制/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -283,8 +411,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
@@ -327,6 +464,17 @@
 
       </section>
 
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+        </section>
       
 
     </div>
@@ -423,6 +571,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
 
   
 
