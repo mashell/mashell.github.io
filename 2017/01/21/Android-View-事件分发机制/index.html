@@ -114,7 +114,7 @@ OnClickListener 的 onClick
 
 
 View">
-<meta property="og:updated_time" content="2017-04-09T09:53:14.000Z">
+<meta property="og:updated_time" content="2017-04-09T10:00:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android View 事件分发机制">
 <meta name="twitter:description" content="view有三个重要的方法：
@@ -380,10 +380,12 @@ View">
 <li>在 onTouchEvent 中，如果前一个action返回false，那么后面的action都不会执行 </li>
 </ul>
 </li>
+<li>view 的enable 属性不影响 onTouchEvent 的默认返回 true，只要他的 clickable ，longClickable 有一个为 true，那么他的 onTouchEvent 就返回 true。</li>
 </ul>
 <h3 id="在-ViewGroup-中"><a href="#在-ViewGroup-中" class="headerlink" title="在 ViewGroup 中"></a>在 ViewGroup 中</h3><ul>
 <li>点击事件先传到 viewGroup ，然后再传到 子view</li>
-<li>viewGroup 中有一个 onIntercept（）方法，如果该方法返回true则将事件拦截，子view无法处理事件。返回false则不拦截，默认返回 false</li>
+<li>viewGroup 中有一个 onInterceptTouchEvent（）方法，如果该方法返回true则将事件拦截，子view无法处理事件。返回false则不拦截，默认返回 false</li>
+<li>viewGroup 一旦决定拦截该事件，那么时间都交给它处理，而且不再调用 onInterceptTouchEvent() 方法（mFirstTouchTarget 为 null，不再进入 true 代码块）.</li>
 <li>如果子view消耗了事件，那么viewGroup将无法接收到事件。如果所有子view都无法处理事件，那么将回交给viewGroup处理。</li>
 </ul>
 
