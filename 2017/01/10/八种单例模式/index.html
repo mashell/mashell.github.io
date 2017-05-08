@@ -104,7 +104,7 @@
 
 
 1234567891011public class Singleton&amp;#123;	static Singleton singleton = new Singleton();		private Single">
-<meta property="og:updated_time" content="2017-05-08T19:12:13.000Z">
+<meta property="og:updated_time" content="2017-05-08T19:12:48.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java 九种单例模式">
 <meta name="twitter:description" content="单例模式大家都很常见了，我这篇文章是看了别人的文章后自己学习后写出来的，相当于一个笔记吧。
@@ -337,7 +337,14 @@
 <li><p>缺点：线程不安全,当多线程情况下 getInstance时可能会生成多个实例</p>
 </li>
 </ul>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">public class Singleton &#123;</div><div class="line">	static Singleton single = null;</div><div class="line">	private Singleton()&#123;</div><div class="line">		single =  new Singleton();</div><div class="line">	&#125;</div><div class="line">	public static Singleton getInstance()&#123;</div><div class="line">		if(null == single)</div><div class="line">			single = new Singleton();</div><div class="line">		return single;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line">```</div><div class="line"></div><div class="line">#### 懒汉式 -- 方法同步</div><div class="line">- 优点：线程安全</div><div class="line"></div><div class="line">- 缺点：同步方法，实际上只需要处理 new Singleton 的同步问题即可，效率太低了</div><div class="line"></div><div class="line">````java</div><div class="line">public class Singleton&#123;</div><div class="line">	static Singleton singleton;</div><div class="line">	</div><div class="line">	private Singleton()&#123;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	public synchronized static Singleton getInstance()&#123;</div><div class="line">		if(null == singleton)&#123;</div><div class="line">			singleton = new Singleton();</div><div class="line">		&#125;</div><div class="line">		return singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton single = <span class="keyword">null</span>;</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		single =  <span class="keyword">new</span> Singleton();</div><div class="line">	&#125;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">if</span>(<span class="keyword">null</span> == single)</div><div class="line">			single = <span class="keyword">new</span> Singleton();</div><div class="line">		<span class="keyword">return</span> single;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式-–-方法同步"><a href="#懒汉式-–-方法同步" class="headerlink" title="懒汉式 – 方法同步"></a>懒汉式 – 方法同步</h4><ul>
+<li><p>优点：线程安全</p>
+</li>
+<li><p>缺点：同步方法，实际上只需要处理 new Singleton 的同步问题即可，效率太低了</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton singleton;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">if</span>(<span class="keyword">null</span> == singleton)&#123;</div><div class="line">			singleton = <span class="keyword">new</span> Singleton();</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h4 id="懒汉式-–-代码块同步"><a href="#懒汉式-–-代码块同步" class="headerlink" title="懒汉式 – 代码块同步"></a>懒汉式 – 代码块同步</h4><ul>
 <li><p>优点：效率高于 方法同步 的懒汉式</p>
 </li>
@@ -362,28 +369,7 @@
 <li><p>缺点: 使用的是枚举，而非类。同时单一实例的访问点也不是一般单例模式的静态方法</p>
 </li>
 </ul>
-<pre><code class="`java">public enum Singleton {
-    SINGLETON;
-    //编译器编译时会自动生成
-    //    public static final Singleton SINGLETON;
-}
-</code></pre>
-<h4 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h4><ul>
-<li>优点： 静态内部类不存在类加载的时候就初始化，当加载内部类的时候，java 虚拟机初始化其成员变量并且保证线程安全，而且没有锁不会造成性能影响</li>
-</ul>
-<p>````java<br>public class Singleton {</p>
-<pre><code>private Singleton() {
-
-}
-
-public static class Single {
-    static Singleton mSingle = new Singleton();
-}
-
-public static Singleton getInstance() {
-    return Single.mSingle;
-}
-</code></pre><p>}<br>```java</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">public enum Singleton &#123;</div><div class="line">	SINGLETON;</div><div class="line">	//编译器编译时会自动生成</div><div class="line">	//	public static final Singleton SINGLETON;</div><div class="line">&#125;</div><div class="line"></div><div class="line">```	`</div><div class="line"></div><div class="line">#### 静态内部类</div><div class="line">- 优点： 静态内部类不存在类加载的时候就初始化，当加载内部类的时候，java 虚拟机初始化其成员变量并且保证线程安全，而且没有锁不会造成性能影响</div><div class="line"></div><div class="line">````java</div><div class="line">public class Singleton &#123;</div><div class="line"></div><div class="line">	private Singleton() &#123;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public static class Single &#123;</div><div class="line">		static Singleton mSingle = new Singleton();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public static Singleton getInstance() &#123;</div><div class="line">		return Single.mSingle;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上就是我的笔记，总的来说一般我常用静态内部类的模式，最终的模式选择取决于大家。</p>
 
       
@@ -537,7 +523,7 @@ public static Singleton getInstance() {
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#饿汉式"><span class="nav-number">1.</span> <span class="nav-text">饿汉式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#饿汉式-–-静态代码块"><span class="nav-number">2.</span> <span class="nav-text">饿汉式 – 静态代码块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#懒汉式"><span class="nav-number">3.</span> <span class="nav-text">懒汉式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#懒汉式-–-代码块同步"><span class="nav-number">4.</span> <span class="nav-text">懒汉式 – 代码块同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#懒汉式-–-错误的-double-check"><span class="nav-number">5.</span> <span class="nav-text">懒汉式 – 错误的 double check</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#懒汉式-–-正确的-doucle-check"><span class="nav-number">6.</span> <span class="nav-text">懒汉式 – 正确的 doucle check</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#枚举"><span class="nav-number">7.</span> <span class="nav-text">枚举</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#静态内部类"><span class="nav-number">8.</span> <span class="nav-text">静态内部类</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number"></span> <span class="nav-text">总结</span></a></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#饿汉式"><span class="nav-number">1.</span> <span class="nav-text">饿汉式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#饿汉式-–-静态代码块"><span class="nav-number">2.</span> <span class="nav-text">饿汉式 – 静态代码块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#懒汉式"><span class="nav-number">3.</span> <span class="nav-text">懒汉式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#懒汉式-–-方法同步"><span class="nav-number">4.</span> <span class="nav-text">懒汉式 – 方法同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#懒汉式-–-代码块同步"><span class="nav-number">5.</span> <span class="nav-text">懒汉式 – 代码块同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#懒汉式-–-错误的-double-check"><span class="nav-number">6.</span> <span class="nav-text">懒汉式 – 错误的 double check</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#懒汉式-–-正确的-doucle-check"><span class="nav-number">7.</span> <span class="nav-text">懒汉式 – 正确的 doucle check</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#枚举"><span class="nav-number">8.</span> <span class="nav-text">枚举</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number"></span> <span class="nav-text">总结</span></a></div>
             
           </div>
         </section>
