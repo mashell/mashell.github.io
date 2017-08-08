@@ -98,7 +98,7 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
 ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位
 ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位
 ARGB_8888   ： alpha 8位， red 8位， green 8">
-<meta property="og:updated_time" content="2017-08-08T06:45:32.000Z">
+<meta property="og:updated_time" content="2017-08-08T06:50:13.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android Bitmap 占多大内存">
 <meta name="twitter:description" content="在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法
@@ -329,7 +329,8 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
 <li>xhdpi 320dpi</li>
 <li>xxhdpi 480dpi</li>
 </ul>
-<p>那么,给定一张图片,他在手机内存中所占大小为: <figure class="highlight plain"><figcaption><span>= scaleWidth * scaleHeigth * 一个像素所占字节 = getHeight() * getRowByte() ```</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```(imageWidth/density*手机dp+0.5)  * (imageHeigth/density*手机dp+0.5) * 一个像素所占字节</div></pre></td></tr></table></figure></p>
+<p>那么,给定一张图片,他在手机内存中所占大小为: </p>
+<figure class="highlight plain"><figcaption><span>= scaleWidth * scaleHeigth * 一个像素所占字节 = getHeight() * getRowByte() ```</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```(imageWidth/density*手机dp+0.5)  * (imageHeigth/density*手机dp+0.5) * 一个像素所占字节</div></pre></td></tr></table></figure>
 <p>比如,一张 <strong>522 * 686</strong> 的 <strong>PNG</strong> (一个像素4字节 )图片,把它放到 <strong>drawable-xxhdpi</strong> 下,在三星S6(640dp)上加载,所占内存为:</p>
 <p>(522/480 <em>640 +0.5) </em> (686/480 <em> 640+0.5) </em> 4 = 2547360 </p>
 <p>参考资料:</p>
