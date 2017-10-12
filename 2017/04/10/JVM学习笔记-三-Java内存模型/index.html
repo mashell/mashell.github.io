@@ -84,28 +84,64 @@
 
 
 
-<meta name="description" content="在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法
+<meta name="description" content="java 内存模型目标:定义程序各个变量的访问规则
 
-ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位
-ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位
-ARGB_8888   ： alpha 8位， red 8位， green 8">
+主内存(共享-&amp;gt;java堆): 所有变量都存储在这
+工作内存(私有-虚拟机栈): 变量在工作内存中只是拷贝的副本
+
+内存间交互操作java内存模型定义了以下八种操作,都是原子性的
+
+lock(锁定)
+unlock(解锁)
+read(读取)
+load(载入)
+use(使用)
+assign(赋值)
+store(存储)
+write(写入)
+
+使">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android Bitmap 占多大内存">
-<meta property="og:url" content="http://mashell.cn/2017/03/05/Android-Bitmap-占多大内存/index.html">
+<meta property="og:title" content="JVM学习笔记(三):Java内存模型">
+<meta property="og:url" content="http://mashell.cn/2017/04/10/JVM学习笔记-三-Java内存模型/index.html">
 <meta property="og:site_name" content="mashell">
-<meta property="og:description" content="在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法
+<meta property="og:description" content="java 内存模型目标:定义程序各个变量的访问规则
 
-ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位
-ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位
-ARGB_8888   ： alpha 8位， red 8位， green 8">
-<meta property="og:updated_time" content="2017-09-02T16:04:28.000Z">
+主内存(共享-&amp;gt;java堆): 所有变量都存储在这
+工作内存(私有-虚拟机栈): 变量在工作内存中只是拷贝的副本
+
+内存间交互操作java内存模型定义了以下八种操作,都是原子性的
+
+lock(锁定)
+unlock(解锁)
+read(读取)
+load(载入)
+use(使用)
+assign(赋值)
+store(存储)
+write(写入)
+
+使">
+<meta property="og:updated_time" content="2017-10-12T07:38:09.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Android Bitmap 占多大内存">
-<meta name="twitter:description" content="在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法
+<meta name="twitter:title" content="JVM学习笔记(三):Java内存模型">
+<meta name="twitter:description" content="java 内存模型目标:定义程序各个变量的访问规则
 
-ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位
-ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位
-ARGB_8888   ： alpha 8位， red 8位， green 8">
+主内存(共享-&amp;gt;java堆): 所有变量都存储在这
+工作内存(私有-虚拟机栈): 变量在工作内存中只是拷贝的副本
+
+内存间交互操作java内存模型定义了以下八种操作,都是原子性的
+
+lock(锁定)
+unlock(解锁)
+read(读取)
+load(载入)
+use(使用)
+assign(赋值)
+store(存储)
+write(写入)
+
+使">
 
 
 
@@ -126,10 +162,10 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
 
 
 
-  <link rel="canonical" href="http://mashell.cn/2017/03/05/Android-Bitmap-占多大内存/"/>
+  <link rel="canonical" href="http://mashell.cn/2017/04/10/JVM学习笔记-三-Java内存模型/"/>
 
 
-  <title> Android Bitmap 占多大内存 | mashell </title>
+  <title> JVM学习笔记(三):Java内存模型 | mashell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -251,7 +287,7 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
             
             
               
-                Android Bitmap 占多大内存
+                JVM学习笔记(三):Java内存模型
               
             
           </h1>
@@ -263,8 +299,8 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-05T14:38:16+08:00" content="2017-03-05">
-              2017-03-05
+            <time itemprop="dateCreated" datetime="2017-04-10T16:10:39+08:00" content="2017-04-10">
+              2017-04-10
             </time>
           </span>
 
@@ -274,8 +310,8 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/03/05/Android-Bitmap-占多大内存/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/05/Android-Bitmap-占多大内存/" itemprop="commentsCount"></span>
+                <a href="/2017/04/10/JVM学习笔记-三-Java内存模型/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/10/JVM学习笔记-三-Java内存模型/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -285,7 +321,7 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
 
           
           
-             <span id="/2017/03/05/Android-Bitmap-占多大内存/" class="leancloud_visitors" data-flag-title="Android Bitmap 占多大内存">
+             <span id="/2017/04/10/JVM学习笔记-三-Java内存模型/" class="leancloud_visitors" data-flag-title="JVM学习笔记(三):Java内存模型">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -307,42 +343,70 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
       
 
       
-        <p>在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法</p>
+        <h3 id="java-内存模型"><a href="#java-内存模型" class="headerlink" title="java 内存模型"></a>java 内存模型</h3><p>目标:定义程序各个变量的访问规则</p>
 <ul>
-<li>ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位</li>
-<li>ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位</li>
-<li>ARGB_8888   ： alpha 8位， red 8位， green 8位， blue 8位， 那么一个像素点占 32位</li>
-<li>RGB_565 ： red 5位， green 6位， blue 5位，那么一个像素点占 16位</li>
+<li><strong>主内存</strong>(共享-&gt;java堆): 所有变量都存储在这</li>
+<li><strong>工作内存</strong>(私有-虚拟机栈): 变量在工作内存中只是拷贝的副本</li>
 </ul>
-<p>图的位数越高，占用的内存越大</p>
-<h3 id="一张图片占用的内存取决于"><a href="#一张图片占用的内存取决于" class="headerlink" title="一张图片占用的内存取决于"></a>一张图片占用的内存取决于</h3><ul>
-<li>图片色彩模式</li>
-<li>原始资源的density（资源目录）</li>
-<li>手机的dp</li>
+<h4 id="内存间交互操作"><a href="#内存间交互操作" class="headerlink" title="内存间交互操作"></a>内存间交互操作</h4><p>java内存模型定义了以下八种操作,都是原子性的</p>
+<ul>
+<li>lock(锁定)</li>
+<li>unlock(解锁)</li>
+<li>read(读取)</li>
+<li>load(载入)</li>
+<li>use(使用)</li>
+<li>assign(赋值)</li>
+<li>store(存储)</li>
+<li>write(写入)</li>
 </ul>
-<h4 id="科普-资源文件对应的dpi"><a href="#科普-资源文件对应的dpi" class="headerlink" title="科普:资源文件对应的dpi"></a>科普:资源文件对应的dpi</h4><ul>
-<li>ldpi 120dpi</li>
-<li>mdpi 160dpi</li>
-<li>hdpi 240dpi</li>
-<li>xhdpi 320dpi</li>
-<li>xxhdpi 480dpi</li>
+<p>使用八种操作要符合以下规则</p>
+<ul>
+<li>一个新变量只能在<strong>主内存</strong>中诞生,对一个变量 <code>use,store</code>前,必须 <code>assign和load</code></li>
+<li>对一个变量 <code>lock</code> 了,那么会清空 <strong>工作内存</strong> 中变量的值,然后需要重新<code>load或assign</code></li>
+<li>对一个变量 <code>unlock</code> 之前,必须把变量同步回<strong>主内存</strong>中,<code>store,write</code></li>
 </ul>
-<p>那么,给定一张图片,他在手机内存中所占大小为: </p>
-<figure class="highlight plain"><figcaption><span>= scaleWidth * scaleHeigth * 一个像素所占字节 = getHeight() * getRowByte() ```</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">``` = (imageWidth  * ScaledSize 缩放系数) * (imageHeight * ScaledSize 缩放系数) * 一个像素所占字节</div></pre></td></tr></table></figure>
-<p><code>=  (imageWidth/density*手机dp+0.5)  * (imageHeigth/density*手机dp+0.5) * 一个像素所占字节</code></p>
-<p>比如,一张 <strong>522 * 686</strong> 的 <strong>PNG</strong> (一个像素4字节 )图片,把它放到 <strong>drawable-xxhdpi</strong> 下,在三星S6(640dp)上加载,所占内存为:</p>
-<p>(522/480 <em>640 +0.5) </em> (686/480 <em> 640+0.5) </em> 4 = 2547360 </p>
-<p>参考资料:</p>
-<p> <a href="https://dev.qq.com/topic/591d61f56793d26660901b4e" target="_blank" rel="external">你的Bitmap就究竟占多大内存?</a></p>
-<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><h2 id="dp-dip-sp-px-dpi-区别与转换"><a href="#dp-dip-sp-px-dpi-区别与转换" class="headerlink" title="dp dip  sp  px dpi 区别与转换"></a>dp dip  sp  px dpi 区别与转换</h2><h4 id="px-像素"><a href="#px-像素" class="headerlink" title="px: 像素"></a>px: 像素</h4><h4 id="dpi-屏幕每英寸所包含像素点数目"><a href="#dpi-屏幕每英寸所包含像素点数目" class="headerlink" title="dpi:屏幕每英寸所包含像素点数目"></a>dpi:屏幕每英寸所包含像素点数目</h4><blockquote>
-<p>dpi = 屏幕对角线像素/ 屏幕英寸 </p>
-</blockquote>
-<h4 id="dp-dip-密度无关单位"><a href="#dp-dip-密度无关单位" class="headerlink" title="dp == dip :密度无关单位"></a>dp == dip :密度无关单位</h4><blockquote>
-<p>px = dp*dpi/160</p>
-<p>dp = px*160/dpi</p>
-</blockquote>
-<p>所以对于 160dpi的屏幕 <strong>1dp = 1px</strong></p>
-<h5 id="但是实际的dpi是固定的-120-160-240-320-480"><a href="#但是实际的dpi是固定的-120-160-240-320-480" class="headerlink" title="但是实际的dpi是固定的,120,160,240,320,480"></a>但是实际的dpi是固定的,120,160,240,320,480</h5><p>不同屏幕分辨率下dp差异,我们可以通过单独适配的方法:比如对 <strong>360dp</strong>布局做适配,将布局文件放在 <strong>layout-w320dp</strong> 中,相对单独分辨率做适配,就放在标有分辨率的文件夹中=&gt; <strong>layout-854x480</strong></p>
+<h3 id="volatile-操作"><a href="#volatile-操作" class="headerlink" title="volatile 操作"></a>volatile 操作</h3><ul>
+<li>保证了可见性原理<ul>
+<li>产生一个<strong>内存屏障</strong>:他使用一个<code>lock</code>操作,这样会清空工作内存的值,然后从新执行<code>load assign</code>,获取主内存的最新数据</li>
+<li><code>lock</code>后会<code>unlock</code>,会执行 <code>store,write</code>,将数据写回主内存,通过这两点保证了可见性</li>
+</ul>
+</li>
+<li>保证了有序性:<ul>
+<li>因为<strong>内存屏障</strong>,lock指令会把修改同步到主内存中,这样形成了<code>指令重排序无法越过内存屏障</code>也就是volatile</li>
+</ul>
+</li>
+</ul>
+<h4 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h4><ul>
+<li>八个基本操作是原子性的,基本数据类型的访问读写是具有原子性的</li>
+<li>更大范围需要保证原子性,可以用<strong>synchronized</strong></li>
+</ul>
+<h4 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h4><p>一个线程修改了共享变量的值,其他线程能立即获取到这个修改</p>
+<ul>
+<li><strong>synchronized</strong> 通过 <code>unlock</code> 之前,必须将变量同步回主内存</li>
+<li><strong>final</strong> 通过 不传递 <code>this</code></li>
+</ul>
+<h4 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h4><ul>
+<li>volatile 通过<code>禁止指令重排序</code>保证有序性</li>
+<li>synchronized 通过 <code>一个变量同一时刻只能有一个线程 lock</code></li>
+</ul>
+<h4 id="先行先发生-hapends-before"><a href="#先行先发生-hapends-before" class="headerlink" title="先行先发生 hapends-before"></a>先行先发生 hapends-before</h4><p>如果两个操作间的关系不在下面规则内,那么就没有顺序性保障</p>
+<ul>
+<li><strong>程序次序规则</strong>:单个线程内程序流顺序</li>
+<li><strong>官程锁定规则</strong>:对于同一个锁,<code>unlock</code>发生在<code>lock</code>之前</li>
+<li><strong>valatile 变量规则</strong></li>
+<li><strong>线程启动规则</strong>:start()先行于线程内任何操作</li>
+<li><strong>线程终止规则</strong>:所有操作先行于 线程终止</li>
+<li><strong>线程中断规则</strong>:<code>interrupt()</code>先行发生于被中断的代码</li>
+<li><strong>对象终结规则</strong>:对象的初始化先行于 <code>finalize()</code></li>
+<li><strong>传递性</strong></li>
+</ul>
+<h3 id="JAVA-与-线程"><a href="#JAVA-与-线程" class="headerlink" title="JAVA 与 线程"></a>JAVA 与 线程</h3><h4 id="线程的实现"><a href="#线程的实现" class="headerlink" title="线程的实现"></a>线程的实现</h4><ul>
+<li>使用内核线程实现</li>
+<li>使用用户线程实现</li>
+<li>使用用户线程+轻量级进程(线程)实现<h4 id="线程调度"><a href="#线程调度" class="headerlink" title="线程调度"></a>线程调度</h4></li>
+<li>协同式调度:执行时间由线程本身控制</li>
+<li>抢占式调度,由系统分配执行时间</li>
+</ul>
 
       
     </div>
@@ -368,16 +432,16 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/02/01/AsyncTask源码解析/" rel="next" title="AsyncTask源码解析">
-                <i class="fa fa-chevron-left"></i> AsyncTask源码解析
+              <a href="/2017/04/07/JVM学习笔记-二-垃圾回收/" rel="next" title="JVM学习笔记(二):垃圾回收">
+                <i class="fa fa-chevron-left"></i> JVM学习笔记(二):垃圾回收
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/04/03/JVM学习笔记-一-内存分配/" rel="prev" title="JVM学习笔记(一):内存分配">
-                JVM学习笔记(一):内存分配 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/04/15/JVM学习笔记-四-类加载机制/" rel="prev" title="JVM学习笔记(四):类加载机制">
+                JVM学习笔记(四):类加载机制 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -404,8 +468,8 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/03/05/Android-Bitmap-占多大内存/"
-           data-title="Android Bitmap 占多大内存" data-url="http://mashell.cn/2017/03/05/Android-Bitmap-占多大内存/">
+      <div class="ds-thread" data-thread-key="2017/04/10/JVM学习笔记-三-Java内存模型/"
+           data-title="JVM学习笔记(三):Java内存模型" data-url="http://mashell.cn/2017/04/10/JVM学习笔记-三-Java内存模型/">
       </div>
     
   </div>
@@ -489,7 +553,7 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一张图片占用的内存取决于"><span class="nav-number">1.</span> <span class="nav-text">一张图片占用的内存取决于</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#科普-资源文件对应的dpi"><span class="nav-number">1.1.</span> <span class="nav-text">科普:资源文件对应的dpi</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#补充"><span class="nav-number">2.</span> <span class="nav-text">补充</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dp-dip-sp-px-dpi-区别与转换"><span class="nav-number"></span> <span class="nav-text">dp dip  sp  px dpi 区别与转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#px-像素"><span class="nav-number">0.1.</span> <span class="nav-text">px: 像素</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dpi-屏幕每英寸所包含像素点数目"><span class="nav-number">0.2.</span> <span class="nav-text">dpi:屏幕每英寸所包含像素点数目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dp-dip-密度无关单位"><span class="nav-number">0.3.</span> <span class="nav-text">dp == dip :密度无关单位</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#但是实际的dpi是固定的-120-160-240-320-480"><span class="nav-number">0.3.1.</span> <span class="nav-text">但是实际的dpi是固定的,120,160,240,320,480</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#java-内存模型"><span class="nav-number">1.</span> <span class="nav-text">java 内存模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#内存间交互操作"><span class="nav-number">1.1.</span> <span class="nav-text">内存间交互操作</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#volatile-操作"><span class="nav-number">2.</span> <span class="nav-text">volatile 操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#原子性"><span class="nav-number">2.1.</span> <span class="nav-text">原子性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#可见性"><span class="nav-number">2.2.</span> <span class="nav-text">可见性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#有序性"><span class="nav-number">2.3.</span> <span class="nav-text">有序性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#先行先发生-hapends-before"><span class="nav-number">2.4.</span> <span class="nav-text">先行先发生 hapends-before</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JAVA-与-线程"><span class="nav-number">3.</span> <span class="nav-text">JAVA 与 线程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#线程的实现"><span class="nav-number">3.1.</span> <span class="nav-text">线程的实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#线程调度"><span class="nav-number">3.2.</span> <span class="nav-text">线程调度</span></a></li></ol></li></ol></div>
             
           </div>
         </section>

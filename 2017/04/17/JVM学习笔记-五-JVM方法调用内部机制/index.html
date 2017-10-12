@@ -84,28 +84,24 @@
 
 
 
-<meta name="description" content="在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法
-
-ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位
-ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位
-ARGB_8888   ： alpha 8位， red 8位， green 8">
+<meta name="description" content="JVM方法调用的内部机制
+栈帧结构为了调用方法和返回方法,JVM维护了一个栈结构,里面存放的实体称为栈帧,每个栈帧包括 局部变量表 操作数栈 动态链接 方法返回地址 和额外的信息.在编译期,栈帧需要多大的局部变量表已经确定了
+局部变量表存放方法参数和方法内创建的局部变量,局部变量表的容量以 Slot 为最小单位,一个 Slot 可以存放一个 32位以内的数据类型.long double 需要两个">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android Bitmap 占多大内存">
-<meta property="og:url" content="http://mashell.cn/2017/03/05/Android-Bitmap-占多大内存/index.html">
+<meta property="og:title" content="JVM学习笔记(五):JVM方法调用内部机制">
+<meta property="og:url" content="http://mashell.cn/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/index.html">
 <meta property="og:site_name" content="mashell">
-<meta property="og:description" content="在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法
-
-ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位
-ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位
-ARGB_8888   ： alpha 8位， red 8位， green 8">
-<meta property="og:updated_time" content="2017-09-02T16:04:28.000Z">
+<meta property="og:description" content="JVM方法调用的内部机制
+栈帧结构为了调用方法和返回方法,JVM维护了一个栈结构,里面存放的实体称为栈帧,每个栈帧包括 局部变量表 操作数栈 动态链接 方法返回地址 和额外的信息.在编译期,栈帧需要多大的局部变量表已经确定了
+局部变量表存放方法参数和方法内创建的局部变量,局部变量表的容量以 Slot 为最小单位,一个 Slot 可以存放一个 32位以内的数据类型.long double 需要两个">
+<meta property="og:image" content="http://img.blog.csdn.net/20170818151037199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVGVsbEg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:updated_time" content="2017-10-12T07:38:41.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Android Bitmap 占多大内存">
-<meta name="twitter:description" content="在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法
-
-ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位
-ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位
-ARGB_8888   ： alpha 8位， red 8位， green 8">
+<meta name="twitter:title" content="JVM学习笔记(五):JVM方法调用内部机制">
+<meta name="twitter:description" content="JVM方法调用的内部机制
+栈帧结构为了调用方法和返回方法,JVM维护了一个栈结构,里面存放的实体称为栈帧,每个栈帧包括 局部变量表 操作数栈 动态链接 方法返回地址 和额外的信息.在编译期,栈帧需要多大的局部变量表已经确定了
+局部变量表存放方法参数和方法内创建的局部变量,局部变量表的容量以 Slot 为最小单位,一个 Slot 可以存放一个 32位以内的数据类型.long double 需要两个">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20170818151037199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVGVsbEg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
 
 
 
@@ -126,10 +122,10 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
 
 
 
-  <link rel="canonical" href="http://mashell.cn/2017/03/05/Android-Bitmap-占多大内存/"/>
+  <link rel="canonical" href="http://mashell.cn/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/"/>
 
 
-  <title> Android Bitmap 占多大内存 | mashell </title>
+  <title> JVM学习笔记(五):JVM方法调用内部机制 | mashell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -251,7 +247,7 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
             
             
               
-                Android Bitmap 占多大内存
+                JVM学习笔记(五):JVM方法调用内部机制
               
             
           </h1>
@@ -263,8 +259,8 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-05T14:38:16+08:00" content="2017-03-05">
-              2017-03-05
+            <time itemprop="dateCreated" datetime="2017-04-17T17:46:56+08:00" content="2017-04-17">
+              2017-04-17
             </time>
           </span>
 
@@ -274,8 +270,8 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/03/05/Android-Bitmap-占多大内存/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/05/Android-Bitmap-占多大内存/" itemprop="commentsCount"></span>
+                <a href="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -285,7 +281,7 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
 
           
           
-             <span id="/2017/03/05/Android-Bitmap-占多大内存/" class="leancloud_visitors" data-flag-title="Android Bitmap 占多大内存">
+             <span id="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" class="leancloud_visitors" data-flag-title="JVM学习笔记(五):JVM方法调用内部机制">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -307,42 +303,43 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
       
 
       
-        <p>在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法</p>
+        <p>JVM方法调用的内部机制</p>
+<h3 id="栈帧结构"><a href="#栈帧结构" class="headerlink" title="栈帧结构"></a>栈帧结构</h3><p>为了调用方法和返回方法,JVM维护了一个栈结构,里面存放的实体称为栈帧,每个栈帧包括 <strong>局部变量表</strong> <strong>操作数栈</strong> <strong>动态链接</strong> <strong>方法返回地址</strong> 和额外的信息.在编译期,栈帧需要多大的局部变量表已经确定了</p>
+<h4 id="局部变量表"><a href="#局部变量表" class="headerlink" title="局部变量表"></a>局部变量表</h4><p>存放方法参数和方法内创建的局部变量,局部变量表的容量以 Slot 为最小单位,一个 Slot 可以存放一个 32位以内的数据类型.<strong>long double 需要两个</strong></p>
+<p>如果方法时非 <code>static</code> 的,那么局部变量表中第0位索引 Slot 默认用于传递方法所属对象实例的引用   <strong>(this)</strong></p>
+<p>为了节省栈帧空间,Slot是可以重用的,一个局部变量定义了没有赋初始值是不能用的</p>
+<h4 id="操作数栈"><a href="#操作数栈" class="headerlink" title="操作数栈"></a>操作数栈</h4><p>JVM解析执行字节码是基于栈结构,调用其他方法是通过操作数栈来进行参数传递的</p>
+<h5 id="方法大致调用过程"><a href="#方法大致调用过程" class="headerlink" title="方法大致调用过程"></a>方法大致调用过程</h5><ul>
+<li>每一次调用指令前,JVM把方法被调用的<strong>对象引用</strong>引入操作数栈,JVM还会把<strong>方法的参数</strong>依次放入<strong>操作数栈</strong></li>
+<li>调用方法的时候,JVM将参数和对象引用依次从操作数栈弹出,并建立一个新的栈帧存放刚才弹出的变量放入 Slot 1,2,3..</li>
+<li>JVM把新栈帧push入<strong>虚拟机方法栈</strong>,并把PC指向函数第一条待执行的指令</li>
+</ul>
+<blockquote>
+<p>JVM通过编译器的静态绑定或者运行时期的动态绑定获取被调用方法的地址</p>
+</blockquote>
+<h3 id="方法调用字节码指令"><a href="#方法调用字节码指令" class="headerlink" title="方法调用字节码指令"></a>方法调用字节码指令</h3><ul>
+<li>invokestatic 调用静态方法</li>
+<li>invokespecial 调用实例构造器<init>,私有方法和父类方法</init></li>
+<li>invokeVirtual 调用所有的<strong>虚方法</strong>(静态方法,私有方法,实例构造器,父类方法,final 方法 都不是 虚方法)</li>
+<li>invokeinterface 调用接口方法,在运行时期确定一个实现此接口的对象</li>
+</ul>
+<p>invokestatic 和 invokespecial 在类加载阶段就把符号解析为该方法的引用,静态</p>
+<p>invokevirtual和invokeinterface 是在运行时确定具体的方法地址</p>
+<h3 id="动态分配"><a href="#动态分配" class="headerlink" title="动态分配"></a>动态分配</h3><p>当JVM 遇到 invokevirtual或者invokeinterface时,需要运行时根据方法符号找到方法地址,具体过程如下</p>
 <ul>
-<li>ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位</li>
-<li>ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位</li>
-<li>ARGB_8888   ： alpha 8位， red 8位， green 8位， blue 8位， 那么一个像素点占 32位</li>
-<li>RGB_565 ： red 5位， green 6位， blue 5位，那么一个像素点占 16位</li>
+<li>方法调用前,将对象的引用压入操作数栈</li>
+<li>方法调用时,找到操作数栈顶的第一个元素所指向的对象实际类型,记为C</li>
+<li>在 C类中找到常量池中描述符和方法名都相符的方法,并校验访问权限,找到方法并通过校验,就返回这个方法的引用</li>
+<li>没找到继续按照继承关系向上找并且校验权限</li>
+<li>还是没找到 抛出<code>AbstractMethodError</code>异常</li>
 </ul>
-<p>图的位数越高，占用的内存越大</p>
-<h3 id="一张图片占用的内存取决于"><a href="#一张图片占用的内存取决于" class="headerlink" title="一张图片占用的内存取决于"></a>一张图片占用的内存取决于</h3><ul>
-<li>图片色彩模式</li>
-<li>原始资源的density（资源目录）</li>
-<li>手机的dp</li>
-</ul>
-<h4 id="科普-资源文件对应的dpi"><a href="#科普-资源文件对应的dpi" class="headerlink" title="科普:资源文件对应的dpi"></a>科普:资源文件对应的dpi</h4><ul>
-<li>ldpi 120dpi</li>
-<li>mdpi 160dpi</li>
-<li>hdpi 240dpi</li>
-<li>xhdpi 320dpi</li>
-<li>xxhdpi 480dpi</li>
-</ul>
-<p>那么,给定一张图片,他在手机内存中所占大小为: </p>
-<figure class="highlight plain"><figcaption><span>= scaleWidth * scaleHeigth * 一个像素所占字节 = getHeight() * getRowByte() ```</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">``` = (imageWidth  * ScaledSize 缩放系数) * (imageHeight * ScaledSize 缩放系数) * 一个像素所占字节</div></pre></td></tr></table></figure>
-<p><code>=  (imageWidth/density*手机dp+0.5)  * (imageHeigth/density*手机dp+0.5) * 一个像素所占字节</code></p>
-<p>比如,一张 <strong>522 * 686</strong> 的 <strong>PNG</strong> (一个像素4字节 )图片,把它放到 <strong>drawable-xxhdpi</strong> 下,在三星S6(640dp)上加载,所占内存为:</p>
-<p>(522/480 <em>640 +0.5) </em> (686/480 <em> 640+0.5) </em> 4 = 2547360 </p>
-<p>参考资料:</p>
-<p> <a href="https://dev.qq.com/topic/591d61f56793d26660901b4e" target="_blank" rel="external">你的Bitmap就究竟占多大内存?</a></p>
-<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><h2 id="dp-dip-sp-px-dpi-区别与转换"><a href="#dp-dip-sp-px-dpi-区别与转换" class="headerlink" title="dp dip  sp  px dpi 区别与转换"></a>dp dip  sp  px dpi 区别与转换</h2><h4 id="px-像素"><a href="#px-像素" class="headerlink" title="px: 像素"></a>px: 像素</h4><h4 id="dpi-屏幕每英寸所包含像素点数目"><a href="#dpi-屏幕每英寸所包含像素点数目" class="headerlink" title="dpi:屏幕每英寸所包含像素点数目"></a>dpi:屏幕每英寸所包含像素点数目</h4><blockquote>
-<p>dpi = 屏幕对角线像素/ 屏幕英寸 </p>
-</blockquote>
-<h4 id="dp-dip-密度无关单位"><a href="#dp-dip-密度无关单位" class="headerlink" title="dp == dip :密度无关单位"></a>dp == dip :密度无关单位</h4><blockquote>
-<p>px = dp*dpi/160</p>
-<p>dp = px*160/dpi</p>
-</blockquote>
-<p>所以对于 160dpi的屏幕 <strong>1dp = 1px</strong></p>
-<h5 id="但是实际的dpi是固定的-120-160-240-320-480"><a href="#但是实际的dpi是固定的-120-160-240-320-480" class="headerlink" title="但是实际的dpi是固定的,120,160,240,320,480"></a>但是实际的dpi是固定的,120,160,240,320,480</h5><p>不同屏幕分辨率下dp差异,我们可以通过单独适配的方法:比如对 <strong>360dp</strong>布局做适配,将布局文件放在 <strong>layout-w320dp</strong> 中,相对单独分辨率做适配,就放在标有分辨率的文件夹中=&gt; <strong>layout-854x480</strong></p>
+<p>为了提高动态分配时候方法查找的效率,JVM为每个类维护一个虚函数表</p>
+<h3 id="虚函数表"><a href="#虚函数表" class="headerlink" title="虚函数表"></a>虚函数表</h3><p>目的:为了快速找到方法索引地址</p>
+<p>JVM在链接类的过程中,给每个类分配相应方法表内存空间,每个类对应一个方法表,都存在于 <strong>方法区</strong> 中,Java 每个对象的<strong>对象头</strong>有一个类型指针,可以找到对应的类,类数据中对应一个方法表,类级别的方法表</p>
+<p><strong>方法表</strong>包含了类所有方法的入口地址,<strong>父类继承</strong>的方法放在前面,然后是**接口</p>
+<p><img src="http://img.blog.csdn.net/20170818151037199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVGVsbEg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<h4 id="invokevirtual-与-invokeInterface-区别"><a href="#invokevirtual-与-invokeInterface-区别" class="headerlink" title="invokevirtual 与 invokeInterface 区别"></a>invokevirtual 与 invokeInterface 区别</h4><p><strong>invokevirtual</strong>虚方法是按照父类到子类的顺序排序的,因此使用 invokevirtual 调用虚函数,JVM可以再编译器就确定虚函数在方法表上的 offset ,从而快速定位方法地址</p>
+<p><strong>invokeInterface</strong> 接口可以由不同的类实现,所以接口方法在不同类的中 方法表 offset 都不一样,因此每次调用接口方法,都要搜寻一遍虚函数表,效率低于 <strong>invokevirtual</strong></p>
 
       
     </div>
@@ -368,16 +365,16 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/02/01/AsyncTask源码解析/" rel="next" title="AsyncTask源码解析">
-                <i class="fa fa-chevron-left"></i> AsyncTask源码解析
+              <a href="/2017/04/15/JVM学习笔记-四-类加载机制/" rel="next" title="JVM学习笔记(四):类加载机制">
+                <i class="fa fa-chevron-left"></i> JVM学习笔记(四):类加载机制
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/04/03/JVM学习笔记-一-内存分配/" rel="prev" title="JVM学习笔记(一):内存分配">
-                JVM学习笔记(一):内存分配 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/08/08/内存分配/" rel="prev" title="">
+                 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -404,8 +401,8 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/03/05/Android-Bitmap-占多大内存/"
-           data-title="Android Bitmap 占多大内存" data-url="http://mashell.cn/2017/03/05/Android-Bitmap-占多大内存/">
+      <div class="ds-thread" data-thread-key="2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/"
+           data-title="JVM学习笔记(五):JVM方法调用内部机制" data-url="http://mashell.cn/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/">
       </div>
     
   </div>
@@ -489,7 +486,7 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一张图片占用的内存取决于"><span class="nav-number">1.</span> <span class="nav-text">一张图片占用的内存取决于</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#科普-资源文件对应的dpi"><span class="nav-number">1.1.</span> <span class="nav-text">科普:资源文件对应的dpi</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#补充"><span class="nav-number">2.</span> <span class="nav-text">补充</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dp-dip-sp-px-dpi-区别与转换"><span class="nav-number"></span> <span class="nav-text">dp dip  sp  px dpi 区别与转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#px-像素"><span class="nav-number">0.1.</span> <span class="nav-text">px: 像素</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dpi-屏幕每英寸所包含像素点数目"><span class="nav-number">0.2.</span> <span class="nav-text">dpi:屏幕每英寸所包含像素点数目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dp-dip-密度无关单位"><span class="nav-number">0.3.</span> <span class="nav-text">dp == dip :密度无关单位</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#但是实际的dpi是固定的-120-160-240-320-480"><span class="nav-number">0.3.1.</span> <span class="nav-text">但是实际的dpi是固定的,120,160,240,320,480</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#栈帧结构"><span class="nav-number">1.</span> <span class="nav-text">栈帧结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#局部变量表"><span class="nav-number">1.1.</span> <span class="nav-text">局部变量表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#操作数栈"><span class="nav-number">1.2.</span> <span class="nav-text">操作数栈</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#方法大致调用过程"><span class="nav-number">1.2.1.</span> <span class="nav-text">方法大致调用过程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法调用字节码指令"><span class="nav-number">2.</span> <span class="nav-text">方法调用字节码指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态分配"><span class="nav-number">3.</span> <span class="nav-text">动态分配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚函数表"><span class="nav-number">4.</span> <span class="nav-text">虚函数表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#invokevirtual-与-invokeInterface-区别"><span class="nav-number">4.1.</span> <span class="nav-text">invokevirtual 与 invokeInterface 区别</span></a></li></ol></li></ol></div>
             
           </div>
         </section>

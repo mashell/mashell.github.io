@@ -84,15 +84,25 @@
 
 
 
-<meta name="description" content="还有什么比不浪费时间更有意义的事呢？">
-<meta property="og:type" content="website">
+<meta name="description" content="java堆存放对象实例,几乎所有对象实例都在这里创建,垃圾收集器的主要区域
+方法区存储 类信息,常量,静态变量,编译后的代码等
+JVM栈java方法的内存模型,用于存储局部变量表、操作数栈、动态链接、方法出口等信息。每个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程。
+本地方法栈本地方法栈和JVM栈非常相似，它们之间的区别不过是jvm栈是为执行java方法服务，而本地方">
+<meta property="og:type" content="article">
 <meta property="og:title" content="mashell">
-<meta property="og:url" content="http://mashell.cn/archives/2016/12/index.html">
+<meta property="og:url" content="http://mashell.cn/2017/08/08/内存分配/index.html">
 <meta property="og:site_name" content="mashell">
-<meta property="og:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta property="og:description" content="java堆存放对象实例,几乎所有对象实例都在这里创建,垃圾收集器的主要区域
+方法区存储 类信息,常量,静态变量,编译后的代码等
+JVM栈java方法的内存模型,用于存储局部变量表、操作数栈、动态链接、方法出口等信息。每个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程。
+本地方法栈本地方法栈和JVM栈非常相似，它们之间的区别不过是jvm栈是为执行java方法服务，而本地方">
+<meta property="og:updated_time" content="2017-08-08T09:49:15.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mashell">
-<meta name="twitter:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta name="twitter:description" content="java堆存放对象实例,几乎所有对象实例都在这里创建,垃圾收集器的主要区域
+方法区存储 类信息,常量,静态变量,编译后的代码等
+JVM栈java方法的内存模型,用于存储局部变量表、操作数栈、动态链接、方法出口等信息。每个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程。
+本地方法栈本地方法栈和JVM栈非常相似，它们之间的区别不过是jvm栈是为执行java方法服务，而本地方">
 
 
 
@@ -113,10 +123,10 @@
 
 
 
-  <link rel="canonical" href="http://mashell.cn/archives/2016/12/"/>
+  <link rel="canonical" href="http://mashell.cn/2017/08/08/内存分配/"/>
 
 
-  <title> 归档 | mashell </title>
+  <title>  | mashell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -137,7 +147,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
@@ -217,103 +227,140 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-    <span class="archive-page-counter">
-      
-      
-      
-        
-      
-      嗯..! 目前共计 14 篇日志。 继续努力。
-    </span>
-
+  <div id="posts" class="posts-expand">
     
-
-      
-      
-      
-
-      
-        
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2016">2016</h2>
-        </div>
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/12/15/Android-内存泄露解析/" itemprop="url">
-              
-                <span itemprop="name">Android 内存泄露解析</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-12-15T11:37:53+08:00"
-              content="2016-12-15" >
-          12-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/12/10/Handler-消息机制/" itemprop="url">
-              
-                <span itemprop="name">Handler 消息机制</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-12-10T21:20:14+08:00"
-              content="2016-12-10" >
-          12-10
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-  </section>
 
   
+  
 
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-08T17:13:43+08:00" content="2017-08-08">
+              2017-08-08
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/08/08/内存分配/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/08/内存分配/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/08/08/内存分配/" class="leancloud_visitors" data-flag-title="">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="java堆"><a href="#java堆" class="headerlink" title="java堆"></a>java堆</h3><p>存放对象实例,几乎所有对象实例都在这里创建,垃圾收集器的主要区域</p>
+<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>存储 类信息,常量,静态变量,编译后的代码等</p>
+<h3 id="JVM栈"><a href="#JVM栈" class="headerlink" title="JVM栈"></a>JVM栈</h3><p>java方法的内存模型,用于存储局部变量表、操作数栈、动态链接、方法出口等信息。每个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程。</p>
+<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>本地方法栈和JVM栈非常相似，它们之间的区别不过是jvm栈是为执行java方法服务，而本地方法栈是为jvm使用到对的本地方法服务。HotSpot虚拟机中直接把本地方法栈和JVM栈合二为一了。</p>
+<h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>看做当前程序执行字节码的行号指示器(如果本地方法就是空的) 通过改变这个计数器选择下一条需要执行的字节码指令,分支\循环\跳转\异常处理\县城回复 ,, 唯一没有 OutOfMemory的区域.  </p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" rel="next" title="JVM学习笔记(五):JVM方法调用内部机制">
+                <i class="fa fa-chevron-left"></i> JVM学习笔记(五):JVM方法调用内部机制
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/08/类加载机制/" rel="prev" title="">
+                 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -321,6 +368,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/08/08/内存分配/"
+           data-title="" data-url="http://mashell.cn/2017/08/08/内存分配/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -340,8 +395,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
@@ -384,6 +448,17 @@
 
       </section>
 
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#java堆"><span class="nav-number">1.</span> <span class="nav-text">java堆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区"><span class="nav-number">2.</span> <span class="nav-text">方法区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM栈"><span class="nav-number">3.</span> <span class="nav-text">JVM栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地方法栈"><span class="nav-number">4.</span> <span class="nav-text">本地方法栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#程序计数器"><span class="nav-number">5.</span> <span class="nav-text">程序计数器</span></a></li></ol></div>
+            
+          </div>
+        </section>
       
 
     </div>
@@ -480,11 +555,9 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
 
 
   

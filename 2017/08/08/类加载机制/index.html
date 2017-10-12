@@ -84,15 +84,43 @@
 
 
 
-<meta name="description" content="还有什么比不浪费时间更有意义的事呢？">
-<meta property="og:type" content="website">
+<meta name="description" content="类加载时机
+new getstatic putstatis invokestatic 四个字节码指令
+反射
+发现父类还没有进行初始
+main方法所在的类
+当用 jdk 1.7冬天语言支持ref_getstatic  ref_putStatic ref_invokeStatic 三个句柄
+
+类加载过程加载 验证 准备 解析 初始化  
+双清委派模型
+启动类加载器 (BootStrap) C++实现">
+<meta property="og:type" content="article">
 <meta property="og:title" content="mashell">
-<meta property="og:url" content="http://mashell.cn/archives/2016/12/index.html">
+<meta property="og:url" content="http://mashell.cn/2017/08/08/类加载机制/index.html">
 <meta property="og:site_name" content="mashell">
-<meta property="og:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta property="og:description" content="类加载时机
+new getstatic putstatis invokestatic 四个字节码指令
+反射
+发现父类还没有进行初始
+main方法所在的类
+当用 jdk 1.7冬天语言支持ref_getstatic  ref_putStatic ref_invokeStatic 三个句柄
+
+类加载过程加载 验证 准备 解析 初始化  
+双清委派模型
+启动类加载器 (BootStrap) C++实现">
+<meta property="og:updated_time" content="2017-08-08T09:57:39.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mashell">
-<meta name="twitter:description" content="还有什么比不浪费时间更有意义的事呢？">
+<meta name="twitter:description" content="类加载时机
+new getstatic putstatis invokestatic 四个字节码指令
+反射
+发现父类还没有进行初始
+main方法所在的类
+当用 jdk 1.7冬天语言支持ref_getstatic  ref_putStatic ref_invokeStatic 三个句柄
+
+类加载过程加载 验证 准备 解析 初始化  
+双清委派模型
+启动类加载器 (BootStrap) C++实现">
 
 
 
@@ -113,10 +141,10 @@
 
 
 
-  <link rel="canonical" href="http://mashell.cn/archives/2016/12/"/>
+  <link rel="canonical" href="http://mashell.cn/2017/08/08/类加载机制/"/>
 
 
-  <title> 归档 | mashell </title>
+  <title>  | mashell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -137,7 +165,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
@@ -217,103 +245,144 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-    <span class="archive-page-counter">
-      
-      
-      
-        
-      
-      嗯..! 目前共计 14 篇日志。 继续努力。
-    </span>
-
+  <div id="posts" class="posts-expand">
     
-
-      
-      
-      
-
-      
-        
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2016">2016</h2>
-        </div>
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/12/15/Android-内存泄露解析/" itemprop="url">
-              
-                <span itemprop="name">Android 内存泄露解析</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-12-15T11:37:53+08:00"
-              content="2016-12-15" >
-          12-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/12/10/Handler-消息机制/" itemprop="url">
-              
-                <span itemprop="name">Handler 消息机制</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-12-10T21:20:14+08:00"
-              content="2016-12-10" >
-          12-10
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-  </section>
 
   
+  
 
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-08T17:52:21+08:00" content="2017-08-08">
+              2017-08-08
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/08/08/类加载机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/08/类加载机制/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/08/08/类加载机制/" class="leancloud_visitors" data-flag-title="">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="类加载时机"><a href="#类加载时机" class="headerlink" title="类加载时机"></a>类加载时机</h3><ul>
+<li>new getstatic putstatis invokestatic 四个字节码指令</li>
+<li>反射</li>
+<li>发现父类还没有进行初始</li>
+<li>main方法所在的类</li>
+<li>当用 jdk 1.7冬天语言支持ref_getstatic  ref_putStatic ref_invokeStatic 三个句柄</li>
+</ul>
+<h3 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h3><p>加载 验证 准备 解析 初始化  </p>
+<h3 id="双清委派模型"><a href="#双清委派模型" class="headerlink" title="双清委派模型"></a>双清委派模型</h3><ul>
+<li>启动类加载器 (BootStrap) C++实现 虚拟机自身一部分</li>
+<li>其他类加载器</li>
+</ul>
+<p>过程:调用父类的加载器,父类无法完成再调用自己的加载器</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/08/内存分配/" rel="next" title="">
+                <i class="fa fa-chevron-left"></i> 
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -321,6 +390,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/08/08/类加载机制/"
+           data-title="" data-url="http://mashell.cn/2017/08/08/类加载机制/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -340,8 +417,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
@@ -384,6 +470,17 @@
 
       </section>
 
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#类加载时机"><span class="nav-number">1.</span> <span class="nav-text">类加载时机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类加载过程"><span class="nav-number">2.</span> <span class="nav-text">类加载过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双清委派模型"><span class="nav-number">3.</span> <span class="nav-text">双清委派模型</span></a></li></ol></div>
+            
+          </div>
+        </section>
       
 
     </div>
@@ -480,11 +577,9 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
 
 
   

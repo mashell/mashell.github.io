@@ -114,7 +114,7 @@ OnClickListener 的 onClick
 
 
 View">
-<meta property="og:updated_time" content="2017-05-08T19:05:16.000Z">
+<meta property="og:updated_time" content="2017-09-27T09:24:02.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android View 事件分发机制">
 <meta name="twitter:description" content="view有三个重要的方法：
@@ -382,7 +382,7 @@ View">
 <ul>
 <li><p>onInterceptTouchEvent ( <code>if (!canceled &amp;&amp; !intercepted)</code> 返回false，这样就无法分发给子 view )表示是否对事件进行拦截，返回true 则拦截，反之。默认返回 false.</p>
 </li>
-<li><p>子View中如果将传递的事件消费掉(dispatchTouchEvent 返回 false，从而导致 dispatchTransformedTouchEvent 返回 false )，导致 没执行 addTouchTarget ，这样 mFirstTouchTarget 依旧为 null，那么 ACTION_MOVE,ACTION_DOWN 就无法执行了。</p>
+<li><p>子View中如果将传递的事件消费掉(dispatchTouchEvent 返回 false，从而导致 dispatchTransformedTouchEvent 返回 false )，导致 没执行 addTouchTarget ，这样 mFirstTouchTarget 依旧为 null，那么 ACTION-MOVE , ACTION-DOWN 就无法执行了。</p>
 </li>
 </ul>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="在view-中"><a href="#在view-中" class="headerlink" title="在view 中"></a>在view 中</h3><ul>
@@ -397,7 +397,7 @@ View">
 <h3 id="在-ViewGroup-中"><a href="#在-ViewGroup-中" class="headerlink" title="在 ViewGroup 中"></a>在 ViewGroup 中</h3><ul>
 <li>点击事件先传到 viewGroup ，然后再传到 子view</li>
 <li>viewGroup 中有一个 onInterceptTouchEvent（）方法，如果该方法返回true则将事件拦截，子view无法处理事件。返回false则不拦截，默认返回 false</li>
-<li>viewGroup 一旦决定拦截该事件，那么时间都交给它处理，而且不再调用 onInterceptTouchEvent() 方法（mFirstTouchTarget 为 null，不再进入 true 代码块）.</li>
+<li>viewGroup 一旦决定拦截该事件，那么事件都交给它处理，而且不再调用 onInterceptTouchEvent() 方法（mFirstTouchTarget 为 null，不再进入 true 代码块）.</li>
 <li>如果子view消耗了事件，那么viewGroup将无法接收到事件。如果所有子view都无法处理事件，那么将回交给viewGroup处理。</li>
 </ul>
 
@@ -507,7 +507,7 @@ View">
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-count">14</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

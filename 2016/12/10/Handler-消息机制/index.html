@@ -92,7 +92,7 @@ Handler的使用1.使用sendMessage的方式实现Handler(1) Handler自身实现
 <meta property="og:site_name" content="mashell">
 <meta property="og:description" content="Handler 消息机制今天我们来学习一下Handler的源码,在这之前我们回顾一下Handler的基本使用
 Handler的使用1.使用sendMessage的方式实现Handler(1) Handler自身实现handleMessage方法 主线程中(更新UI的地方，创建handler)，这里提一点，想要handler更新UI，那么handler的初始化必须在主线程，handler总是绑定创建">
-<meta property="og:updated_time" content="2017-05-08T19:26:05.000Z">
+<meta property="og:updated_time" content="2017-08-30T10:37:39.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Handler 消息机制">
 <meta name="twitter:description" content="Handler 消息机制今天我们来学习一下Handler的源码,在这之前我们回顾一下Handler的基本使用
@@ -359,7 +359,7 @@ Handler的使用1.使用sendMessage的方式实现Handler(1) Handler自身实现
 <p>至此，我们看到，一个Message经由Handler（在其他线程）的发送，MessageQueue的入队，Looper的抽取，又再一次地回到Handler的怀抱。而绕的这一圈，也正好帮助我们将异步操作变成了同步操作。</p>
 <p>这样我们 Handler源码也大致阅读完了。当然，还有三个遗留下来的问题</p>
 <p>以上摘自，<a href="http://www.lai18.com/content/7720895.html" target="_blank" rel="external">http://www.lai18.com/content/7720895.html</a></p>
-<h4 id="Q1-为什么Handler跟线程绑定起来了"><a href="#Q1-为什么Handler跟线程绑定起来了" class="headerlink" title="Q1 为什么Handler跟线程绑定起来了"></a>Q1 为什么Handler跟线程绑定起来了</h4><p>handler有一个成员属性为mQueue，</p>
+<h4 id="Q1-为什么Handler跟线程绑定起来了"><a href="#Q1-为什么Handler跟线程绑定起来了" class="headerlink" title="Q1 为什么Handler跟线程绑定起来了"></a>Q1 为什么Handler跟线程绑定起来了</h4><p>handler有两个成员属性为mQueue，和Looper</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mLooper = Looper.myLooper();</div><div class="line">mQueue = mLooper.mQueue;</div></pre></td></tr></table></figure>
 <p>mLooper与Handler有关，而mLooper与当前线程有关，这样就绑定了线程</p>
 <h4 id="Q2-主线程中实例化-Handler-为什么不需要-初始化-looper"><a href="#Q2-主线程中实例化-Handler-为什么不需要-初始化-looper" class="headerlink" title="Q2 主线程中实例化 Handler 为什么不需要 初始化 looper"></a>Q2 主线程中实例化 Handler 为什么不需要 初始化 looper</h4><p>在每一个Application启动的时候，会给这个Application分配一个 ActivityThread ，就是我们所说的 UI 线程，一个类的入口方法是 main 函数，这里看下源码。</p>
@@ -484,7 +484,7 @@ Handler的使用1.使用sendMessage的方式实现Handler(1) Handler自身实现
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-count">14</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

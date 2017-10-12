@@ -241,6 +241,1029 @@
             
               
                 
+                <a class="post-title-link" href="/2017/08/08/类加载机制/" itemprop="url">
+                  未命名
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-08T17:52:21+08:00" content="2017-08-08">
+              2017-08-08
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/08/08/类加载机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/08/类加载机制/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/08/08/类加载机制/" class="leancloud_visitors" data-flag-title="">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="类加载时机"><a href="#类加载时机" class="headerlink" title="类加载时机"></a>类加载时机</h3><ul>
+<li>new getstatic putstatis invokestatic 四个字节码指令</li>
+<li>反射</li>
+<li>发现父类还没有进行初始</li>
+<li>main方法所在的类</li>
+<li>当用 jdk 1.7冬天语言支持ref_getstatic  ref_putStatic ref_invokeStatic 三个句柄</li>
+</ul>
+<h3 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h3><p>加载 验证 准备 解析 初始化  </p>
+<h3 id="双清委派模型"><a href="#双清委派模型" class="headerlink" title="双清委派模型"></a>双清委派模型</h3><ul>
+<li>启动类加载器 (BootStrap) C++实现 虚拟机自身一部分</li>
+<li>其他类加载器</li>
+</ul>
+<p>过程:调用父类的加载器,父类无法完成再调用自己的加载器</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/08/08/内存分配/" itemprop="url">
+                  未命名
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-08-08T17:13:43+08:00" content="2017-08-08">
+              2017-08-08
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/08/08/内存分配/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/08/内存分配/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/08/08/内存分配/" class="leancloud_visitors" data-flag-title="">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="java堆"><a href="#java堆" class="headerlink" title="java堆"></a>java堆</h3><p>存放对象实例,几乎所有对象实例都在这里创建,垃圾收集器的主要区域</p>
+<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>存储 类信息,常量,静态变量,编译后的代码等</p>
+<h3 id="JVM栈"><a href="#JVM栈" class="headerlink" title="JVM栈"></a>JVM栈</h3><p>java方法的内存模型,用于存储局部变量表、操作数栈、动态链接、方法出口等信息。每个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程。</p>
+<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>本地方法栈和JVM栈非常相似，它们之间的区别不过是jvm栈是为执行java方法服务，而本地方法栈是为jvm使用到对的本地方法服务。HotSpot虚拟机中直接把本地方法栈和JVM栈合二为一了。</p>
+<h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>看做当前程序执行字节码的行号指示器(如果本地方法就是空的) 通过改变这个计数器选择下一条需要执行的字节码指令,分支\循环\跳转\异常处理\县城回复 ,, 唯一没有 OutOfMemory的区域.  </p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" itemprop="url">
+                  JVM学习笔记(五):JVM方法调用内部机制
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-17T17:46:56+08:00" content="2017-04-17">
+              2017-04-17
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" class="leancloud_visitors" data-flag-title="JVM学习笔记(五):JVM方法调用内部机制">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>JVM方法调用的内部机制</p>
+<h3 id="栈帧结构"><a href="#栈帧结构" class="headerlink" title="栈帧结构"></a>栈帧结构</h3><p>为了调用方法和返回方法,JVM维护了一个栈结构,里面存放的实体称为栈帧,每个栈帧包括 <strong>局部变量表</strong> <strong>操作数栈</strong> <strong>动态链接</strong> <strong>方法返回地址</strong> 和额外的信息.在编译期,栈帧需要多大的局部变量表已经确定了</p>
+<h4 id="局部变量表"><a href="#局部变量表" class="headerlink" title="局部变量表"></a>局部变量表</h4><p>存放方法参数和方法内创建的局部变量,局部变量表的容量以 Slot 为最小单位,一个 Slot 可以存放一个 32位以内的数据类型.<strong>long double 需要两个</strong></p>
+<p>如果方法时非 <code>static</code> 的,那么局部变量表中第0位索引 Slot 默认用于传递方法所属对象实例的引用   <strong>(this)</strong></p>
+<p>为了节省栈帧空间,Slot是可以重用的,一个局部变量定义了没有赋初始值是不能用的</p>
+<h4 id="操作数栈"><a href="#操作数栈" class="headerlink" title="操作数栈"></a>操作数栈</h4><p>JVM解析执行字节码是基于栈结构,调用其他方法是通过操作数栈来进行参数传递的</p>
+<h5 id="方法大致调用过程"><a href="#方法大致调用过程" class="headerlink" title="方法大致调用过程"></a>方法大致调用过程</h5><ul>
+<li>每一次调用指令前,JVM把方法被调用的<strong>对象引用</strong>引入操作数栈,JVM还会把<strong>方法的参数</strong>依次放入<strong>操作数栈</strong></li>
+<li>调用方法的时候,JVM将参数和对象引用依次从操作数栈弹出,并建立一个新的栈帧存放刚才弹出的变量放入 Slot 1,2,3..</li>
+<li>JVM把新栈帧push入<strong>虚拟机方法栈</strong>,并把PC指向函数第一条待执行的指令</li>
+</ul>
+<blockquote>
+<p>JVM通过编译器的静态绑定或者运行时期的动态绑定获取被调用方法的地址</p>
+</blockquote>
+<h3 id="方法调用字节码指令"><a href="#方法调用字节码指令" class="headerlink" title="方法调用字节码指令"></a>方法调用字节码指令</h3><ul>
+<li>invokestatic 调用静态方法</li>
+<li>invokespecial 调用实例构造器<init>,私有方法和父类方法</init></li>
+<li>invokeVirtual 调用所有的<strong>虚方法</strong>(静态方法,私有方法,实例构造器,父类方法,final 方法 都不是 虚方法)</li>
+<li>invokeinterface 调用接口方法,在运行时期确定一个实现此接口的对象</li>
+</ul>
+<p>invokestatic 和 invokespecial 在类加载阶段就把符号解析为该方法的引用,静态</p>
+<p>invokevirtual和invokeinterface 是在运行时确定具体的方法地址</p>
+<h3 id="动态分配"><a href="#动态分配" class="headerlink" title="动态分配"></a>动态分配</h3><p>当JVM 遇到 invokevirtual或者invokeinterface时,需要运行时根据方法符号找到方法地址,具体过程如下</p>
+<ul>
+<li>方法调用前,将对象的引用压入操作数栈</li>
+<li>方法调用时,找到操作数栈顶的第一个元素所指向的对象实际类型,记为C</li>
+<li>在 C类中找到常量池中描述符和方法名都相符的方法,并校验访问权限,找到方法并通过校验,就返回这个方法的引用</li>
+<li>没找到继续按照继承关系向上找并且校验权限</li>
+<li>还是没找到 抛出<code>AbstractMethodError</code>异常</li>
+</ul>
+<p>为了提高动态分配时候方法查找的效率,JVM为每个类维护一个虚函数表</p>
+<h3 id="虚函数表"><a href="#虚函数表" class="headerlink" title="虚函数表"></a>虚函数表</h3><p>目的:为了快速找到方法索引地址</p>
+<p>JVM在链接类的过程中,给每个类分配相应方法表内存空间,每个类对应一个方法表,都存在于 <strong>方法区</strong> 中,Java 每个对象的<strong>对象头</strong>有一个类型指针,可以找到对应的类,类数据中对应一个方法表,类级别的方法表</p>
+<p><strong>方法表</strong>包含了类所有方法的入口地址,<strong>父类继承</strong>的方法放在前面,然后是**接口</p>
+<p><img src="http://img.blog.csdn.net/20170818151037199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVGVsbEg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<h4 id="invokevirtual-与-invokeInterface-区别"><a href="#invokevirtual-与-invokeInterface-区别" class="headerlink" title="invokevirtual 与 invokeInterface 区别"></a>invokevirtual 与 invokeInterface 区别</h4><p><strong>invokevirtual</strong>虚方法是按照父类到子类的顺序排序的,因此使用 invokevirtual 调用虚函数,JVM可以再编译器就确定虚函数在方法表上的 offset ,从而快速定位方法地址</p>
+<p><strong>invokeInterface</strong> 接口可以由不同的类实现,所以接口方法在不同类的中 方法表 offset 都不一样,因此每次调用接口方法,都要搜寻一遍虚函数表,效率低于 <strong>invokevirtual</strong></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/15/JVM学习笔记-四-类加载机制/" itemprop="url">
+                  JVM学习笔记(四):类加载机制
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-15T17:45:57+08:00" content="2017-04-15">
+              2017-04-15
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/15/JVM学习笔记-四-类加载机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/15/JVM学习笔记-四-类加载机制/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/15/JVM学习笔记-四-类加载机制/" class="leancloud_visitors" data-flag-title="JVM学习笔记(四):类加载机制">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="类加载时机"><a href="#类加载时机" class="headerlink" title="类加载时机"></a>类加载时机</h3><ul>
+<li>new getstatic putstatis invokestatic 四个字节码指令</li>
+<li>反射</li>
+<li>发现父类还没有进行初始,加载父类</li>
+<li>main方法所在的类</li>
+<li>当用 jdk 1.7动态语言支持ref_getstatic  ref_putStatic ref_invokeStatic 三个句柄</li>
+</ul>
+<h3 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h3><ul>
+<li><p><strong>加载 </strong></p>
+<ul>
+<li>通过一个类的全限定名获取类的二进制字节流</li>
+<li>将字节流代表的静态存储结构转为方法区的运行时数据结构</li>
+<li>内存中生成一个<code>Class</code>对象,作为方法区这个类的各种数据访问入口</li>
+</ul>
+</li>
+<li><p><strong>验证</strong> :确保字节流包含的信息符合要求</p>
+<ul>
+<li><strong>文件格式验证</strong>:是否符合Class文件规范</li>
+<li><strong>元数据验证</strong>:对<strong>类的元数据</strong>语义分析,符合java语言规范</li>
+<li><strong>字节码验证</strong>:对<strong>类的方法体</strong>进行校验分析</li>
+<li><strong>符号引用雅正</strong></li>
+</ul>
+</li>
+<li><p><strong>准备</strong>:为类变量分配内存和设置初始值 ,所需内存都在方法去分配</p>
+<ul>
+<li>类变量指的 <code>static</code> 修饰的变量</li>
+<li>初始值指的 零值,不是人为代码的赋值</li>
+</ul>
+</li>
+<li><p><strong>解析</strong> : 将常量池的符号引用替换为直接引用</p>
+</li>
+<li><p><strong>初始化</strong>  :赋值人为设置的值</p>
+</li>
+</ul>
+<h3 id="双亲委派模型"><a href="#双亲委派模型" class="headerlink" title="双亲委派模型"></a>双亲委派模型</h3><p>除了顶端的加载器,其他加载器都应该有父类的加载器</p>
+<ul>
+<li>启动类加载器 (BootStrap) C++实现 虚拟机自身一部分</li>
+<li>其他类加载器</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">public void loadClass()&#123;</div><div class="line">	Class c findLoadedClass(name);</div><div class="line">	//类没有被加载过</div><div class="line">	if(c == null)&#123;</div><div class="line">		//尝试加载父类的加载器</div><div class="line">		if(parent != null)&#123;</div><div class="line">			//一层一层向顶部递归调用</div><div class="line">			c = parent.loadClass();</div><div class="line">		&#125;else &#123;</div><div class="line">			//找到最顶端还是没找到,调用 bootstrap</div><div class="line">			c  = findBootstrapClass();</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	if(c == null)&#123;</div><div class="line">		//父类无法加载</div><div class="line">		c = findClass();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>过程:调用父类的加载器,父类无法完成再调用自己的加载器</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/10/JVM学习笔记-三-Java内存模型/" itemprop="url">
+                  JVM学习笔记(三):Java内存模型
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-10T16:10:39+08:00" content="2017-04-10">
+              2017-04-10
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/10/JVM学习笔记-三-Java内存模型/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/10/JVM学习笔记-三-Java内存模型/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/10/JVM学习笔记-三-Java内存模型/" class="leancloud_visitors" data-flag-title="JVM学习笔记(三):Java内存模型">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="java-内存模型"><a href="#java-内存模型" class="headerlink" title="java 内存模型"></a>java 内存模型</h3><p>目标:定义程序各个变量的访问规则</p>
+<ul>
+<li><strong>主内存</strong>(共享-&gt;java堆): 所有变量都存储在这</li>
+<li><strong>工作内存</strong>(私有-虚拟机栈): 变量在工作内存中只是拷贝的副本</li>
+</ul>
+<h4 id="内存间交互操作"><a href="#内存间交互操作" class="headerlink" title="内存间交互操作"></a>内存间交互操作</h4><p>java内存模型定义了以下八种操作,都是原子性的</p>
+<ul>
+<li>lock(锁定)</li>
+<li>unlock(解锁)</li>
+<li>read(读取)</li>
+<li>load(载入)</li>
+<li>use(使用)</li>
+<li>assign(赋值)</li>
+<li>store(存储)</li>
+<li>write(写入)</li>
+</ul>
+<p>使用八种操作要符合以下规则</p>
+<ul>
+<li>一个新变量只能在<strong>主内存</strong>中诞生,对一个变量 <code>use,store</code>前,必须 <code>assign和load</code></li>
+<li>对一个变量 <code>lock</code> 了,那么会清空 <strong>工作内存</strong> 中变量的值,然后需要重新<code>load或assign</code></li>
+<li>对一个变量 <code>unlock</code> 之前,必须把变量同步回<strong>主内存</strong>中,<code>store,write</code></li>
+</ul>
+<h3 id="volatile-操作"><a href="#volatile-操作" class="headerlink" title="volatile 操作"></a>volatile 操作</h3><ul>
+<li>保证了可见性原理<ul>
+<li>产生一个<strong>内存屏障</strong>:他使用一个<code>lock</code>操作,这样会清空工作内存的值,然后从新执行<code>load assign</code>,获取主内存的最新数据</li>
+<li><code>lock</code>后会<code>unlock</code>,会执行 <code>store,write</code>,将数据写回主内存,通过这两点保证了可见性</li>
+</ul>
+</li>
+<li>保证了有序性:<ul>
+<li>因为<strong>内存屏障</strong>,lock指令会把修改同步到主内存中,这样形成了<code>指令重排序无法越过内存屏障</code>也就是volatile</li>
+</ul>
+</li>
+</ul>
+<h4 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h4><ul>
+<li>八个基本操作是原子性的,基本数据类型的访问读写是具有原子性的</li>
+<li>更大范围需要保证原子性,可以用<strong>synchronized</strong></li>
+</ul>
+<h4 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h4><p>一个线程修改了共享变量的值,其他线程能立即获取到这个修改</p>
+<ul>
+<li><strong>synchronized</strong> 通过 <code>unlock</code> 之前,必须将变量同步回主内存</li>
+<li><strong>final</strong> 通过 不传递 <code>this</code></li>
+</ul>
+<h4 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h4><ul>
+<li>volatile 通过<code>禁止指令重排序</code>保证有序性</li>
+<li>synchronized 通过 <code>一个变量同一时刻只能有一个线程 lock</code></li>
+</ul>
+<h4 id="先行先发生-hapends-before"><a href="#先行先发生-hapends-before" class="headerlink" title="先行先发生 hapends-before"></a>先行先发生 hapends-before</h4><p>如果两个操作间的关系不在下面规则内,那么就没有顺序性保障</p>
+<ul>
+<li><strong>程序次序规则</strong>:单个线程内程序流顺序</li>
+<li><strong>官程锁定规则</strong>:对于同一个锁,<code>unlock</code>发生在<code>lock</code>之前</li>
+<li><strong>valatile 变量规则</strong></li>
+<li><strong>线程启动规则</strong>:start()先行于线程内任何操作</li>
+<li><strong>线程终止规则</strong>:所有操作先行于 线程终止</li>
+<li><strong>线程中断规则</strong>:<code>interrupt()</code>先行发生于被中断的代码</li>
+<li><strong>对象终结规则</strong>:对象的初始化先行于 <code>finalize()</code></li>
+<li><strong>传递性</strong></li>
+</ul>
+<h3 id="JAVA-与-线程"><a href="#JAVA-与-线程" class="headerlink" title="JAVA 与 线程"></a>JAVA 与 线程</h3><h4 id="线程的实现"><a href="#线程的实现" class="headerlink" title="线程的实现"></a>线程的实现</h4><ul>
+<li>使用内核线程实现</li>
+<li>使用用户线程实现</li>
+<li>使用用户线程+轻量级进程(线程)实现<h4 id="线程调度"><a href="#线程调度" class="headerlink" title="线程调度"></a>线程调度</h4></li>
+<li>协同式调度:执行时间由线程本身控制</li>
+<li>抢占式调度,由系统分配执行时间</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/07/JVM学习笔记-二-垃圾回收/" itemprop="url">
+                  JVM学习笔记(二):垃圾回收
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-07T16:14:11+08:00" content="2017-04-07">
+              2017-04-07
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/07/JVM学习笔记-二-垃圾回收/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/07/JVM学习笔记-二-垃圾回收/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/07/JVM学习笔记-二-垃圾回收/" class="leancloud_visitors" data-flag-title="JVM学习笔记(二):垃圾回收">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="对象已死吗"><a href="#对象已死吗" class="headerlink" title="对象已死吗?"></a>对象已死吗?</h4><ul>
+<li>引用计数法:有引用就+1,但是两个对象互相持有引用的时候就没办法回收</li>
+<li>可达性分析:通过一系列 <strong>GC Root</strong>作为起始点,向下搜索,走过的路称为引用链,当一个对象到GC Root没有任何引用链时,就成为不可用的,什么可以当做 <code>GC Root</code>?<ul>
+<li>虚拟机栈中的引用对象</li>
+<li>方法区中静态属性引用的对象</li>
+<li>常量引用的对象</li>
+<li>JNI引用的对象</li>
+</ul>
+</li>
+</ul>
+<h4 id="对象生存还是死亡"><a href="#对象生存还是死亡" class="headerlink" title="对象生存还是死亡?"></a>对象生存还是死亡?</h4><ul>
+<li>当对象没有 GC Root 引用时,会被第一次标记,然后进行筛选,筛选的条件是对象有没有必要执行 <code>finalize()</code> 方法,对象没有覆盖<code>finalize()</code>方法或者已经调用过都算没有必要执行</li>
+<li>如果有必要执行,对象会被放置在 <code>F-Queue</code>队列中,然后被一个低优先级线程执行回收.</li>
+</ul>
+<h3 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h3><h4 id="标记-清除算法"><a href="#标记-清除算法" class="headerlink" title="标记-清除算法"></a>标记-清除算法</h4><p><strong>过程:</strong>标记处需要回收的对象,标记完成后统一回收.</p>
+<p><strong>缺点:</strong>效率低,空间碎片</p>
+<h4 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h4><p>复制算法是先将内存分为连个部分，一部分用来放入对象，而另一部分暂时不用，当使用的一部分内存要进行垃圾回收的时候会将不需要回收的对象复制保存在另一个空间中，然后再对使用过的那部分区域进行垃圾回收，这样虽然效率很高，但是很浪费空间，</p>
+<p>所以一般将新生代分为Eden空间和两个Survivor空间，其大小在HotSpot虚拟机中默认比例为8：1：1，这样在新生代中采用复制算法回收垃圾效率就很高了.</p>
+<p>具体回收过程是将<strong>Eden</strong>区域和<strong>From Survivor</strong>区域作为对象的存储空间，当要进行垃圾回收的时候先将这两个区域中不需要回收的对象复制保存在<strong>To Survivor</strong>区域中，然后再进行垃圾回收,两块 Survivo 交换作用。另外有一点是当一个对象在<strong>Eden</strong>区域和<strong>From Survivor</strong>区域中复制到<strong>To Survivo</strong>的时候发现内存不足，这时会进行内存 <code>分配担保</code></p>
+<h4 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记 - 整理算法"></a>标记 - 整理算法</h4><p>与 <strong>标记-清除</strong> 一样,只是后续步骤让所有存活对象都向一端移动,然后清除边界外的内存</p>
+<h4 id="分代算法"><a href="#分代算法" class="headerlink" title="分代算法"></a>分代算法</h4><p>java区分为新生代和老年代,</p>
+<ul>
+<li><p>新生代用 <strong>复制算法</strong>  </p>
+</li>
+<li><p>老年代用 <strong>标记-清除</strong>, <strong>标记-整理</strong></p>
+</li>
+</ul>
+<h3 id="内存分配与回收策略"><a href="#内存分配与回收策略" class="headerlink" title="内存分配与回收策略"></a>内存分配与回收策略</h3><ul>
+<li>对象优先在 Eden 区域分配, Eden 区域不够时,进行一次 <strong>Minor GC</strong>:时间短，频率高</li>
+<li>大对象直接进老年代,老年代内存不够进行 <strong>Full GC</strong>时间长，频率低</li>
+<li><p>长期存活的对象进入老年代(解释如下)</p>
+<ul>
+<li>关于对象的分配：对象优先在Eden区域分配，大对象会直接进入老年代，长期存活的对象会进入老年代，这里的长期存活是根据新生代中的对象年龄阈值来定义的，对象刚分配到新生代的时候年龄为1，每进行一次GC对象的年龄会加1，HotSpot中默认的阈值是15，也就是说对象年龄达到15岁的时候会被分配到老年区，这个值是可以通过参数配置的。</li>
+<li>如果相同年龄中所有对象大小总和大于 Survivo的一半,那么大于等于这个相同年龄的对象都进入老年代</li>
+</ul>
+</li>
+</ul>
+<h3 id="空间分配担保"><a href="#空间分配担保" class="headerlink" title="空间分配担保"></a>空间分配担保</h3><ul>
+<li><strong>Minor GC</strong> 前,虚拟机会检查老年代最大可连续用空间是否大于新生代所有对象空间,大于则 Minor GC是安全的</li>
+<li>如果不大于,那么看是否允许设置担保失败,允许话:检查<strong>老年代</strong>最大可以的连续空间是否大于历次晋级到老年代的对象的平均大小,大于则尝试 <strong>Minor GC</strong>,小于的话 <strong>Full GC</strong></li>
+</ul>
+<h3 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h3><ul>
+<li>Serial 收集器:(新生代)<strong>单线程</strong>收集器,垃圾回收时暂停其他所有工作线程<code>Stop the world</code></li>
+<li>ParNew 收集器:(新生代)<strong>多线程</strong>版本的 Serial,其他都一样</li>
+<li>Parallel Scavenge 收集器:(新生代)为了达到<strong>可控制的吞吐量</strong>,而不是缩短停顿时间</li>
+<li>Serial Old 收集器:(老年代) <strong>单线程</strong> Serial 收集器的老年代版本</li>
+<li>Parallel Old 收集器:(老年代) <strong>多线程</strong> 注重 <strong>吞吐量</strong></li>
+<li>CMS 收集器:以获取<strong>最短回收停顿时间</strong>为目标,采用 <strong>标记-清除</strong>算法<ul>
+<li>初始标记 -&gt; 并发表及 -&gt;  重新标记- &gt; 并发清楚</li>
+<li><strong>缺点</strong>:对CPU资源敏感 -&gt; 无法清除浮动垃圾- &gt; 标记-清除,产生空间碎片</li>
+</ul>
+</li>
+<li>G1 收集器:</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/04/03/JVM学习笔记-一-内存分配/" itemprop="url">
+                  JVM学习笔记(一):内存分配
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-03T15:32:39+08:00" content="2017-04-03">
+              2017-04-03
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/03/JVM学习笔记-一-内存分配/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/03/JVM学习笔记-一-内存分配/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/03/JVM学习笔记-一-内存分配/" class="leancloud_visitors" data-flag-title="JVM学习笔记(一):内存分配">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="java堆"><a href="#java堆" class="headerlink" title="java堆"></a>java堆</h3><p>存放对象实例,几乎所有对象实例都在这里创建,垃圾收集器的主要区域<em>(线程共享)</em></p>
+<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><ul>
+<li>存储 <strong>类信息,常量,静态变量,编译后的代码等</strong> <em>(线程共享)</em></li>
+<li>运行时常量池:存储编译期产生的字面量和符号引用, 类加载后放入运行时常量池</li>
+</ul>
+<h3 id="JVM虚拟机栈"><a href="#JVM虚拟机栈" class="headerlink" title="JVM虚拟机栈"></a>JVM虚拟机栈</h3><p>java 方法的内存模型,用于存储局部变量表、操作数栈、动态链接、方法出口等信息。每个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程。<em>(线程私有)</em></p>
+<p>栈可能会出现栈溢出</p>
+<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>本地方法栈和JVM栈非常相似，它们之间的区别不过是jvm栈是为执行java方法服务，而本地方法栈是为jvm使用到对的本地方法服务。HotSpot虚拟机中直接把本地方法栈和JVM栈合二为一了。<em>(线程私有)</em></p>
+<h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>看做当前程序执行字节码的行号指示器(如果本地方法就是空的) 通过改变这个计数器选择下一条需要执行的字节码指令,分支\循环\跳转\异常处理\线程回复 ,<strong>唯一没有 OutOfMemory的区域.</strong>  <em>(线程私有)</em></p>
+<h3 id="对象的内存布局"><a href="#对象的内存布局" class="headerlink" title="对象的内存布局"></a>对象的内存布局</h3><ul>
+<li>对象头:存储对象自身的运行时数据<ul>
+<li>哈希码,GC分代年龄,锁状态标志,</li>
+<li>类型指针,指向它的类元数据的指针,听过这个指针确定是哪个类的实例</li>
+<li>如果是 java 数组,还有一块记录数据长度的数据</li>
+</ul>
+</li>
+<li>实例数据</li>
+<li>对齐填充</li>
+</ul>
+<h3 id="对象的创建过程"><a href="#对象的创建过程" class="headerlink" title="对象的创建过程"></a>对象的创建过程</h3><ol>
+<li>先检查常量池中能否定位到一个类的符号引用,并且检查类是否已经加载,解析和初始化过了.</li>
+<li>为对象分配内存,在 java 堆中,如果 java 堆 规整,那么通过 <strong>指针碰撞</strong> 分配出内存空间.否则利用 <strong>空闲列表</strong>找到足够大的空间划分给对象。需要的内存大小在类加载的时候已经确定了。</li>
+</ol>
+<blockquote>
+<p><strong>指针碰撞</strong>：java 内存规整，所有使用过得内存放一边，没有使用过的放在另一边，中间有一个指针作为分界点。分配内存就是把指针指向空闲空间移动一段与内存大小相等的距离。</p>
+<p><strong>空闲列表</strong>：Java 内存不规整，虚拟机维护一张表，记录那块内存可用。再分配时在列表中找到一块足够大的空间划分给对象实例。并更新列表记录。</p>
+</blockquote>
+<ol>
+<li>内存分配完后,JVM将内存空间的初始化零值,然后对于 <strong>对象头</strong>,进行设置(所属类实例,对象哈希码,对象GC分代年龄)</li>
+<li><init> 执行,将对象按照代码意愿进行初始化,对象创建.</init></li>
+</ol>
+<h3 id="对象的内存布局-1"><a href="#对象的内存布局-1" class="headerlink" title="对象的内存布局"></a>对象的内存布局</h3><ol>
+<li><p>对象头：</p>
+<p> 1.1 ：第一部分用于存储对象自身的运行时数据，如哈希码（HashCode）、GC分代年龄、锁状态标志、线程持有的锁、偏向线程ID、偏向时间戳等。</p>
+<p> 1.2：类型指针，即对象指向它的类元数据的指针，虚拟机通过这个指针来确定这个对象是哪个类的实例。</p>
+<p> 1.3：如果对象是一个数组，那么还得记录数组的长度。</p>
+</li>
+<li><p>实例数据：对象真正存储的有效信息，程序中定义的各中字段</p>
+</li>
+<li><p>对齐填充：将对象大小填充为8的整数倍</p>
+</li>
+</ol>
+<h3 id="对象的访问定位"><a href="#对象的访问定位" class="headerlink" title="对象的访问定位"></a>对象的访问定位</h3><ul>
+<li><strong>使用句柄</strong>: java划分一块内存作为句柄池,引用存的是对象的句柄地址,然后句柄再指向对象地址</li>
+<li><strong>直接指针</strong>: 引用直接指向对象地址</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/03/05/Android-Bitmap-占多大内存/" itemprop="url">
                   Android Bitmap 占多大内存
                 </a>
@@ -309,14 +1332,12 @@
 <li>RGB_565 ： red 5位， green 6位， blue 5位，那么一个像素点占 16位</li>
 </ul>
 <p>图的位数越高，占用的内存越大</p>
-<p>一张图片占用的内存取决于 </p>
-<ul>
+<h3 id="一张图片占用的内存取决于"><a href="#一张图片占用的内存取决于" class="headerlink" title="一张图片占用的内存取决于"></a>一张图片占用的内存取决于</h3><ul>
 <li>图片色彩模式</li>
 <li>原始资源的density（资源目录）</li>
 <li>手机的dp</li>
 </ul>
-<p>科普:资源文件对应的dpi</p>
-<ul>
+<h4 id="科普-资源文件对应的dpi"><a href="#科普-资源文件对应的dpi" class="headerlink" title="科普:资源文件对应的dpi"></a>科普:资源文件对应的dpi</h4><ul>
 <li>ldpi 120dpi</li>
 <li>mdpi 160dpi</li>
 <li>hdpi 240dpi</li>
@@ -324,11 +1345,21 @@
 <li>xxhdpi 480dpi</li>
 </ul>
 <p>那么,给定一张图片,他在手机内存中所占大小为: </p>
-<figure class="highlight plain"><figcaption><span>= scaleWidth * scaleHeigth * 一个像素所占字节 = getHeight() * getRowByte() ```</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">```(imageWidth/density*手机dp+0.5)  * (imageHeigth/density*手机dp+0.5) * 一个像素所占字节</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><figcaption><span>= scaleWidth * scaleHeigth * 一个像素所占字节 = getHeight() * getRowByte() ```</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">``` = (imageWidth  * ScaledSize 缩放系数) * (imageHeight * ScaledSize 缩放系数) * 一个像素所占字节</div></pre></td></tr></table></figure>
+<p><code>=  (imageWidth/density*手机dp+0.5)  * (imageHeigth/density*手机dp+0.5) * 一个像素所占字节</code></p>
 <p>比如,一张 <strong>522 * 686</strong> 的 <strong>PNG</strong> (一个像素4字节 )图片,把它放到 <strong>drawable-xxhdpi</strong> 下,在三星S6(640dp)上加载,所占内存为:</p>
 <p>(522/480 <em>640 +0.5) </em> (686/480 <em> 640+0.5) </em> 4 = 2547360 </p>
 <p>参考资料:</p>
 <p> <a href="https://dev.qq.com/topic/591d61f56793d26660901b4e" target="_blank" rel="external">你的Bitmap就究竟占多大内存?</a></p>
+<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><h2 id="dp-dip-sp-px-dpi-区别与转换"><a href="#dp-dip-sp-px-dpi-区别与转换" class="headerlink" title="dp dip  sp  px dpi 区别与转换"></a>dp dip  sp  px dpi 区别与转换</h2><h4 id="px-像素"><a href="#px-像素" class="headerlink" title="px: 像素"></a>px: 像素</h4><h4 id="dpi-屏幕每英寸所包含像素点数目"><a href="#dpi-屏幕每英寸所包含像素点数目" class="headerlink" title="dpi:屏幕每英寸所包含像素点数目"></a>dpi:屏幕每英寸所包含像素点数目</h4><blockquote>
+<p>dpi = 屏幕对角线像素/ 屏幕英寸 </p>
+</blockquote>
+<h4 id="dp-dip-密度无关单位"><a href="#dp-dip-密度无关单位" class="headerlink" title="dp == dip :密度无关单位"></a>dp == dip :密度无关单位</h4><blockquote>
+<p>px = dp*dpi/160</p>
+<p>dp = px*160/dpi</p>
+</blockquote>
+<p>所以对于 160dpi的屏幕 <strong>1dp = 1px</strong></p>
+<h5 id="但是实际的dpi是固定的-120-160-240-320-480"><a href="#但是实际的dpi是固定的-120-160-240-320-480" class="headerlink" title="但是实际的dpi是固定的,120,160,240,320,480"></a>但是实际的dpi是固定的,120,160,240,320,480</h5><p>不同屏幕分辨率下dp差异,我们可以通过单独适配的方法:比如对 <strong>360dp</strong>布局做适配,将布局文件放在 <strong>layout-w320dp</strong> 中,相对单独分辨率做适配,就放在标有分辨率的文件夹中=&gt; <strong>layout-854x480</strong></p>
 
           
         
@@ -443,7 +1474,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> MyAsyncTask().execute();</div></pre></td></tr></table></figure>
 <p>那么,我们就从就直接的 <code>excute</code> 方法入手,excute 是串行的.</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> AsyncTask&lt;Params, Progress, Result&gt; <span class="title">execute</span><span class="params">(Params... params)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> executeOnExecutor(sDefaultExecutor, params);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>可以看到 excute 方法中调用了 <code>executeOnExecutor</code> 方法,而这个方法传入了一个默认的  <code>sDefaultExecutor</code> ,我们嗯跟着步伐进入 <code>executeOnExecutor</code> 看看</p>
+<p>可以看到 excute 方法中调用了 <code>executeOnExecutor</code> 方法,而这个方法传入了一个默认的  <code>sDefaultExecutor</code> ,我们跟着步伐进入 <code>executeOnExecutor</code> 看看</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> AsyncTask&lt;Params, Progress, Result&gt; <span class="title">executeOnExecutor</span><span class="params">(Executor exec, Params... params)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (mStatus != Status.PENDING) &#123;</div><div class="line">            <span class="keyword">switch</span> (mStatus) &#123;</div><div class="line">                <span class="keyword">case</span> RUNNING:</div><div class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Cannot execute task:"</span></div><div class="line">                            + <span class="string">" the task is already running."</span>);</div><div class="line">                <span class="keyword">case</span> FINISHED:</div><div class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Cannot execute task:"</span></div><div class="line">                            + <span class="string">" the task has already been executed "</span></div><div class="line">                            + <span class="string">"(a task can be executed only once)"</span>);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        mStatus = Status.RUNNING;</div><div class="line"></div><div class="line">        onPreExecute();</div><div class="line"></div><div class="line">        mWorker.mParams = params;</div><div class="line">        exec.execute(mFuture);</div><div class="line"></div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <p>在这个我们最直观调用的方法中,我们看到了 <code>onPreExecute()</code> 方法被调用了,我们可以在这初始化一些操作.然后紧接着,我们看到 mWorker的 mParams 被初始化了,最后调用了 <code>exec.execute</code> 方法,然后整个方法就结束了,在这里我们可以猜测到 <code>doInbackgroud()</code> <code>onProgressUpdate()</code> <code>onPostExecute ()</code> 肯定都在 execute 方法之后进行了.<br>这里我们留下了疑问</p>
 <ul>
@@ -655,7 +1686,7 @@
 <ul>
 <li><p>onInterceptTouchEvent ( <code>if (!canceled &amp;&amp; !intercepted)</code> 返回false，这样就无法分发给子 view )表示是否对事件进行拦截，返回true 则拦截，反之。默认返回 false.</p>
 </li>
-<li><p>子View中如果将传递的事件消费掉(dispatchTouchEvent 返回 false，从而导致 dispatchTransformedTouchEvent 返回 false )，导致 没执行 addTouchTarget ，这样 mFirstTouchTarget 依旧为 null，那么 ACTION_MOVE,ACTION_DOWN 就无法执行了。</p>
+<li><p>子View中如果将传递的事件消费掉(dispatchTouchEvent 返回 false，从而导致 dispatchTransformedTouchEvent 返回 false )，导致 没执行 addTouchTarget ，这样 mFirstTouchTarget 依旧为 null，那么 ACTION-MOVE , ACTION-DOWN 就无法执行了。</p>
 </li>
 </ul>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="在view-中"><a href="#在view-中" class="headerlink" title="在view 中"></a>在view 中</h3><ul>
@@ -670,683 +1701,8 @@
 <h3 id="在-ViewGroup-中"><a href="#在-ViewGroup-中" class="headerlink" title="在 ViewGroup 中"></a>在 ViewGroup 中</h3><ul>
 <li>点击事件先传到 viewGroup ，然后再传到 子view</li>
 <li>viewGroup 中有一个 onInterceptTouchEvent（）方法，如果该方法返回true则将事件拦截，子view无法处理事件。返回false则不拦截，默认返回 false</li>
-<li>viewGroup 一旦决定拦截该事件，那么时间都交给它处理，而且不再调用 onInterceptTouchEvent() 方法（mFirstTouchTarget 为 null，不再进入 true 代码块）.</li>
+<li>viewGroup 一旦决定拦截该事件，那么事件都交给它处理，而且不再调用 onInterceptTouchEvent() 方法（mFirstTouchTarget 为 null，不再进入 true 代码块）.</li>
 <li>如果子view消耗了事件，那么viewGroup将无法接收到事件。如果所有子view都无法处理事件，那么将回交给viewGroup处理。</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/10/八种单例模式/" itemprop="url">
-                  java 九种单例模式
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-01-10T21:06:30+08:00" content="2017-01-10">
-              2017-01-10
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/01/10/八种单例模式/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/10/八种单例模式/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/01/10/八种单例模式/" class="leancloud_visitors" data-flag-title="java 九种单例模式">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>单例模式大家都很常见了，我这篇文章是看了别人的文章后自己学习后写出来的，相当于一个笔记吧。</p>
-<h4 id="饿汉式"><a href="#饿汉式" class="headerlink" title="饿汉式"></a>饿汉式</h4><ul>
-<li><p>优点：线程安全</p>
-</li>
-<li><p>缺点：由于类加载机制，无论类是否被使用，类第一次加载进入内存就回实例化</p>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton singleton = <span class="keyword">new</span> Singleton();</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="饿汉式-–-静态代码块"><a href="#饿汉式-–-静态代码块" class="headerlink" title="饿汉式 – 静态代码块"></a>饿汉式 – 静态代码块</h4><ul>
-<li><p>优点:线程安全</p>
-</li>
-<li><p>缺点：类装载时创建实例，若实例一直未被使用时，会浪费资源</p>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</div><div class="line"></div><div class="line">	<span class="keyword">static</span>&#123;</div><div class="line">		singleton = <span class="keyword">new</span> Singleton();</div><div class="line">	&#125;</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="懒汉式"><a href="#懒汉式" class="headerlink" title="懒汉式"></a>懒汉式</h4><ul>
-<li><p>优点：避免了第一次加载这个类进入内存未使用占用内存</p>
-</li>
-<li><p>缺点：线程不安全,当多线程情况下 getInstance时可能会生成多个实例</p>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton single = <span class="keyword">null</span>;</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		single =  <span class="keyword">new</span> Singleton();</div><div class="line">	&#125;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">if</span>(<span class="keyword">null</span> == single)</div><div class="line">			single = <span class="keyword">new</span> Singleton();</div><div class="line">		<span class="keyword">return</span> single;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="懒汉式-–-方法同步"><a href="#懒汉式-–-方法同步" class="headerlink" title="懒汉式 – 方法同步"></a>懒汉式 – 方法同步</h4><ul>
-<li><p>优点：线程安全</p>
-</li>
-<li><p>缺点：同步方法，实际上只需要处理 new Singleton 的同步问题即可，效率太低了</p>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton singleton;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">if</span>(<span class="keyword">null</span> == singleton)&#123;</div><div class="line">			singleton = <span class="keyword">new</span> Singleton();</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="懒汉式-–-代码块同步"><a href="#懒汉式-–-代码块同步" class="headerlink" title="懒汉式 – 代码块同步"></a>懒汉式 – 代码块同步</h4><ul>
-<li><p>优点：效率高于 方法同步 的懒汉式</p>
-</li>
-<li><p>缺点：判断 singleton 是否为空的时候，如果此时多线程访问了，那么也存在异步问题，实例化了多个singleton</p>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton singleton;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> == singleton)</div><div class="line">			<span class="keyword">synchronized</span> (Singleton.class) &#123;</div><div class="line">				singleton = <span class="keyword">new</span> Singleton();</div><div class="line">			&#125;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="懒汉式-–-错误的-double-check"><a href="#懒汉式-–-错误的-double-check" class="headerlink" title="懒汉式 – 错误的 double check"></a>懒汉式 – 错误的 double check</h4><ul>
-<li><p>优点：效率高</p>
-</li>
-<li><p>缺点：线程不安全，依然存在创建多个实例的可能。因为每个线程都有自己的一份拷贝，并不能保证实例化后将INSTANCE的引用拷回主内存，不能保证对其它线程立即可见，所以仍然有可能造成多个实例被创建，具体原因搜索 <strong>volatile</strong> 关键字</p>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton single;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> == single) &#123;</div><div class="line">			<span class="keyword">synchronized</span> (Singleton.class) &#123;</div><div class="line">				<span class="keyword">if</span> (<span class="keyword">null</span> == single) &#123;</div><div class="line">					single = <span class="keyword">new</span> Singleton();</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="懒汉式-–-正确的-doucle-check"><a href="#懒汉式-–-正确的-doucle-check" class="headerlink" title="懒汉式 – 正确的 doucle check"></a>懒汉式 – 正确的 doucle check</h4><ul>
-<li>优点：效率高，解决了线程不安全的问题</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> == singleton)</div><div class="line">			<span class="keyword">synchronized</span> (Singleton.class) &#123;</div><div class="line">				<span class="keyword">if</span>(<span class="keyword">null</span> == singleton)</div><div class="line">					singleton = <span class="keyword">new</span> Singleton();</div><div class="line">			&#125;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h4><ul>
-<li><p>优点: 无线程同步问题，且能防止通过反射创建新的对象</p>
-</li>
-<li><p>缺点: 使用的是枚举，而非类。同时单一实例的访问点也不是一般单例模式的静态方法</p>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Singleton &#123;</div><div class="line">	SINGLETON;</div><div class="line">	<span class="comment">//编译器编译时会自动生成</span></div><div class="line">	<span class="comment">//	public static final Singleton SINGLETON;</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h4><ul>
-<li>优点： 静态内部类不存在类加载的时候就初始化，当加载内部类的时候，java 虚拟机初始化其成员变量并且保证线程安全，而且没有锁不会造成性能影响</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Single</span> </span>&#123;</div><div class="line">		<span class="keyword">static</span> Singleton mSingle = <span class="keyword">new</span> Singleton();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> Single.mSingle;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上就是我的笔记，总的来说一般我常用静态内部类的模式，最终的模式选择取决于大家。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/15/Android-内存泄露解析/" itemprop="url">
-                  Android 内存泄露解析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-12-15T11:37:53+08:00" content="2016-12-15">
-              2016-12-15
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/12/15/Android-内存泄露解析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/15/Android-内存泄露解析/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/12/15/Android-内存泄露解析/" class="leancloud_visitors" data-flag-title="Android 内存泄露解析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>内存泄露也是一个老生常谈的问题了，我们今天来学习怎样会造成内存泄露以及如何避免内存泄露，内存泄露该如何解决。</p>
-<h2 id="怎样造成内存泄露的？如何避免它？"><a href="#怎样造成内存泄露的？如何避免它？" class="headerlink" title="怎样造成内存泄露的？如何避免它？"></a>怎样造成内存泄露的？如何避免它？</h2><blockquote>
-<p>Android虚拟机的垃圾回收采用的是根搜索算法。GC会从根节点（GC Roots）开始对heap进行遍历。到最后，部分没有直接或者间接引用到GC Roots的就是需要回收的垃圾，会被GC回收掉。而内存泄漏出现的原因就是GC对象的根存在了无效的引用，导致本来需要被GC的对象没有被回收掉。</p>
-</blockquote>
-<p>简单来说就是当一个对象需要释放内存时，他被其他生命周期长的对象所引用，导致JVM无法回收这个对象的内存，从而导致了内存泄露。</p>
-<p>主要有三种情况</p>
-<ul>
-<li>静态变量</li>
-<li>非静态内存类</li>
-<li>RxJava 忘记取消注册引起的内存泄露（实际上也是第二点的原因）</li>
-<li>无限进行的动画</li>
-</ul>
-<p>其他情况:</p>
-<ul>
-<li>资源对象没关闭。如Cursor、File等资源。他们会在finalize中关闭，但这样效率太低。容易造成内存泄露。SQLiteCursor，当数据量大的时候容易泄露</li>
-<li>广播注册了没有取消造成内存泄漏</li>
-</ul>
-<h3 id="1-静态变量造成的内存泄露"><a href="#1-静态变量造成的内存泄露" class="headerlink" title="1,静态变量造成的内存泄露"></a>1,静态变量造成的内存泄露</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeakActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    <span class="keyword">static</span> Context sContext;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(@Nullable Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        sContext = <span class="keyword">this</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><strong>原因：</strong></p>
-<p>在这一个例子中，我们的 LeakActivity 被静态变量 Context 所持有，我们知道静态变量的生命周期是与整个应用的生命周期相同的(如果这方面知识点不太清楚可以看看这里 <a href="http://blog.csdn.net/ctcwri/article/details/8858414" target="_blank" rel="external">Android 静态生命周期</a>，那么当我们 LeakActivity 退出需要被回收时，垃圾回收机制发现 LeakActivity 被一个静态变量持有引用，那么导致无法回收 LeakActivity 的内存导致内存泄露。</p>
-<p><strong>解决办法：</strong></p>
-<p>在 onDestory 方法中将 静态变量 sContext 的值 置为 null，解除对 Activity 的引用。</p>
-<p>如果这个例子不太熟悉，那么我们再举个大家常见的例子</p>
-<p>我们常常会用单例模式封装一个类(这个单例模式的选择只是方便代码简便，实际使用中会有影响，不推荐使用)，方便调用：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton instance;</div><div class="line">    <span class="keyword">private</span> Context mContext;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">(Context context)</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.mContext = context;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">(Context context)</span></span>&#123;</div><div class="line">        <span class="keyword">if</span> (instance == <span class="keyword">null</span>)&#123;</div><div class="line">                <span class="keyword">if</span> (instance == <span class="keyword">null</span>)&#123;</div><div class="line">                    instance = <span class="keyword">new</span> Singleton(context);</div><div class="line">                &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> instance;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这样以来，我们在一个 Activity 中使用这个类的时候我们会传入一个 activity ，singleton 就持有了 Activity 的引用了，那么问题就来了：静态的成员变量 instance 如果没有被销毁，就会一直持有 Activity 的引用，Activity 就会在需要被回收的时候无法回收导致内存泄露。</p>
-<p><strong>解决办法：</strong></p>
-<p>使用 Application 的context 传入 Singleton ，Application的生命周期是最长的，它的生命周期就等于这个程序的生命周期，这样就不会导致内存泄露了。</p>
-<h3 id="2，非静态内存类持有外部类应用导致的内存泄露"><a href="#2，非静态内存类持有外部类应用导致的内存泄露" class="headerlink" title="2，非静态内存类持有外部类应用导致的内存泄露"></a>2，非静态内存类持有外部类应用导致的内存泄露</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeakActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(@Nullable Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    Handler mHandler = <span class="keyword">new</span> Handler()&#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>.handleMessage(msg);</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><strong>原因：</strong></p>
-<p>内存类会持有外部类的一个引用，在这个例子中，Handler 创建了一个匿名内部类，那么这个内部类就会持有外部类的引用，而静态内部类不会。而我们知道 Handler 是一直有 Looper 在 MessageQueue 里面取消息的，如果有一个消息一直没取出来，那么 Mesasge 有 Handler 的引用， Handler 有 Activity 的引用，这样最终导致内存泄露。</p>
-<p>或者其他情况，在内部类中，如果开启一个线程执行一项耗时任务，在执行任务时打算销毁外部类时，垃圾回收机制检测到Activity被内部类持有引用，同样导致无法回收 LeakActivity 。</p>
-<p><strong>解决办法：</strong></p>
-<p>使用弱引用 WeakReference + 静态内部类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeakActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> MyHandler mMyHandler;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(@Nullable Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">MyHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span></span>&#123;</div><div class="line">        <span class="keyword">private</span> <span class="keyword">final</span> WeakReference&lt;Activity&gt; mActivityWeakReference;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyHandler</span><span class="params">(Activity activity)</span> </span>&#123;</div><div class="line">            mActivityWeakReference = <span class="keyword">new</span> WeakReference&lt;Activity&gt;(activity);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>.handleMessage(msg);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>或者内部类是静态的，这样就不会持有外部类引用了。当然，用了静态内部类后就注意 <strong>知识点1</strong> 的内容，别自己手动导致静态内部类持有activity的引用了。</p>
-<h3 id="3，RxJava-忘记取消注册引起的内存泄露"><a href="#3，RxJava-忘记取消注册引起的内存泄露" class="headerlink" title="3，RxJava 忘记取消注册引起的内存泄露"></a>3，RxJava 忘记取消注册引起的内存泄露</h3><p>一般来说，我们使用 RxJava 是这样使用的</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Observable.just(<span class="string">"内存泄露哦"</span>)</div><div class="line">	        .subscribe(<span class="keyword">new</span> Subscriber&lt;String&gt;() &#123;</div><div class="line">	            <span class="meta">@Override</span></div><div class="line">	            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</div><div class="line">	                </div><div class="line">	            &#125;</div><div class="line">	</div><div class="line">	            <span class="meta">@Override</span></div><div class="line">	            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</div><div class="line">	</div><div class="line">	            &#125;</div><div class="line">	</div><div class="line">	            <span class="meta">@Override</span></div><div class="line">	            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(String s)</span> </span>&#123;</div><div class="line">	</div><div class="line">	            &#125;</div><div class="line">	        &#125;);</div></pre></td></tr></table></figure>
-<p><strong>原因：</strong></p>
-<p>我们可以看到 subscribe 中有一个匿名内部类，这点跟 <strong>知识点二</strong> 的原因一样， 匿名内部类 Subscriber 持有外部类的引用，当我们在里面做耗时不当使得生命周期大于 外部Activity 时，导致外部类想要销毁而无法被销毁的时候，就导致了内存泄露。</p>
-<p><strong>解决方案：</strong></p>
-<p>在订阅时初始化一个 Subscription</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Subscription s  = Observable.just(<span class="string">"内存泄露哦"</span>)</div><div class="line">       .subscribe(<span class="keyword">new</span> Subscriber&lt;String&gt;() &#123;</div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</div><div class="line">               </div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</div><div class="line"></div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(String s)</span> </span>&#123;</div><div class="line"></div><div class="line">           &#125;</div><div class="line">       &#125;);</div></pre></td></tr></table></figure>
-<p>在 onDestory 或者其他需要销毁的方法里，取消订阅</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onDestroy();</div><div class="line">        <span class="keyword">if</span> (!s.isUnsubscribed)</div><div class="line">            s.unsubscribe();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>或者使用开源库 <a href="https://github.com/trello/RxLifecycle" target="_blank" rel="external">RxLifecycle</a> ,他能直接与我们的 Activity 生命周期相关联，会在需要取消订阅的地方自动取消订阅，具体源码与实现我会在下回分析。</p>
-<h2 id="出现内存泄露该如何检测和解决"><a href="#出现内存泄露该如何检测和解决" class="headerlink" title="出现内存泄露该如何检测和解决"></a>出现内存泄露该如何检测和解决</h2><p>我们利用 Android Studio 自带的工具进行检测，运行我们上面的第一个《静态变量造成的内存泄露》DEMO</p>
-<p>第一步：运行项目，进入MainActivity，然后跳转到LeakActivity，最后点击 Bakc键 返回到 MainActivity。</p>
-<p>第二步： 点击  AS 下方的 Android Monitor ,切换到 Monitors 标签页下</p>
-<p>第三步：点击 <img src="http://img2.ph.126.net/AE_uxPlHzpYzeD_igwmnBQ==/6632420165001105422.jpg" alt="">这个按钮，手动触发 GC，然后点击<img src="http://img2.ph.126.net/ErqcyHByHYi7BbfeS5HDRg==/6632232148512755033.jpg" alt="">这个按钮，会进入到 Java Heap 界面，然后点击右边的 Analyzer Tasker 选项卡，再点击绿色三角形的运行剪头，在Analyzis Activities页面可以看到我们内存泄露的 Activity，双击找到哪个地方引起了泄露，然后跳到相应界面修改它即可。<img src="http://ohxbeadiz.bkt.clouddn.com/analy.jpg" alt=""></p>
-<p>第四步，解决后重新运行程序，我们发现内存占用减小了 100K左右（也是因为我们的 LeakActivity 占用内存不大的原因），终于解决内存泄露了。</p>
-<p>解决前<br><img src="http://img2.ph.126.net/C2wSHORcZgRtfjMr3rau9g==/6632281626536000735.jpg" alt=""></p>
-<p>解决后<br><img src="http://img2.ph.126.net/0oT0MJ-ZGxLfU3E7tmHmCw==/6632125495887526964.jpg" alt=""></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结:"></a>总结:</h2><p>造成内存泄露的原因还是有很多的，不光是我上面的举例，还有 Bitmap 占用内存问题，各种资源打开未关闭的问题，我们要做到工作中尽量避免造成内存泄露，当出现内存泄露时也不需要担心了，耐心用 AS 自带的 monitors 检查出问题并且修复就行啦。</p>
-<h3 id="参考文章与资料"><a href="#参考文章与资料" class="headerlink" title="参考文章与资料"></a>参考文章与资料</h3><ul>
-<li><p><a href="http://blog.csdn.net/xuefu_78/article/details/66968922" target="_blank" rel="external"> 基于Android Studio的内存泄漏检测与解决全攻略</a></p>
-</li>
-<li><p><a href="https://drakeet.me/android-leaks" target="_blank" rel="external">Android 内存泄漏案例和解析</a></p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/10/Handler-消息机制/" itemprop="url">
-                  Handler 消息机制
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-12-10T21:20:14+08:00" content="2016-12-10">
-              2016-12-10
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/12/10/Handler-消息机制/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/10/Handler-消息机制/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/12/10/Handler-消息机制/" class="leancloud_visitors" data-flag-title="Handler 消息机制">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Handler-消息机制"><a href="#Handler-消息机制" class="headerlink" title="Handler 消息机制"></a>Handler 消息机制</h1><p>今天我们来学习一下Handler的源码,在这之前我们回顾一下Handler的基本使用</p>
-<h2 id="Handler的使用"><a href="#Handler的使用" class="headerlink" title="Handler的使用"></a>Handler的使用</h2><h3 id="1-使用sendMessage的方式实现Handler"><a href="#1-使用sendMessage的方式实现Handler" class="headerlink" title="1.使用sendMessage的方式实现Handler"></a>1.使用sendMessage的方式实现Handler</h3><h4 id="1-Handler自身实现handleMessage方法"><a href="#1-Handler自身实现handleMessage方法" class="headerlink" title="(1) Handler自身实现handleMessage方法"></a>(1) Handler自身实现handleMessage方法</h4><p> <strong>主线程中</strong>(更新UI的地方，创建handler)，这里提一点，想要handler更新UI，那么handler的初始化必须在主线程，handler总是绑定创建他的线程，具体情况我们最后会说明，这里我们将疑问标记为 <strong>Q1</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">Handler uiHandler = <span class="keyword">new</span> Handler()&#123;</div><div class="line"><span class="meta">@Override</span></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">       <span class="keyword">switch</span> (msg.what)&#123;</div><div class="line">           <span class="keyword">case</span> <span class="number">1</span>:</div><div class="line">           MainActivity.<span class="keyword">this</span>.statusTextView.setText(<span class="string">"文件下载完成"</span>);</div><div class="line">               <span class="keyword">break</span>;</div><div class="line">       &#125;</div><div class="line">   &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
-<h4 id="2-Handler构造函数传入实现了handleMessage方法的CallBack对象"><a href="#2-Handler构造函数传入实现了handleMessage方法的CallBack对象" class="headerlink" title="(2) Handler构造函数传入实现了handleMessage方法的CallBack对象"></a>(2) Handler构造函数传入实现了handleMessage方法的CallBack对象</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">Handler.Callback callback = <span class="keyword">new</span> Handler.Callback() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">    		 <span class="keyword">switch</span> (msg.what)&#123;</div><div class="line">       		<span class="keyword">case</span> <span class="number">1</span>:</div><div class="line">       			MainActivity.<span class="keyword">this</span>.statusTextView.setText(<span class="string">"文件下载完成"</span>);</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">   &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line">        </div><div class="line">Handler uiHandler = <span class="keyword">new</span> Handler(callback);</div></pre></td></tr></table></figure>
-<p> <strong>其他线程</strong><br> 在非主线程进行的耗时操作的部分操作，完成后调用sendMessage回到主线程</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Message message = Message.obtain();</div><div class="line">message.what = <span class="number">1</span>;</div><div class="line">uiHandler.sendMessage(message);</div></pre></td></tr></table></figure>
-<h3 id="2-使用post实现Handler"><a href="#2-使用post实现Handler" class="headerlink" title="2.使用post实现Handler"></a>2.使用post实现Handler</h3><p><strong>主线程中</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Handler uiHandler = <span class="keyword">new</span> Handler();</div></pre></td></tr></table></figure>
-<p><strong>其他线程中</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">uiHandler.post(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">            MainActivity.<span class="keyword">this</span>.statusTextView.setText(<span class="string">"文件下载完成"</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;;);</div><div class="line">    </div><div class="line">    runnable 的方法其实也是内部创建了一个message,message.callback的值就是这个runnable</div></pre></td></tr></table></figure>
-<hr>
-<p>以上方式任选其一，我们就可以轻松的在其他线程进行耗时操作然后再主线程中更新UI了。光知道用还不行，我们接下来看看Handler的源码</p>
-<h2 id="Handler-源码解析"><a href="#Handler-源码解析" class="headerlink" title="Handler 源码解析"></a>Handler 源码解析</h2><p>Handler机制总共包括四个重要的类，由他们构成了Handler消息机制</p>
-<ul>
-<li>MessageQueue</li>
-<li>Looper</li>
-<li>Handler</li>
-<li>Message</li>
-</ul>
-<h3 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h3><ul>
-<li><p>首先我们从 Handler 的构造函数开始研究，他是我们使用Handler的第一步</p>
- <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">Handler</span><span class="params">(Callback callback, <span class="keyword">boolean</span> async)</span> </span>&#123;</div><div class="line">        ...</div><div class="line">        mLooper = Looper.myLooper();</div><div class="line">        <span class="keyword">if</span> (mLooper == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(</div><div class="line">                <span class="string">"Can't create handler inside thread that has not called Looper.prepare()"</span>);</div><div class="line">        &#125;</div><div class="line">        mQueue = mLooper.mQueue;</div><div class="line">        mCallback = callback;</div><div class="line">        mAsynchronous = async;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p> 经过层层调用，最终来到了这个方法，接受一个Callback参数，而且我们可以看到初始化了一个Looper 实例，而且Handler 必须有一个Looper实例，而且不为空，否则会直接抛异常，那么为什么我们在主线程中直接新建 Handler 对象不会抛异常呢？我们将这个问题设置为 <strong>Q2</strong>。然后，分析Looper前我们先分析 MessageQueue 这个类，</p>
-</li>
-<li><p>我们来看看发送消息的方法 handler.sendMessage和handler.post(new Runnable)方法，这是我们调用handler的开始，我们从这句话进入源码进行分析。</p>
- <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">sendMessage</span><span class="params">(Message msg)</span></span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> sendMessageDelayed(msg, <span class="number">0</span>);</div><div class="line">    &#125;</div><div class="line">    ....</div><div class="line">    ....</div><div class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">sendMessageDelayed</span><span class="params">(Message msg, <span class="keyword">long</span> delayMillis)</span></span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (delayMillis &lt; <span class="number">0</span>) &#123;</div><div class="line">            delayMillis = <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> sendMessageAtTime(msg, SystemClock.uptimeMillis() + delayMillis);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">   ....</div><div class="line">   ....</div><div class="line">   </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">sendMessageAtTime</span><span class="params">(Message msg, <span class="keyword">long</span> uptimeMillis)</span> </span>&#123;</div><div class="line">        MessageQueue queue = mQueue;</div><div class="line">        ...</div><div class="line">        <span class="keyword">return</span> enqueueMessage(queue, msg, uptimeMillis);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    ....</div><div class="line">    ....</div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">enqueueMessage</span><span class="params">(MessageQueue queue, Message msg, <span class="keyword">long</span> uptimeMillis)</span> </span>&#123;</div><div class="line">        msg.target = <span class="keyword">this</span>;</div><div class="line">        <span class="keyword">if</span> (mAsynchronous) &#123;</div><div class="line">            msg.setAsynchronous(<span class="keyword">true</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> queue.enqueueMessage(msg, uptimeMillis);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p> 我们可以看到，处理message的方法有很多种，经过层层调用，最终通过 messageQueue调用了enqueueMessage(msg, uptimeMillis)方法，还要注意一点，这里将 <strong>msg.taget</strong> 赋值为 Handler对象本身，这点以后有用，我们先记下来。然后我们到MessageQueue方法里看看，</p>
-<h3 id="MessageQueue"><a href="#MessageQueue" class="headerlink" title="MessageQueue"></a>MessageQueue</h3> <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">					***MessageQueue.class***</div><div class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">enqueueMessage</span><span class="params">(Message msg, <span class="keyword">long</span> when)</span> </span>&#123;</div><div class="line">	Message p = mMessages;</div><div class="line">	...</div><div class="line">	 Message prev;</div><div class="line">	   <span class="keyword">for</span> (;;) &#123;</div><div class="line">	      prev = p;</div><div class="line">	      p = p.next;</div><div class="line">	      <span class="keyword">if</span> (p == <span class="keyword">null</span> || when &lt; p.when) &#123;</div><div class="line">	             <span class="keyword">break</span>;</div><div class="line">	       &#125;</div><div class="line">	       <span class="keyword">if</span> (needWake &amp;&amp; p.isAsynchronous()) &#123;</div><div class="line">	           needWake = <span class="keyword">false</span>;</div><div class="line">	       &#125;</div><div class="line">	     &#125;</div><div class="line">	  msg.next = p; </div><div class="line">	  prev.next = msg;</div><div class="line">	  <span class="keyword">return</span> <span class="keyword">true</span>; </div><div class="line">	 &#125;</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<pre><code>通过MessageQueue的一个成员变量 mMessage，（相当于整个消息队列的首消息，通过他可以将队列消息依次取出），将代处理的消息依次存入队列中 ms.next = p;prev.next = msg;(链表的插入),这样我们的消息就存入了消息队列总
-
-存入消息，自然对应着取出队列消息，从而处理消息，在MessageQueue的next()方法中，通过链表操作取出message
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">if</span> (prevMsg != <span class="keyword">null</span>) &#123;</div><div class="line">     prevMsg.next = msg.next;  <span class="comment">//移除将要取出的message</span></div><div class="line">   &#125; <span class="keyword">else</span> &#123;</div><div class="line">     mMessages = msg.next; </div><div class="line">    &#125;</div><div class="line">    msg.next = <span class="keyword">null</span>;</div><div class="line">     ...</div><div class="line">   <span class="keyword">return</span> msg;</div><div class="line">`</div></pre></td></tr></table></figure>
-</code></pre><hr>
-<p>以上就是 MessageQueue 的作用，他是一个消息队列，用于存放和去除message的，而且 <strong>一个线程只有一个MessageQueue</strong></p>
-<h3 id="Looper"><a href="#Looper" class="headerlink" title="Looper"></a>Looper</h3><p>接下来我们分析Looper，进入Looper类，我们可以看一下源码顶部官方给的这个 Looper的Demo</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">LooperThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> Handler mHandler;</div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">        Looper.prepare();</div><div class="line">  </div><div class="line">        mHandler = <span class="keyword">new</span> Handler() &#123;</div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">                <span class="comment">// process incoming messages here</span></div><div class="line">            &#125;</div><div class="line">        &#125;;</div><div class="line">  </div><div class="line">        Looper.loop();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>我们基本使用Looper需要使用他的 prepare（） 方法和 loop（） 方法<br>我们发现他的构造函数私有化了，那么我们不能new出实例，我们在 prepare（）方法中发现了new出了事例，那么这个方法就是初始化Looper的作用了</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">prepare</span><span class="params">(<span class="keyword">boolean</span> quitAllowed)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (sThreadLocal.get() != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Only one Looper may be created per thread"</span>);</div><div class="line">        &#125;</div><div class="line">        sThreadLocal.set(<span class="keyword">new</span> Looper(quitAllowed));</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>在 prepare 方法中，我们发现将初始化的 looper 放进了 ThreadLocal<looper> sThreadLocal中，我们将这个疑问标记为 <strong>Q3</strong>，暂时知道这个 ThreadLocal是保存当先Looper实例的就行，在 myLooper（） 方法中将保存的Looper实例又取出来了</looper></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="meta">@Nullable</span> <span class="function">Looper <span class="title">myLooper</span><span class="params">()</span> </span>&#123;</div><div class="line">       <span class="keyword">return</span> sThreadLocal.get();</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<p> 在Looper构造函数里，实例化了messageQueue并且指定了当前Looper的线程</p>
- <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="title">Looper</span><span class="params">(<span class="keyword">boolean</span> quitAllowed)</span> </span>&#123;</div><div class="line">       mQueue = <span class="keyword">new</span> MessageQueue(quitAllowed);</div><div class="line">       mThread = Thread.currentThread();</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<p>分析完perpare（）方法，我们在来看看 loop（）方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loop</span><span class="params">()</span> </span>&#123;</div><div class="line">		  <span class="comment">//获取当前Looper实例	</span></div><div class="line">       <span class="keyword">final</span> Looper me = myLooper();</div><div class="line">       <span class="keyword">if</span> (me == <span class="keyword">null</span>) &#123;</div><div class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"No Looper; Looper.prepare() wasn't called on this thread."</span>);</div><div class="line">       &#125;</div><div class="line">       ...</div><div class="line">       <span class="comment">//获取message消息队列</span></div><div class="line">       <span class="keyword">final</span> MessageQueue queue = me.mQueue;</div><div class="line">	 ...</div><div class="line"></div><div class="line">       <span class="keyword">for</span> (;;) &#123;</div><div class="line">       	  <span class="comment">//死循环不断从MessageQueue中取出消息</span></div><div class="line">           Message msg = queue.next(); <span class="comment">// might block</span></div><div class="line">           ...</div><div class="line">           <span class="keyword">try</span> &#123;</div><div class="line">           		<span class="comment">//处理取到的消息</span></div><div class="line">               msg.target.dispatchMessage(msg);</div><div class="line">           &#125; <span class="keyword">finally</span> &#123;</div><div class="line">               <span class="keyword">if</span> (traceTag != <span class="number">0</span>) &#123;</div><div class="line">                   Trace.traceEnd(traceTag);</div><div class="line">               &#125;</div><div class="line">           &#125;</div><div class="line">           ...</div><div class="line">       &#125;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<p>可以看到，looper中有一个死循环，会调用queue.next()，不断从messagequeue中取出消息，然后进行dispatchMessage消费消息，msg.target.dispatchMessage(msg); 注意，这里的 msg.target是handler,此时将msg返回给handler处理，而我们知道handler所在线程就是初始化handler的线程，那么我们大概可以猜到在dispatchMessage方法里线程切换进行UI操作了，那么我们进入Handler的dispatchMessage中看看</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dispatchMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (msg.callback != <span class="keyword">null</span>) &#123;</div><div class="line">        handleCallback(msg);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">if</span> (mCallback != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (mCallback.handleMessage(msg)) &#123;</div><div class="line">                <span class="keyword">return</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        handleMessage(msg);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>首先判断callback是否为空，不为空则handleCallback处理消息，否则判断 mCallback 属性是否为空，不为空则进入callback的handleMessage处理消息，若还是为空则让handler本身处理消息。到最后，终于回到 handlerMessage进行更新UI等操作了，</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">handleCallback</span><span class="params">(Message message)</span> </span>&#123;</div><div class="line">	<span class="comment">//callback是Runnable，Runnable调用了run（调用start就是新线程）</span></div><div class="line">	<span class="comment">//实际上就在handler.post的线程执行，又回到了主线程</span></div><div class="line">     message.callback.run();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<h3 id="总结一下"><a href="#总结一下" class="headerlink" title="总结一下"></a>总结一下</h3><ul>
-<li>Message：消息，其中包含了消息ID，消息处理对象以及处理的数据等，由MessageQueue统一列队，终由Handler处理。</li>
-<li>Handler：处理者，负责Message的发送及处理。使用Handler时，需要实现handleMessage(Messagemsg)方法来对特定的Message进行处理，例如更新UI等。</li>
-<li>MessageQueue：消息队列，用来存放Handler发送过来的消息，并按照FIFO规则执行。当然，存放Message并非实际意义的保存，而是将Message以链表的方式串联起来的，等待Looper的抽取。</li>
-<li>Looper：消息泵，不断地从MessageQueue中抽取Message执行。因此，一个MessageQueue需要一个Looper。</li>
-<li>Thread：线程，负责调度整个消息循环，即消息循环的执行场所。</li>
-</ul>
-<p>至此，我们看到，一个Message经由Handler（在其他线程）的发送，MessageQueue的入队，Looper的抽取，又再一次地回到Handler的怀抱。而绕的这一圈，也正好帮助我们将异步操作变成了同步操作。</p>
-<p>这样我们 Handler源码也大致阅读完了。当然，还有三个遗留下来的问题</p>
-<p>以上摘自，<a href="http://www.lai18.com/content/7720895.html" target="_blank" rel="external">http://www.lai18.com/content/7720895.html</a></p>
-<h4 id="Q1-为什么Handler跟线程绑定起来了"><a href="#Q1-为什么Handler跟线程绑定起来了" class="headerlink" title="Q1 为什么Handler跟线程绑定起来了"></a>Q1 为什么Handler跟线程绑定起来了</h4><p>handler有一个成员属性为mQueue，</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mLooper = Looper.myLooper();</div><div class="line">mQueue = mLooper.mQueue;</div></pre></td></tr></table></figure>
-<p>mLooper与Handler有关，而mLooper与当前线程有关，这样就绑定了线程</p>
-<h4 id="Q2-主线程中实例化-Handler-为什么不需要-初始化-looper"><a href="#Q2-主线程中实例化-Handler-为什么不需要-初始化-looper" class="headerlink" title="Q2 主线程中实例化 Handler 为什么不需要 初始化 looper"></a>Q2 主线程中实例化 Handler 为什么不需要 初始化 looper</h4><p>在每一个Application启动的时候，会给这个Application分配一个 ActivityThread ，就是我们所说的 UI 线程，一个类的入口方法是 main 函数，这里看下源码。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">    SamplingProfilerIntegration.start();</div><div class="line"></div><div class="line">    <span class="comment">// CloseGuard defaults to true and can be quite spammy.  We</span></div><div class="line">    <span class="comment">// disable it here, but selectively enable it later (via</span></div><div class="line">    <span class="comment">// StrictMode) on debug builds, but using DropBox, not logs.</span></div><div class="line">    CloseGuard.setEnabled(<span class="keyword">false</span>);</div><div class="line"></div><div class="line">    Environment.initForCurrentUser();</div><div class="line"></div><div class="line">    <span class="comment">// Set the reporter for event logging in libcore</span></div><div class="line">    EventLogger.setReporter(<span class="keyword">new</span> EventLoggingReporter());</div><div class="line"></div><div class="line">    Security.addProvider(<span class="keyword">new</span> AndroidKeyStoreProvider());</div><div class="line"></div><div class="line">    <span class="comment">// Make sure TrustedCertificateStore looks in the right place for CA certificates</span></div><div class="line">    <span class="keyword">final</span> File configDir = Environment.getUserConfigDirectory(UserHandle.myUserId());</div><div class="line">    TrustedCertificateStore.setDefaultUserDirectory(configDir);</div><div class="line"></div><div class="line">    Process.setArgV0(<span class="string">"&lt;pre-initialized&gt;"</span>);</div><div class="line"></div><div class="line">    Looper.prepareMainLooper();</div><div class="line"></div><div class="line">    ActivityThread thread = <span class="keyword">new</span> ActivityThread();</div><div class="line">    thread.attach(<span class="keyword">false</span>);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (sMainThreadHandler == <span class="keyword">null</span>) &#123;</div><div class="line">        sMainThreadHandler = thread.getHandler();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (<span class="keyword">false</span>) &#123;</div><div class="line">        Looper.myLooper().setMessageLogging(<span class="keyword">new</span></div><div class="line">                LogPrinter(Log.DEBUG, <span class="string">"ActivityThread"</span>));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    Looper.loop();</div><div class="line"></div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Main thread loop unexpectedly exited"</span>);</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
-<p>这里使用的 MainLooper 中的 Handler 被称为 H，这里的 H 定义了一些列的消息，如下所示，也就是说 Activity 相关的线程间通信，就是依赖于 Handler 机制的。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> LAUNCH_ACTIVITY         = <span class="number">100</span>;</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> PAUSE_ACTIVITY          = <span class="number">101</span>;</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> PAUSE_ACTIVITY_FINISHING= <span class="number">102</span>;</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STOP_ACTIVITY_SHOW      = <span class="number">103</span>;</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STOP_ACTIVITY_HIDE      = <span class="number">104</span>;</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SHOW_WINDOW             = <span class="number">105</span>;</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> HIDE_WINDOW             = <span class="number">106</span>;</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> RESUME_ACTIVITY         = <span class="number">107</span>;</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SEND_RESULT             = <span class="number">108</span>;</div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DESTROY_ACTIVITY        = <span class="number">109</span>;</div></pre></td></tr></table></figure>
-<p>该回答摘自 <a href="http://www.jianshu.com/p/5ef1a14aa24d" target="_blank" rel="external">http://www.jianshu.com/p/5ef1a14aa24d</a></p>
-<h4 id="Q3-ThreadLocal-是什么"><a href="#Q3-ThreadLocal-是什么" class="headerlink" title="Q3 ThreadLocal  是什么"></a>Q3 ThreadLocal<looper>  是什么</looper></h4><blockquote>
-<p>ThreadLocal是一个关于创建线程局部变量的类。<br>通常情况下，我们创建的变量是可以被任何一个线程访问并修改的。而使用ThreadLocal创建的变量只能被当前线程访问，其他线程则无法访问和修改。    </p>
-</blockquote>
-<p> 所以在Looper对象中通过sThreadLocal就可以找到其绑定的线程。ThreadLocal中有个set方法和get方法，可以通过set方法向ThreadLocal中存入一个对象，然后可以通过get方法取出存入的对象。ThreadLocal在new的时候使用了泛型，从上面的代码中我们可以看到此处的泛型类型是Looper，也就是我们通过ThreadLocal的set和get方法只能写入和读取Looper对象类型，如果我们调用其ThreadLocal的set方法传入一个Looper，将该Looper绑定给了该线程，相应的get就能获得该线程所绑定的Looper对象。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/10/31/React_Native_Banner/" itemprop="url">
-                  React Native Banner的实现
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-10-31T21:27:43+08:00" content="2016-10-31">
-              2016-10-31
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/10/31/React_Native_Banner/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/31/React_Native_Banner/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/10/31/React_Native_Banner/" class="leancloud_visitors" data-flag-title="React Native Banner的实现">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="分析需求"><a href="#分析需求" class="headerlink" title="分析需求"></a>分析需求</h2><p><img src="http://o7q9l32cf.bkt.clouddn.com/6632195864628989856.png" alt=""></p>
-<ol>
-<li><p>banner中滚动的图片，其实就是一个水平的scrollView，内容为止一张一张的图片，然后通过定时器让他定时滚动</p>
-</li>
-<li><p>banner最下方是一个View，</p>
-</li>
-</ol>
-<ul>
-<li>其中左边部分是图片对应的文字解释,是一个Text</li>
-<li>右边是指示器，圆点个数与图片个数相同，两种颜色的圆点其实也是文字, &amp;bull； 他是html中特殊的符号，显示出来就是一个圆点，我们通过设置字体颜色就可以显示出两种不同的指示器点了,是一个View里面包裹了一个Text和指示器View指示器中包裹着圆点的Text</li>
-</ul>
-<h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><h3 id="写在前面，-我们看看state和props中有哪些我们需要用到的自定义属性"><a href="#写在前面，-我们看看state和props中有哪些我们需要用到的自定义属性" class="headerlink" title="写在前面， 我们看看state和props中有哪些我们需要用到的自定义属性"></a>写在前面， 我们看看state和props中有哪些我们需要用到的自定义属性</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">getDefaultProps()&#123;</div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">       <span class="comment">//banner的定时器自动滚动时间</span></div><div class="line">            intervalTime: <span class="number">3000</span></div><div class="line">     &#125;</div><div class="line">    &#125;,</div><div class="line"></div><div class="line">    getInitialState()&#123;</div><div class="line">        <span class="keyword">return</span> &#123;</div><div class="line">        	<span class="comment">//banner的全部数据，一个数组</span></div><div class="line">            bannerArray: [],</div><div class="line">            <span class="comment">//banner左下方显示的文字描述</span></div><div class="line">            bannerText: <span class="string">''</span>,</div><div class="line">            <span class="comment">//banner显示第几页图片的属性</span></div><div class="line">            currentPage: <span class="number">0</span>,</div><div class="line">        &#125;</div><div class="line">    &#125;,</div></pre></td></tr></table></figure>
-<h3 id="获取网络数据，并且将数据保存在state中，"><a href="#获取网络数据，并且将数据保存在state中，" class="headerlink" title="获取网络数据，并且将数据保存在state中，"></a>获取网络数据，并且将数据保存在state中，</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">getBannerData()&#123;</div><div class="line">   fetch(<span class="string">'http://www.mywebsite.com/getBanner'</span>)</div><div class="line">    .then(<span class="function">(<span class="params">response</span>)=&gt;</span>response.json())</div><div class="line">     .then(<span class="function">(<span class="params">responderJson</span>)=&gt;</span> &#123;</div><div class="line">      <span class="keyword">var</span> jsonData = responderJson.data;</div><div class="line">            <span class="keyword">this</span>.setState(&#123;</div><div class="line">             <span class="attr">bannerArray</span>: jsonData,</div><div class="line">              <span class="comment">//让banner左下角默认显示第一个文字描述</span></div><div class="line">                bannerText: jsonData[<span class="number">0</span>].banner_desc</div><div class="line">              &#125;)</div><div class="line">          &#125;)</div><div class="line">         .catch(<span class="function">(<span class="params">error</span>)=&gt;</span> &#123;</div><div class="line">            <span class="built_in">console</span>.error(error);</div><div class="line">         &#125;);</div><div class="line">    &#125;,</div></pre></td></tr></table></figure>
-<h3 id="代码中添加ScrollView组件"><a href="#代码中添加ScrollView组件" class="headerlink" title="代码中添加ScrollView组件"></a>代码中添加ScrollView组件</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">ScrollView</span></span></div><div class="line">	<span class="attr">style</span>=<span class="string">&#123;styles.scrollStyle&#125;</span></div><div class="line">	//使用<span class="attr">refs</span>属性，导出<span class="attr">scrollview</span>组件，方便后面 第六步 操作<span class="attr">scrollvIew</span></div><div class="line">    <span class="attr">ref</span>=<span class="string">"bannerScroll"</span></div><div class="line">    //让<span class="attr">scrollview</span>水平滚动</div><div class="line">    <span class="attr">horizontal</span>=<span class="string">&#123;true&#125;</span></div><div class="line">    //显示滚动条</div><div class="line">    <span class="attr">showsHorizontalScrollIndicator</span>=<span class="string">&#123;false&#125;</span></div><div class="line">    //设置弹性滚动</div><div class="line">    <span class="attr">pagingEnabled</span>=<span class="string">&#123;true&#125;</span></div><div class="line">    //监听<span class="attr">scroll</span>滚动</div><div class="line">    <span class="attr">onMomentumScrollEnd</span>=<span class="string">&#123;(e)</span>=&gt;this.onAnimationEnd(e)&#125;</div><div class="line">    //开始拖拽时banner停止自滚动</div><div class="line">    onScrollBeginDrag=&#123;this.onScrollBeginDrag&#125;</div><div class="line">    //停止拖拽时banner开始自滚动</div><div class="line">    onScrollEndDrag=&#123;this.onScrollEndDrag&#125;&gt;</div><div class="line">         </div><div class="line">    //为scrollview填充图片的方法</div><div class="line">    &#123;this.renderBannerImg()&#125;</div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">ScrollView</span>&gt;</span></div></pre></td></tr></table></figure>
-<h3 id="为scrollview中添加图片"><a href="#为scrollview中添加图片" class="headerlink" title="为scrollview中添加图片"></a>为scrollview中添加图片</h3><p>建立一个数组，数组中添加图片，图片的uri为第二步网络请求中得到的数据，并将数据返回给scrollview</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">renderBannerImg()&#123;</div><div class="line">	<span class="keyword">var</span> allBanner = [];</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.state.bannerArray.length; i++) &#123;</div><div class="line">        allBanner.push(<span class="xml"><span class="tag">&lt;<span class="name">Image</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span></span></span></div><div class="line">        <span class="attr">source</span>=<span class="string">&#123;&#123;uri:this.state.bannerArray[i].banner_pic&#125;&#125;</span></div><div class="line">        <span class="attr">style</span>=<span class="string">&#123;styles.bannerImage&#125;/</span>&gt;)</div><div class="line">     &#125;</div><div class="line">      return allBanner;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<p><strong>到目前为止，banner中的图片已经被我们实现出来了，我们接着实现图片下方的View</strong></p>
-<h3 id="下方文字提示以及指示器的view"><a href="#下方文字提示以及指示器的view" class="headerlink" title="下方文字提示以及指示器的view"></a>下方文字提示以及指示器的view</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">View</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerTextContainer&#125;</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">Text</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerTextStyle&#125;</span>&gt;</span>&#123;this.state.bannerText&#125;<span class="tag">&lt;/<span class="name">Text</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">View</span> <span class="attr">style</span>=<span class="string">&#123;styles.bannerPointContainer&#125;</span>&gt;</span>&#123;this.renderBannerPoint()&#125;<span class="tag">&lt;/<span class="name">View</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">View</span>&gt;</span></div></pre></td></tr></table></figure>
-<h3 id="为指示器添加圆点"><a href="#为指示器添加圆点" class="headerlink" title="为指示器添加圆点"></a>为指示器添加圆点</h3><ul>
-<li><p>为了让指示器的圆点显示随着上方图片的变化而变化，我们需要先在state中设置一个currentPage属性，并且通过scrollview的横坐标值计算出当前是第几张图片，并且更新currentPage，后面指示器圆点显示会根据currentPage值改变而改变</p>
-</li>
-<li><p>监听横坐标值我们需要设置实现onMomentumScrollEnd方法</p>
-</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">onAnimationEnd(e)&#123;</div><div class="line"><span class="comment">//计算出scrollView水平滚动的距离</span></div><div class="line"><span class="keyword">var</span> offsetX = e.nativeEvent.contentOffset.x;</div><div class="line"><span class="comment">//计算出当前页数,同时更新当前页数currentPage</span></div><div class="line"><span class="keyword">var</span> currentPage = <span class="built_in">Math</span>.floor(offsetX / width)</div><div class="line"><span class="keyword">var</span> bannerText = <span class="keyword">this</span>.state.bannerArray[currentPage].banner_desc;</div><div class="line">	<span class="keyword">this</span>.setState(&#123;</div><div class="line">	   <span class="attr">currentPage</span>: <span class="built_in">Math</span>.floor(offsetX / width),</div><div class="line">	   <span class="attr">bannerText</span>: bannerText</div><div class="line">	  &#125;)</div><div class="line">	&#125;,</div></pre></td></tr></table></figure>
-<h3 id="设置圆点显示"><a href="#设置圆点显示" class="headerlink" title="设置圆点显示"></a>设置圆点显示</h3><p>得到了当前页数值，我们就依据这个currentPage设置圆点的显示</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">renderBannerPoint()&#123;</div><div class="line">	   var pointArray = [];</div><div class="line">	   for (var i = 0; i &lt; this.state.bannerArray.length; i++) &#123;</div><div class="line">	   //通过图片的位置计算出的当前页数来改变圆点的颜色，如果等于当前颜色就设置白色，证明是当前页数,反之</div><div class="line">	    var fontColor = (i == this.state.currentPage) ? &#123;color: &apos;white&apos;&#125; : &#123;color: &apos;rgba(220,220,220,0.8)&apos;&#125;;</div><div class="line">	     pointArray.push(&lt;Text key=&#123;i&#125; style=&#123;[styles.bannerPointStyle, fontColor]&#125;&gt;&amp;bull;&lt;/Text&gt;)</div><div class="line">	     &#125;</div><div class="line">	    return pointArray;</div><div class="line">	 &#125;,</div></pre></td></tr></table></figure>
-<h3 id="设置定时器，让banner定时滚动"><a href="#设置定时器，让banner定时滚动" class="headerlink" title="设置定时器，让banner定时滚动"></a>设置定时器，让banner定时滚动</h3><p>到目前为止，静态的banner已经被我们实现出来了，我们接下来就要设置定时器，定时的更改currentPage，从而达到更改定时滚动图片以及圆点指示器的显示</p>
-<ul>
-<li>定时器为第三方库，引入后我们再render中注册后，</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> TimerMixin = <span class="built_in">require</span>(<span class="string">'react-timer-mixin'</span>);</div><div class="line">mixins: [TimerMixin],</div></pre></td></tr></table></figure>
-<ul>
-<li>通过this.setInterval(function(),1000)启动定时器，通过this.clearInterval(this.timer)停止定时器</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">startTimer()&#123;</div><div class="line">   <span class="comment">//引入scrollView便于后续操作</span></div><div class="line">   <span class="keyword">var</span> scrollView = <span class="keyword">this</span>.refs.bannerScroll;</div><div class="line">   </div><div class="line">	<span class="comment">//开启定时器</span></div><div class="line">   <span class="keyword">this</span>.timer = <span class="keyword">this</span>.setInterval(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;   </div><div class="line">   <span class="comment">//设置指示器圆点变换</span></div><div class="line">   <span class="keyword">var</span> timerPage = <span class="number">0</span>;</div><div class="line">   <span class="keyword">if</span> (<span class="keyword">this</span>.state.currentPage + <span class="number">1</span> &gt;= <span class="keyword">this</span>.state.bannerArray.length) &#123;</div><div class="line">        timerPage = <span class="number">0</span></div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">          timerPage = <span class="keyword">this</span>.state.currentPage + <span class="number">1</span>;</div><div class="line">        &#125;</div><div class="line">       <span class="keyword">this</span>.setState(&#123;</div><div class="line">           <span class="attr">currentPage</span>: timerPage</div><div class="line">       &#125;)</div><div class="line"></div><div class="line">      <span class="comment">//设置图片滚动变换,通过scrollResponderScrollTo可以滚动图片</span></div><div class="line">      <span class="keyword">var</span> offsetX = timerPage * width;</div><div class="line">      scrollView.scrollResponderScrollTo(&#123;<span class="attr">x</span>: offsetX, <span class="attr">y</span>: <span class="number">0</span>, <span class="attr">animated</span>: <span class="literal">true</span>&#125;)</div><div class="line">   		&#125;, <span class="keyword">this</span>.props.intervalTime);</div><div class="line"> &#125;,</div></pre></td></tr></table></figure>
-<h3 id="设置滑动事件"><a href="#设置滑动事件" class="headerlink" title="设置滑动事件"></a>设置滑动事件</h3><p>一个定时滚动的banner已经被我们实现了，当然我们需要在手动滚动banner时停止原本设置好的自动滚动，我们就得监听开始拖动banner和停止拖动banner的动作，当拖动时停止定时器，当停止拖动离开banner时启动定时器</p>
-<p><strong>开始拖动banner</strong>    </p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">onScrollBeginDrag()&#123;</div><div class="line">    <span class="keyword">this</span>.clearInterval(<span class="keyword">this</span>.timer)</div><div class="line">&#125;,</div></pre></td></tr></table></figure>
-<p><strong>停止拖动banner</strong></p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">onScrollEndDrag()&#123;</div><div class="line">   <span class="keyword">this</span>.startTimer()</div><div class="line">&#125;,</div></pre></td></tr></table></figure>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p> 总的来说一个banner的实现主要用到scrollView的一些属性，然后通过定时器调用方法让scrollview自己滚动就达到了我们的目的了,是不是很简单呢[]~(￣▽￣)~*有疑问欢迎留言</p>
-<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>虽然博客搭了很久，但是这次是第一次写文章，写的时候发现markdown本地预览和实际上hexo自动生成的文件不一样，折腾了一个多小时，发现了两个问题</p>
-<ul>
-<li>标题#号后面需要加一个空格，要不然hexo识别不了</li>
-<li>代码块```后面不能加空格！！切记，文章弄了很久还是格式错误就是这个原因，代码块语法后面千万别加空格 TT</li>
 </ul>
 
           
@@ -1379,6 +1735,10 @@
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
 
 
           </div>
@@ -1417,7 +1777,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-count">14</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
