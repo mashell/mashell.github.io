@@ -241,242 +241,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/08/08/类加载机制/" itemprop="url">
-                  未命名
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-08T17:52:21+08:00" content="2017-08-08">
-              2017-08-08
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/08/08/类加载机制/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/08/类加载机制/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/08/08/类加载机制/" class="leancloud_visitors" data-flag-title="">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="类加载时机"><a href="#类加载时机" class="headerlink" title="类加载时机"></a>类加载时机</h3><ul>
-<li>new getstatic putstatis invokestatic 四个字节码指令</li>
-<li>反射</li>
-<li>发现父类还没有进行初始</li>
-<li>main方法所在的类</li>
-<li>当用 jdk 1.7冬天语言支持ref_getstatic  ref_putStatic ref_invokeStatic 三个句柄</li>
-</ul>
-<h3 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h3><p>加载 验证 准备 解析 初始化  </p>
-<h3 id="双清委派模型"><a href="#双清委派模型" class="headerlink" title="双清委派模型"></a>双清委派模型</h3><ul>
-<li>启动类加载器 (BootStrap) C++实现 虚拟机自身一部分</li>
-<li>其他类加载器</li>
-</ul>
-<p>过程:调用父类的加载器,父类无法完成再调用自己的加载器</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/08/08/内存分配/" itemprop="url">
-                  未命名
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-08T17:13:43+08:00" content="2017-08-08">
-              2017-08-08
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/08/08/内存分配/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/08/08/内存分配/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/08/08/内存分配/" class="leancloud_visitors" data-flag-title="">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="java堆"><a href="#java堆" class="headerlink" title="java堆"></a>java堆</h3><p>存放对象实例,几乎所有对象实例都在这里创建,垃圾收集器的主要区域</p>
-<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>存储 类信息,常量,静态变量,编译后的代码等</p>
-<h3 id="JVM栈"><a href="#JVM栈" class="headerlink" title="JVM栈"></a>JVM栈</h3><p>java方法的内存模型,用于存储局部变量表、操作数栈、动态链接、方法出口等信息。每个方法从调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中入栈到出栈的过程。</p>
-<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>本地方法栈和JVM栈非常相似，它们之间的区别不过是jvm栈是为执行java方法服务，而本地方法栈是为jvm使用到对的本地方法服务。HotSpot虚拟机中直接把本地方法栈和JVM栈合二为一了。</p>
-<h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>看做当前程序执行字节码的行号指示器(如果本地方法就是空的) 通过改变这个计数器选择下一条需要执行的字节码指令,分支\循环\跳转\异常处理\县城回复 ,, 唯一没有 OutOfMemory的区域.  </p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" itemprop="url">
                   JVM学习笔记(五):JVM方法调用内部机制
                 </a>
@@ -1732,6 +1496,343 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/01/10/八种单例模式/" itemprop="url">
+                  java 九种单例模式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-01-10T21:06:30+08:00" content="2017-01-10">
+              2017-01-10
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/01/10/八种单例模式/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/10/八种单例模式/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/01/10/八种单例模式/" class="leancloud_visitors" data-flag-title="java 九种单例模式">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>单例模式大家都很常见了，我这篇文章是看了别人的文章后自己学习后写出来的，相当于一个笔记吧。</p>
+<h4 id="饿汉式"><a href="#饿汉式" class="headerlink" title="饿汉式"></a>饿汉式</h4><ul>
+<li><p>优点：线程安全</p>
+</li>
+<li><p>缺点：由于类加载机制，无论类是否被使用，类第一次加载进入内存就回实例化</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton singleton = <span class="keyword">new</span> Singleton();</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="饿汉式-–-静态代码块"><a href="#饿汉式-–-静态代码块" class="headerlink" title="饿汉式 – 静态代码块"></a>饿汉式 – 静态代码块</h4><ul>
+<li><p>优点:线程安全</p>
+</li>
+<li><p>缺点：类装载时创建实例，若实例一直未被使用时，会浪费资源</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</div><div class="line"></div><div class="line">	<span class="keyword">static</span>&#123;</div><div class="line">		singleton = <span class="keyword">new</span> Singleton();</div><div class="line">	&#125;</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式"><a href="#懒汉式" class="headerlink" title="懒汉式"></a>懒汉式</h4><ul>
+<li><p>优点：避免了第一次加载这个类进入内存未使用占用内存</p>
+</li>
+<li><p>缺点：线程不安全,当多线程情况下 getInstance时可能会生成多个实例</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton single = <span class="keyword">null</span>;</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		single =  <span class="keyword">new</span> Singleton();</div><div class="line">	&#125;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">if</span>(<span class="keyword">null</span> == single)</div><div class="line">			single = <span class="keyword">new</span> Singleton();</div><div class="line">		<span class="keyword">return</span> single;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式-–-方法同步"><a href="#懒汉式-–-方法同步" class="headerlink" title="懒汉式 – 方法同步"></a>懒汉式 – 方法同步</h4><ul>
+<li><p>优点：线程安全</p>
+</li>
+<li><p>缺点：同步方法，实际上只需要处理 new Singleton 的同步问题即可，效率太低了</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton singleton;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">if</span>(<span class="keyword">null</span> == singleton)&#123;</div><div class="line">			singleton = <span class="keyword">new</span> Singleton();</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式-–-代码块同步"><a href="#懒汉式-–-代码块同步" class="headerlink" title="懒汉式 – 代码块同步"></a>懒汉式 – 代码块同步</h4><ul>
+<li><p>优点：效率高于 方法同步 的懒汉式</p>
+</li>
+<li><p>缺点：判断 singleton 是否为空的时候，如果此时多线程访问了，那么也存在异步问题，实例化了多个singleton</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton singleton;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> == singleton)</div><div class="line">			<span class="keyword">synchronized</span> (Singleton.class) &#123;</div><div class="line">				singleton = <span class="keyword">new</span> Singleton();</div><div class="line">			&#125;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式-–-错误的-double-check"><a href="#懒汉式-–-错误的-double-check" class="headerlink" title="懒汉式 – 错误的 double check"></a>懒汉式 – 错误的 double check</h4><ul>
+<li><p>优点：效率高</p>
+</li>
+<li><p>缺点：线程不安全，依然存在创建多个实例的可能。因为每个线程都有自己的一份拷贝，并不能保证实例化后将INSTANCE的引用拷回主内存，不能保证对其它线程立即可见，所以仍然有可能造成多个实例被创建，具体原因搜索 <strong>volatile</strong> 关键字</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton single;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> == single) &#123;</div><div class="line">			<span class="keyword">synchronized</span> (Singleton.class) &#123;</div><div class="line">				<span class="keyword">if</span> (<span class="keyword">null</span> == single) &#123;</div><div class="line">					single = <span class="keyword">new</span> Singleton();</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式-–-正确的-doucle-check"><a href="#懒汉式-–-正确的-doucle-check" class="headerlink" title="懒汉式 – 正确的 doucle check"></a>懒汉式 – 正确的 doucle check</h4><ul>
+<li>优点：效率高，解决了线程不安全的问题</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> == singleton)</div><div class="line">			<span class="keyword">synchronized</span> (Singleton.class) &#123;</div><div class="line">				<span class="keyword">if</span>(<span class="keyword">null</span> == singleton)</div><div class="line">					singleton = <span class="keyword">new</span> Singleton();</div><div class="line">			&#125;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h4><ul>
+<li><p>优点: 无线程同步问题，且能防止通过反射创建新的对象</p>
+</li>
+<li><p>缺点: 使用的是枚举，而非类。同时单一实例的访问点也不是一般单例模式的静态方法</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Singleton &#123;</div><div class="line">	SINGLETON;</div><div class="line">	<span class="comment">//编译器编译时会自动生成</span></div><div class="line">	<span class="comment">//	public static final Singleton SINGLETON;</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h4><ul>
+<li>优点： 静态内部类不存在类加载的时候就初始化，当加载内部类的时候，java 虚拟机初始化其成员变量并且保证线程安全，而且没有锁不会造成性能影响</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Single</span> </span>&#123;</div><div class="line">		<span class="keyword">static</span> Singleton mSingle = <span class="keyword">new</span> Singleton();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> Single.mSingle;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上就是我的笔记，总的来说一般我常用静态内部类的模式，最终的模式选择取决于大家。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/12/15/Android-内存泄露解析/" itemprop="url">
+                  Android 内存泄露解析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-12-15T11:37:53+08:00" content="2016-12-15">
+              2016-12-15
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/15/Android-内存泄露解析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/15/Android-内存泄露解析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/12/15/Android-内存泄露解析/" class="leancloud_visitors" data-flag-title="Android 内存泄露解析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>内存泄露也是一个老生常谈的问题了，我们今天来学习怎样会造成内存泄露以及如何避免内存泄露，内存泄露该如何解决。</p>
+<h2 id="怎样造成内存泄露的？如何避免它？"><a href="#怎样造成内存泄露的？如何避免它？" class="headerlink" title="怎样造成内存泄露的？如何避免它？"></a>怎样造成内存泄露的？如何避免它？</h2><blockquote>
+<p>Android虚拟机的垃圾回收采用的是根搜索算法。GC会从根节点（GC Roots）开始对heap进行遍历。到最后，部分没有直接或者间接引用到GC Roots的就是需要回收的垃圾，会被GC回收掉。而内存泄漏出现的原因就是GC对象的根存在了无效的引用，导致本来需要被GC的对象没有被回收掉。</p>
+</blockquote>
+<p>简单来说就是当一个对象需要释放内存时，他被其他生命周期长的对象所引用，导致JVM无法回收这个对象的内存，从而导致了内存泄露。</p>
+<p>主要有三种情况</p>
+<ul>
+<li>静态变量</li>
+<li>非静态内存类</li>
+<li>RxJava 忘记取消注册引起的内存泄露（实际上也是第二点的原因）</li>
+<li>无限进行的动画</li>
+</ul>
+<p>其他情况:</p>
+<ul>
+<li>资源对象没关闭。如Cursor、File等资源。他们会在finalize中关闭，但这样效率太低。容易造成内存泄露。SQLiteCursor，当数据量大的时候容易泄露</li>
+<li>广播注册了没有取消造成内存泄漏</li>
+</ul>
+<h3 id="1-静态变量造成的内存泄露"><a href="#1-静态变量造成的内存泄露" class="headerlink" title="1,静态变量造成的内存泄露"></a>1,静态变量造成的内存泄露</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeakActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    <span class="keyword">static</span> Context sContext;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(@Nullable Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        sContext = <span class="keyword">this</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>原因：</strong></p>
+<p>在这一个例子中，我们的 LeakActivity 被静态变量 Context 所持有，我们知道静态变量的生命周期是与整个应用的生命周期相同的(如果这方面知识点不太清楚可以看看这里 <a href="http://blog.csdn.net/ctcwri/article/details/8858414" target="_blank" rel="external">Android 静态生命周期</a>，那么当我们 LeakActivity 退出需要被回收时，垃圾回收机制发现 LeakActivity 被一个静态变量持有引用，那么导致无法回收 LeakActivity 的内存导致内存泄露。</p>
+<p><strong>解决办法：</strong></p>
+<p>在 onDestory 方法中将 静态变量 sContext 的值 置为 null，解除对 Activity 的引用。</p>
+<p>如果这个例子不太熟悉，那么我们再举个大家常见的例子</p>
+<p>我们常常会用单例模式封装一个类(这个单例模式的选择只是方便代码简便，实际使用中会有影响，不推荐使用)，方便调用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton instance;</div><div class="line">    <span class="keyword">private</span> Context mContext;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">(Context context)</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.mContext = context;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">(Context context)</span></span>&#123;</div><div class="line">        <span class="keyword">if</span> (instance == <span class="keyword">null</span>)&#123;</div><div class="line">                <span class="keyword">if</span> (instance == <span class="keyword">null</span>)&#123;</div><div class="line">                    instance = <span class="keyword">new</span> Singleton(context);</div><div class="line">                &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> instance;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样以来，我们在一个 Activity 中使用这个类的时候我们会传入一个 activity ，singleton 就持有了 Activity 的引用了，那么问题就来了：静态的成员变量 instance 如果没有被销毁，就会一直持有 Activity 的引用，Activity 就会在需要被回收的时候无法回收导致内存泄露。</p>
+<p><strong>解决办法：</strong></p>
+<p>使用 Application 的context 传入 Singleton ，Application的生命周期是最长的，它的生命周期就等于这个程序的生命周期，这样就不会导致内存泄露了。</p>
+<h3 id="2，非静态内存类持有外部类应用导致的内存泄露"><a href="#2，非静态内存类持有外部类应用导致的内存泄露" class="headerlink" title="2，非静态内存类持有外部类应用导致的内存泄露"></a>2，非静态内存类持有外部类应用导致的内存泄露</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeakActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(@Nullable Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    Handler mHandler = <span class="keyword">new</span> Handler()&#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>.handleMessage(msg);</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>原因：</strong></p>
+<p>内存类会持有外部类的一个引用，在这个例子中，Handler 创建了一个匿名内部类，那么这个内部类就会持有外部类的引用，而静态内部类不会。而我们知道 Handler 是一直有 Looper 在 MessageQueue 里面取消息的，如果有一个消息一直没取出来，那么 Mesasge 有 Handler 的引用， Handler 有 Activity 的引用，这样最终导致内存泄露。</p>
+<p>或者其他情况，在内部类中，如果开启一个线程执行一项耗时任务，在执行任务时打算销毁外部类时，垃圾回收机制检测到Activity被内部类持有引用，同样导致无法回收 LeakActivity 。</p>
+<p><strong>解决办法：</strong></p>
+<p>使用弱引用 WeakReference + 静态内部类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeakActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> MyHandler mMyHandler;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(@Nullable Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">MyHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span></span>&#123;</div><div class="line">        <span class="keyword">private</span> <span class="keyword">final</span> WeakReference&lt;Activity&gt; mActivityWeakReference;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyHandler</span><span class="params">(Activity activity)</span> </span>&#123;</div><div class="line">            mActivityWeakReference = <span class="keyword">new</span> WeakReference&lt;Activity&gt;(activity);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>.handleMessage(msg);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>或者内部类是静态的，这样就不会持有外部类引用了。当然，用了静态内部类后就注意 <strong>知识点1</strong> 的内容，别自己手动导致静态内部类持有activity的引用了。</p>
+<h3 id="3，RxJava-忘记取消注册引起的内存泄露"><a href="#3，RxJava-忘记取消注册引起的内存泄露" class="headerlink" title="3，RxJava 忘记取消注册引起的内存泄露"></a>3，RxJava 忘记取消注册引起的内存泄露</h3><p>一般来说，我们使用 RxJava 是这样使用的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Observable.just(<span class="string">"内存泄露哦"</span>)</div><div class="line">	        .subscribe(<span class="keyword">new</span> Subscriber&lt;String&gt;() &#123;</div><div class="line">	            <span class="meta">@Override</span></div><div class="line">	            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</div><div class="line">	                </div><div class="line">	            &#125;</div><div class="line">	</div><div class="line">	            <span class="meta">@Override</span></div><div class="line">	            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</div><div class="line">	</div><div class="line">	            &#125;</div><div class="line">	</div><div class="line">	            <span class="meta">@Override</span></div><div class="line">	            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(String s)</span> </span>&#123;</div><div class="line">	</div><div class="line">	            &#125;</div><div class="line">	        &#125;);</div></pre></td></tr></table></figure>
+<p><strong>原因：</strong></p>
+<p>我们可以看到 subscribe 中有一个匿名内部类，这点跟 <strong>知识点二</strong> 的原因一样， 匿名内部类 Subscriber 持有外部类的引用，当我们在里面做耗时不当使得生命周期大于 外部Activity 时，导致外部类想要销毁而无法被销毁的时候，就导致了内存泄露。</p>
+<p><strong>解决方案：</strong></p>
+<p>在订阅时初始化一个 Subscription</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Subscription s  = Observable.just(<span class="string">"内存泄露哦"</span>)</div><div class="line">       .subscribe(<span class="keyword">new</span> Subscriber&lt;String&gt;() &#123;</div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</div><div class="line">               </div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</div><div class="line"></div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(String s)</span> </span>&#123;</div><div class="line"></div><div class="line">           &#125;</div><div class="line">       &#125;);</div></pre></td></tr></table></figure>
+<p>在 onDestory 或者其他需要销毁的方法里，取消订阅</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onDestroy();</div><div class="line">        <span class="keyword">if</span> (!s.isUnsubscribed)</div><div class="line">            s.unsubscribe();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>或者使用开源库 <a href="https://github.com/trello/RxLifecycle" target="_blank" rel="external">RxLifecycle</a> ,他能直接与我们的 Activity 生命周期相关联，会在需要取消订阅的地方自动取消订阅，具体源码与实现我会在下回分析。</p>
+<h2 id="出现内存泄露该如何检测和解决"><a href="#出现内存泄露该如何检测和解决" class="headerlink" title="出现内存泄露该如何检测和解决"></a>出现内存泄露该如何检测和解决</h2><p>我们利用 Android Studio 自带的工具进行检测，运行我们上面的第一个《静态变量造成的内存泄露》DEMO</p>
+<p>第一步：运行项目，进入MainActivity，然后跳转到LeakActivity，最后点击 Bakc键 返回到 MainActivity。</p>
+<p>第二步： 点击  AS 下方的 Android Monitor ,切换到 Monitors 标签页下</p>
+<p>第三步：点击 <img src="http://img2.ph.126.net/AE_uxPlHzpYzeD_igwmnBQ==/6632420165001105422.jpg" alt="">这个按钮，手动触发 GC，然后点击<img src="http://img2.ph.126.net/ErqcyHByHYi7BbfeS5HDRg==/6632232148512755033.jpg" alt="">这个按钮，会进入到 Java Heap 界面，然后点击右边的 Analyzer Tasker 选项卡，再点击绿色三角形的运行剪头，在Analyzis Activities页面可以看到我们内存泄露的 Activity，双击找到哪个地方引起了泄露，然后跳到相应界面修改它即可。<img src="http://ohxbeadiz.bkt.clouddn.com/analy.jpg" alt=""></p>
+<p>第四步，解决后重新运行程序，我们发现内存占用减小了 100K左右（也是因为我们的 LeakActivity 占用内存不大的原因），终于解决内存泄露了。</p>
+<p>解决前<br><img src="http://img2.ph.126.net/C2wSHORcZgRtfjMr3rau9g==/6632281626536000735.jpg" alt=""></p>
+<p>解决后<br><img src="http://img2.ph.126.net/0oT0MJ-ZGxLfU3E7tmHmCw==/6632125495887526964.jpg" alt=""></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结:"></a>总结:</h2><p>造成内存泄露的原因还是有很多的，不光是我上面的举例，还有 Bitmap 占用内存问题，各种资源打开未关闭的问题，我们要做到工作中尽量避免造成内存泄露，当出现内存泄露时也不需要担心了，耐心用 AS 自带的 monitors 检查出问题并且修复就行啦。</p>
+<h3 id="参考文章与资料"><a href="#参考文章与资料" class="headerlink" title="参考文章与资料"></a>参考文章与资料</h3><ul>
+<li><p><a href="http://blog.csdn.net/xuefu_78/article/details/66968922" target="_blank" rel="external"> 基于Android Studio的内存泄漏检测与解决全攻略</a></p>
+</li>
+<li><p><a href="https://drakeet.me/android-leaks" target="_blank" rel="external">Android 内存泄漏案例和解析</a></p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -1777,7 +1878,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">14</span>
+              <span class="site-state-item-count">12</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
