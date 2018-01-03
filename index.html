@@ -241,6 +241,204 @@
             
               
                 
+                <a class="post-title-link" href="/2017/05/03/Binder-机制/" itemprop="url">
+                  Binder 机制
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-05-03T23:08:10+08:00" content="2017-05-03">
+              2017-05-03
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/05/03/Binder-机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/05/03/Binder-机制/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/05/03/Binder-机制/" class="leancloud_visitors" data-flag-title="Binder 机制">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="Binder-存在的意义-为什么要使用Binder"><a href="#Binder-存在的意义-为什么要使用Binder" class="headerlink" title="Binder 存在的意义?为什么要使用Binder"></a>Binder 存在的意义?为什么要使用Binder</h3><h4 id="进程隔离"><a href="#进程隔离" class="headerlink" title="进程隔离"></a>进程隔离</h4><blockquote>
+<p>进程隔离是为保护操作系统中进程互不干扰而设计的一组不同硬件和软件的技术。这个技术是为了避免进程A写入进程B的情况发生。</p>
+</blockquote>
+<p>操作系统的不同进程之间，数据不共享；对于每个进程来说，因此一个进程需要与另外一个进程通信，需要某种系统机制才能完成。</p>
+<h4 id="跨进程方式"><a href="#跨进程方式" class="headerlink" title="跨进程方式"></a>跨进程方式</h4><ul>
+<li><p>Linux 传统跨进程(未严格验证通信双方身份)</p>
+<ul>
+<li>Socket</li>
+<li>管道</li>
+</ul>
+</li>
+<li><p>Android : <strong>Binder</strong></p>
+<ul>
+<li>动态可加载模块 LKM: 运行时被动态加载到内核,作为内核的一部分.成为内核与用户空间的桥梁,完成通信.Android 中称为 <code>Binder 驱动</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="Binder-使用"><a href="#Binder-使用" class="headerlink" title="Binder 使用"></a>Binder 使用</h3><p>想要使用跨进程通信 Binder,最常见的就是Service中,我们首先需要创建一个 <code>aidl</code>文件,里面定义好跨进程通信的接口.</p>
+<p>比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">interface IRemote &#123;</div><div class="line">    int getAIDLResult(int i);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后我们 <code>Rebuild</code> 一下,编译器会自动生成对应的 Java 文件,</p>
+<h3 id="Demo-演示"><a href="#Demo-演示" class="headerlink" title="Demo 演示"></a>Demo 演示</h3><h4 id="Server-端"><a href="#Server-端" class="headerlink" title="Server 端"></a>Server 端</h4><p>我们创建一个远程 Service 对象,并且覆盖onBind() 方法并返回 IRemoteService.Stub 实例 mBinder<br>注意到 Stub 是一个抽象类,我们得实现 <code>aidl</code>文件中定义的方法.</p>
+<p>Service</p>
+<ul>
+<li>本地服务:依附于主进程,非独立进程,无进程隔离</li>
+<li>远程服务:<strong>声明android:process=”:remote”</strong>,成为独立进程,有进程隔离,需要使用AIDL进行IPC</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">public class RemoteService extends Service &#123;</div><div class="line"></div><div class="line">    private static final String TAG = RemoteService.class.getSimpleName();</div><div class="line">    </div><div class="line">    private  IRemote.Stub mBinder = new IRemote.Stub()&#123;</div><div class="line">        @Override</div><div class="line">        public int getAIDLResult(int result) throws RemoteException &#123;</div><div class="line">            Log.e(&quot;AIDLDemo&quot;,&quot;Service getRequest&quot;);</div><div class="line">            Log.e(&quot;AIDLDemo ; &quot;,&quot;Service pid &quot;+android.os.Process.myPid() );</div><div class="line">            return i+1;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">    </div><div class="line">    @Override</div><div class="line">    public IBinder onBind(Intent intent) &#123;</div><div class="line">        return mBinder;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="Client-端"><a href="#Client-端" class="headerlink" title="Client 端"></a>Client 端</h4><p>我们在客户端服务连接 <code>ServiceConnection</code> 的 <code>onServiceConnected()</code> 获取到了 IBinder 实例,通过 Binder 的 <code>asInterface</code> 获取到了远程服务的代理对象 <code>remoteService</code>,最后我们通过 <code>remoteService.getResult()</code> 就可以像本地方法一样调用远程服务的方法了,实现了跨进程通信.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">public class MainActivity extends AppCompatActivity &#123;</div><div class="line">    private ServiceConnection mConnection = new ServiceConnection() &#123;</div><div class="line">        @Override</div><div class="line">        public void onServiceConnected(ComponentName name, IBinder service) &#123;</div><div class="line">        //通过 asInterface ,获取 Binder 代理对象,调用远程方法跨进程通信</div><div class="line">            IRemote remoteService = IRemote.Stub.asInterface(service);</div><div class="line">            try &#123;</div><div class="line">                remoteService.getResult();</div><div class="line">            &#125; catch (RemoteException e) &#123;</div><div class="line">                e.printStackTrace();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">    &#125;;</div><div class="line">    ...</div><div class="line">    @Override</div><div class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</div><div class="line">        ...</div><div class="line">        //启动Service</div><div class="line">        Intent intent = new Intent(this,MyService.class);</div><div class="line">        bindService(intent,mServiceConnection,BIND_AUTO_CREATE);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">Q: IBinder是什么,IInterface是什么,IBinder为什么能转成IInterface</div></pre></td></tr></table></figure></p>
+<h3 id="原理分析"><a href="#原理分析" class="headerlink" title="原理分析"></a>原理分析</h3><p>我们来分析一下这个文件.需要了解的地方已经写在注释中了.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div></pre></td><td class="code"><pre><div class="line">public interface IRemote extends android.os.IInterface &#123;</div><div class="line">    </div><div class="line">    public static abstract class Stub extends android.os.Binder implements com.mashell.taskb.IRemote &#123;</div><div class="line">        private static final java.lang.String DESCRIPTOR = &quot;com.mashell.taskb.IRemote&quot;;</div><div class="line"></div><div class="line">        public Stub() &#123;</div><div class="line">            this.attachInterface(this, DESCRIPTOR);</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        //客户端通过 Stub.asInterface() 得到 Binder 代理对象,远程调用 Server 的方法,实现跨进程通信.</div><div class="line">        public static com.mashell.taskb.IRemote asInterface(android.os.IBinder obj) &#123;</div><div class="line">            if ((obj == null)) &#123;</div><div class="line">                return null;</div><div class="line">            &#125;</div><div class="line">            //查找本地 Binder 对象</div><div class="line">            android.os.IInterface iin = obj.queryLocalInterface(DESCRIPTOR);</div><div class="line">            //找到了而且是同一个进程,直接向上转型成 Binder 本地对象.</div><div class="line">            if (((iin != null) &amp;&amp; (iin instanceof com.mashell.taskb.IRemote))) &#123;</div><div class="line">                return ((com.mashell.taskb.IRemote) iin);</div><div class="line">            &#125;</div><div class="line">            //不是同一个进程,返回 Binder 代理对象.</div><div class="line">            return new com.mashell.taskb.IRemote.Stub.Proxy(obj);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        @Override</div><div class="line">        public android.os.IBinder asBinder() &#123;</div><div class="line">            return this;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        //Service端处理请求的方法</div><div class="line">        @Override</div><div class="line">        public boolean onTransact(int code, android.os.Parcel data, android.os.Parcel reply, int flags) throws android.os.RemoteException &#123;</div><div class="line">            switch (code) &#123;</div><div class="line">                case INTERFACE_TRANSACTION: &#123;</div><div class="line">                    reply.writeString(DESCRIPTOR);</div><div class="line">                    return true;</div><div class="line">                &#125;</div><div class="line">                case TRANSACTION_getResult: &#123;</div><div class="line">                    data.enforceInterface(DESCRIPTOR);</div><div class="line">                    int _arg0;</div><div class="line">                    _arg0 = data.readInt();</div><div class="line">                    //调用我们定义的方法,是抽象方法,需要在服务端实例中重写实现这个方法</div><div class="line">                    this.getResult(_arg0);</div><div class="line">                    reply.writeNoException();</div><div class="line">                    return true;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            return super.onTransact(code, data, reply, flags);</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        //具体的代理类, 远程 Binder</div><div class="line">        private static class Proxy implements com.mashell.taskb.IRemote &#123;</div><div class="line">            private android.os.IBinder mRemote;</div><div class="line"></div><div class="line">            Proxy(android.os.IBinder remote) &#123;</div><div class="line">                mRemote = remote;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            @Override</div><div class="line">            public android.os.IBinder asBinder() &#123;</div><div class="line">                return mRemote;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            public java.lang.String getInterfaceDescriptor() &#123;</div><div class="line">                return DESCRIPTOR;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            @Override</div><div class="line">            public void getResult(int result) throws android.os.RemoteException &#123;</div><div class="line">                android.os.Parcel _data = android.os.Parcel.obtain();</div><div class="line">                android.os.Parcel _reply = android.os.Parcel.obtain();</div><div class="line">                try &#123;</div><div class="line">                    _data.writeInterfaceToken(DESCRIPTOR);</div><div class="line">                    _data.writeInt(result);</div><div class="line">                   //对于跨进程调用方法,调用 transact() 这个 native 方法,要知道最终调用 talkWithDriver 方法</div><div class="line">                   //然后该函数通过 ioctl 系统调用, Client 进程陷入内核态,Client 调用我们定义的 getResult 方法线程挂起等待返回.</div><div class="line">                   //Binder 驱动操作后唤醒 Server进程,调用 Binder 本地对象的 onTransact 函数.</div><div class="line">                   //该函数通过参数判断调用到具体对应的函数.最终Binder 驱动唤醒 Client 并将结果返回.</div><div class="line">                   mRemote.transact(Stub.TRANSACTION_getResult, _data, _reply, 0);</div><div class="line">                    _reply.readException();</div><div class="line">                &#125; finally &#123;</div><div class="line">                    _reply.recycle();</div><div class="line">                    _data.recycle();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        static final int TRANSACTION_getResult = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void getResult(int result) throws android.os.RemoteException;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="asInterface"><a href="#asInterface" class="headerlink" title="asInterface()"></a>asInterface()</h4><h5 id="asInterface-拿到-IBinder-对象-让我们来分析一下这个方法"><a href="#asInterface-拿到-IBinder-对象-让我们来分析一下这个方法" class="headerlink" title="asInterface() 拿到 IBinder 对象,让我们来分析一下这个方法"></a>asInterface() 拿到 IBinder 对象,让我们来分析一下这个方法</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public static com.mashell.taskb.IRemote asInterface(android.os.IBinder obj) &#123;</div><div class="line">            if ((obj == null)) &#123;</div><div class="line">                return null;</div><div class="line">            &#125;</div><div class="line">            android.os.IInterface iin = obj.queryLocalInterface(DESCRIPTOR);</div><div class="line">            if (((iin != null) &amp;&amp; (iin instanceof com.mashell.taskb.IRemote))) &#123;</div><div class="line">                return ((com.mashell.taskb.IRemote) iin);</div><div class="line">            &#125;</div><div class="line">            return new com.mashell.taskb.IRemote.Stub.Proxy(obj);</div><div class="line">        &#125;</div></pre></td></tr></table></figure>
+<p>Binder 会根据情况查找返回 Binder 对象,如果是同一进程就直接返回 <strong>Binder</strong> 本地对象.如果是跨进程那么就返回 <strong>BinderProxy</strong></p>
+<h5 id="queryLocalInterface"><a href="#queryLocalInterface" class="headerlink" title="queryLocalInterface()"></a>queryLocalInterface()</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">在 Binder 类中,查找本地 Interface 返回</div><div class="line">public IInterface queryLocalInterface(String descriptor) &#123;</div><div class="line">        if (mDescriptor.equals(descriptor)) &#123;</div><div class="line">            return mOwner;</div><div class="line">        &#125;</div><div class="line">        return null;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">在 BinderProxy 中,直接返回 null</div><div class="line">public IInterface queryLocalInterface(String descriptor) &#123;</div><div class="line">        return null;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>对于 asInterface,通过上面的分析,</p>
+<ul>
+<li>如果是同一进程直接向下转型</li>
+<li>如果是跨进程的<strong>BinderProxy</strong>,返回一个 Proxy(IBinder mRemote);</li>
+</ul>
+<p>对于我们远程服务端方法的调用,</p>
+<ul>
+<li>Binder 本地对象,不需要跨进程,直接调用抽象方法</li>
+<li>对于 Binder 代理对象,<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">public int getAIDLResult(int i) throws android.os.RemoteException &#123;</div><div class="line">    android.os.Parcel _data = android.os.Parcel.obtain();</div><div class="line">    android.os.Parcel _reply = android.os.Parcel.obtain();</div><div class="line">    int _result;</div><div class="line">    try &#123;</div><div class="line">        _data.writeInterfaceToken(DESCRIPTOR);</div><div class="line">        _data.writeInt(i);</div><div class="line">        </div><div class="line">        mRemote.transact(Stub.TRANSACTION_getAIDLResult, _data, _reply, 0);</div><div class="line">        _reply.readException();</div><div class="line">        _result = _reply.readInt();</div><div class="line">    &#125; finally &#123;</div><div class="line">        _reply.recycle();</div><div class="line">        _data.recycle();</div><div class="line">    &#125;</div><div class="line">    return _result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>重点看 <strong>transact()</strong>,既然是 BinderProxy,我们进入具体类中查看<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">public native boolean transactNative(int code, Parcel data, Parcel reply,</div><div class="line">            int flags) throws RemoteException;</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>这是一个本地方法；它的实现在native层，具体来说在frameworks/base/core/jni/android_util_Binder.cpp文件，里面进行了一系列的函数调用，调用链实在太长这里就不给出了；要知道的是它最终调用到了talkWithDriver函数；看这个函数的名字就知道，通信过程要交给驱动完成了；这个函数最后通过ioctl系统调用，Client进程陷入内核态，Client调用add方法的线程挂起等待返回；驱动完成一系列的操作之后唤醒Server进程，调用了Server进程本地对象的onTransact函数（实际上由Server端线程池完成）。</p>
+</blockquote>
+<h5 id="onTransact"><a href="#onTransact" class="headerlink" title="onTransact()"></a>onTransact()</h5><p>在 <strong>BinderProxy</strong> 的transact()中,我们传入了编号,默认命名是 <strong>TRANSACTION</strong>+方法名,在 <strong>onTransact()</strong> 方法中,通过编号调用具体函数,唤醒Client 返回结果.</p>
+<h3 id="Binder-通信模型"><a href="#Binder-通信模型" class="headerlink" title="Binder 通信模型"></a>Binder 通信模型</h3><p><img src="http://img.blog.csdn.net/20170107102830444" alt=""></p>
+<h3 id="Binder-模型大致通信过程"><a href="#Binder-模型大致通信过程" class="headerlink" title="Binder 模型大致通信过程"></a>Binder 模型大致通信过程</h3><ul>
+<li><p>在Android开机启动过程中，Android会初始化系统的各种Service，</p>
+</li>
+<li><p>Service向ServiceManager注册（即让ServiceManager管理）。(跨进程)</p>
+</li>
+<li><p>客户端想要得到具体的Service直接向ServiceManager要即可。客户端首先向ServiceManager查询得到具体的Service引用，然后通过这个引用向具体的服务端发送请求，服务端执行完成后就返回。(跨进程)</p>
+</li>
+</ul>
+<p>PS:Client向ServiceManager通信的过程也要跨进程通信.<br>从Client和Server的角度来看，ServiceManager永远都是一个Server，任何访问ServiceManager的都是Client。</p>
+<h3 id="Binder-驱动"><a href="#Binder-驱动" class="headerlink" title="Binder 驱动"></a>Binder 驱动</h3><p>Binder 驱动是一段运行在内核空间的代码,他是 Binder 机制的核心,负责 Binder 节点的建立和进程间信息的传递.通过 <code>&quot;/dev/binder&quot;</code>的文件在内核空间和用户空间来回搬动数据. <code>Linux inctl</code> 函数实现了从用户空间转移到内核空间的功能.</p>
+<h3 id="ServiceManager"><a href="#ServiceManager" class="headerlink" title="ServiceManager"></a>ServiceManager</h3><p>ServiceManager提供了注册,检索服务的功能.所有的服务由 ServiceManager 统一管理.<br>他做了三件事</p>
+<ol>
+<li>打开设备文件 <code>/dev/binder</code>,把文件内容映射到内核空间,借助这块区域,可以实现进程间通信.</li>
+<li>将当前进程注册到 <code>Binder 驱动</code>,系统会将跨进程的服务注册到他的服务列表中.</li>
+<li>ServiceManager也会进入一个无限循环,等待客户端 IPC 请求状态.</li>
+</ol>
+<h3 id="服务注册"><a href="#服务注册" class="headerlink" title="服务注册"></a>服务注册</h3><p><code>ActivityManagerService,WindowManagerService</code>等系统服务,都会调用 <code>ServiceManager.addService()</code>方法添加到 <code>ServiceManager</code>的服务列表中</p>
+<ol>
+<li>Server将自己作为对象,附上一个句柄为0的值(用于访问 ServiceManager),并将这些内容封装成数据报发送给 <code>Binder驱动</code></li>
+<li><code>Binder驱动</code>先检查是否有Server对应的Binder实体,没有就创建 <code>Binder实体</code>并且赋予一个大于0的句柄,然后把句柄和服务名称等信息发送给ServiceManager</li>
+<li>ServiceManager检查服务列表中是否有这个服务,不存在就将服务和它的句柄放入到服务列表中.</li>
+</ol>
+<h3 id="客户端调用服务"><a href="#客户端调用服务" class="headerlink" title="客户端调用服务"></a>客户端调用服务</h3><ol>
+<li>客户端想调用某个服务,把<code>服务名+句柄0的值</code>封装成数据报发送给 <code>Binder 驱动</code></li>
+<li><code>Binder驱动接收到句柄0</code>,把数据包发给 <code>ServiceManager</code></li>
+<li><code>ServiceManager</code>接收到数据包后,找到对应服务,将服务的结果发给 <code>Binder驱动</code>,再发给客户端</li>
+<li>客户端收到句柄后,利用句柄在本地创建 <code>远程Server的代理对象</code></li>
+<li>客户端调用这个服务,会加上<code>参数,标志服</code>等数据放入 <code>Client的共享内存</code>,Binder驱动根据数据找到 <code>Server 的共享内存</code>,<strong>把数据拷贝到内核空间,并且映射到远程服务进程中,执行 onTrasact() 函数</strong></li>
+<li>远程服务执行完后将结果写入自己的共享内存,<strong>Binder驱动再将数据结果拷贝到内核空间,映射到用户端进程中,唤醒客户端线程</strong></li>
+</ol>
+<h3 id="Binder-如何实现拷贝一次"><a href="#Binder-如何实现拷贝一次" class="headerlink" title="Binder 如何实现拷贝一次"></a>Binder 如何实现拷贝一次</h3><p>Linux 内核只有 用户空间拷贝到内核空间 <code>copy_from_user</code> 和内核空间到用户空间 <code>copy_to_user</code> ,为了实现 用户到用户 的拷贝. <code>mmap()</code>分配的内存除了映射到接收方进程(接收方可以使 Server 也可以是 Client),还映射到内核空间,所以 <code>copy_from_user</code>时,将数据拷贝到内核空间也相当于拷贝到了接收方的用户空间,这就是拷贝一次的原因.</p>
+<h3 id="IBinder-IInterface-Binder-BinderProxy-Stub-代表什么"><a href="#IBinder-IInterface-Binder-BinderProxy-Stub-代表什么" class="headerlink" title="IBinder IInterface Binder BinderProxy Stub 代表什么"></a>IBinder IInterface Binder BinderProxy Stub 代表什么</h3><ul>
+<li><strong>IBinder</strong> 表示跨进程传输的能力</li>
+<li><strong>IInterface</strong> 代表远程服务具体有那种能力 (IRemote 继承自 IInterface)</li>
+<li><strong>Binder</strong> Binder 本地对象. </li>
+<li><strong>BinderProxy</strong> 远程 Binder 的代理对象,与Binder类在同一个类文件中 (文章错误)</li>
+<li><strong>Stub</strong> Binder 本地对象,需要我们具体去实现</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" itemprop="url">
                   JVM学习笔记(五):JVM方法调用内部机制
                 </a>
@@ -1664,175 +1862,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/12/15/Android-内存泄露解析/" itemprop="url">
-                  Android 内存泄露解析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-12-15T11:37:53+08:00" content="2016-12-15">
-              2016-12-15
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/12/15/Android-内存泄露解析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/15/Android-内存泄露解析/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/12/15/Android-内存泄露解析/" class="leancloud_visitors" data-flag-title="Android 内存泄露解析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>内存泄露也是一个老生常谈的问题了，我们今天来学习怎样会造成内存泄露以及如何避免内存泄露，内存泄露该如何解决。</p>
-<h2 id="怎样造成内存泄露的？如何避免它？"><a href="#怎样造成内存泄露的？如何避免它？" class="headerlink" title="怎样造成内存泄露的？如何避免它？"></a>怎样造成内存泄露的？如何避免它？</h2><blockquote>
-<p>Android虚拟机的垃圾回收采用的是根搜索算法。GC会从根节点（GC Roots）开始对heap进行遍历。到最后，部分没有直接或者间接引用到GC Roots的就是需要回收的垃圾，会被GC回收掉。而内存泄漏出现的原因就是GC对象的根存在了无效的引用，导致本来需要被GC的对象没有被回收掉。</p>
-</blockquote>
-<p>简单来说就是当一个对象需要释放内存时，他被其他生命周期长的对象所引用，导致JVM无法回收这个对象的内存，从而导致了内存泄露。</p>
-<p>主要有三种情况</p>
-<ul>
-<li>静态变量</li>
-<li>非静态内存类</li>
-<li>RxJava 忘记取消注册引起的内存泄露（实际上也是第二点的原因）</li>
-<li>无限进行的动画</li>
-</ul>
-<p>其他情况:</p>
-<ul>
-<li>资源对象没关闭。如Cursor、File等资源。他们会在finalize中关闭，但这样效率太低。容易造成内存泄露。SQLiteCursor，当数据量大的时候容易泄露</li>
-<li>广播注册了没有取消造成内存泄漏</li>
-</ul>
-<h3 id="1-静态变量造成的内存泄露"><a href="#1-静态变量造成的内存泄露" class="headerlink" title="1,静态变量造成的内存泄露"></a>1,静态变量造成的内存泄露</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeakActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    <span class="keyword">static</span> Context sContext;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(@Nullable Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        sContext = <span class="keyword">this</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><strong>原因：</strong></p>
-<p>在这一个例子中，我们的 LeakActivity 被静态变量 Context 所持有，我们知道静态变量的生命周期是与整个应用的生命周期相同的(如果这方面知识点不太清楚可以看看这里 <a href="http://blog.csdn.net/ctcwri/article/details/8858414" target="_blank" rel="external">Android 静态生命周期</a>，那么当我们 LeakActivity 退出需要被回收时，垃圾回收机制发现 LeakActivity 被一个静态变量持有引用，那么导致无法回收 LeakActivity 的内存导致内存泄露。</p>
-<p><strong>解决办法：</strong></p>
-<p>在 onDestory 方法中将 静态变量 sContext 的值 置为 null，解除对 Activity 的引用。</p>
-<p>如果这个例子不太熟悉，那么我们再举个大家常见的例子</p>
-<p>我们常常会用单例模式封装一个类(这个单例模式的选择只是方便代码简便，实际使用中会有影响，不推荐使用)，方便调用：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton instance;</div><div class="line">    <span class="keyword">private</span> Context mContext;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">(Context context)</span></span>&#123;</div><div class="line">        <span class="keyword">this</span>.mContext = context;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">(Context context)</span></span>&#123;</div><div class="line">        <span class="keyword">if</span> (instance == <span class="keyword">null</span>)&#123;</div><div class="line">                <span class="keyword">if</span> (instance == <span class="keyword">null</span>)&#123;</div><div class="line">                    instance = <span class="keyword">new</span> Singleton(context);</div><div class="line">                &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> instance;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这样以来，我们在一个 Activity 中使用这个类的时候我们会传入一个 activity ，singleton 就持有了 Activity 的引用了，那么问题就来了：静态的成员变量 instance 如果没有被销毁，就会一直持有 Activity 的引用，Activity 就会在需要被回收的时候无法回收导致内存泄露。</p>
-<p><strong>解决办法：</strong></p>
-<p>使用 Application 的context 传入 Singleton ，Application的生命周期是最长的，它的生命周期就等于这个程序的生命周期，这样就不会导致内存泄露了。</p>
-<h3 id="2，非静态内存类持有外部类应用导致的内存泄露"><a href="#2，非静态内存类持有外部类应用导致的内存泄露" class="headerlink" title="2，非静态内存类持有外部类应用导致的内存泄露"></a>2，非静态内存类持有外部类应用导致的内存泄露</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeakActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(@Nullable Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    Handler mHandler = <span class="keyword">new</span> Handler()&#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>.handleMessage(msg);</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><strong>原因：</strong></p>
-<p>内存类会持有外部类的一个引用，在这个例子中，Handler 创建了一个匿名内部类，那么这个内部类就会持有外部类的引用，而静态内部类不会。而我们知道 Handler 是一直有 Looper 在 MessageQueue 里面取消息的，如果有一个消息一直没取出来，那么 Mesasge 有 Handler 的引用， Handler 有 Activity 的引用，这样最终导致内存泄露。</p>
-<p>或者其他情况，在内部类中，如果开启一个线程执行一项耗时任务，在执行任务时打算销毁外部类时，垃圾回收机制检测到Activity被内部类持有引用，同样导致无法回收 LeakActivity 。</p>
-<p><strong>解决办法：</strong></p>
-<p>使用弱引用 WeakReference + 静态内部类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeakActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> MyHandler mMyHandler;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(@Nullable Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">MyHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span></span>&#123;</div><div class="line">        <span class="keyword">private</span> <span class="keyword">final</span> WeakReference&lt;Activity&gt; mActivityWeakReference;</div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyHandler</span><span class="params">(Activity activity)</span> </span>&#123;</div><div class="line">            mActivityWeakReference = <span class="keyword">new</span> WeakReference&lt;Activity&gt;(activity);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>.handleMessage(msg);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>或者内部类是静态的，这样就不会持有外部类引用了。当然，用了静态内部类后就注意 <strong>知识点1</strong> 的内容，别自己手动导致静态内部类持有activity的引用了。</p>
-<h3 id="3，RxJava-忘记取消注册引起的内存泄露"><a href="#3，RxJava-忘记取消注册引起的内存泄露" class="headerlink" title="3，RxJava 忘记取消注册引起的内存泄露"></a>3，RxJava 忘记取消注册引起的内存泄露</h3><p>一般来说，我们使用 RxJava 是这样使用的</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Observable.just(<span class="string">"内存泄露哦"</span>)</div><div class="line">	        .subscribe(<span class="keyword">new</span> Subscriber&lt;String&gt;() &#123;</div><div class="line">	            <span class="meta">@Override</span></div><div class="line">	            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</div><div class="line">	                </div><div class="line">	            &#125;</div><div class="line">	</div><div class="line">	            <span class="meta">@Override</span></div><div class="line">	            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</div><div class="line">	</div><div class="line">	            &#125;</div><div class="line">	</div><div class="line">	            <span class="meta">@Override</span></div><div class="line">	            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(String s)</span> </span>&#123;</div><div class="line">	</div><div class="line">	            &#125;</div><div class="line">	        &#125;);</div></pre></td></tr></table></figure>
-<p><strong>原因：</strong></p>
-<p>我们可以看到 subscribe 中有一个匿名内部类，这点跟 <strong>知识点二</strong> 的原因一样， 匿名内部类 Subscriber 持有外部类的引用，当我们在里面做耗时不当使得生命周期大于 外部Activity 时，导致外部类想要销毁而无法被销毁的时候，就导致了内存泄露。</p>
-<p><strong>解决方案：</strong></p>
-<p>在订阅时初始化一个 Subscription</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Subscription s  = Observable.just(<span class="string">"内存泄露哦"</span>)</div><div class="line">       .subscribe(<span class="keyword">new</span> Subscriber&lt;String&gt;() &#123;</div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</div><div class="line">               </div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</div><div class="line"></div><div class="line">           &#125;</div><div class="line"></div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(String s)</span> </span>&#123;</div><div class="line"></div><div class="line">           &#125;</div><div class="line">       &#125;);</div></pre></td></tr></table></figure>
-<p>在 onDestory 或者其他需要销毁的方法里，取消订阅</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onDestroy();</div><div class="line">        <span class="keyword">if</span> (!s.isUnsubscribed)</div><div class="line">            s.unsubscribe();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>或者使用开源库 <a href="https://github.com/trello/RxLifecycle" target="_blank" rel="external">RxLifecycle</a> ,他能直接与我们的 Activity 生命周期相关联，会在需要取消订阅的地方自动取消订阅，具体源码与实现我会在下回分析。</p>
-<h2 id="出现内存泄露该如何检测和解决"><a href="#出现内存泄露该如何检测和解决" class="headerlink" title="出现内存泄露该如何检测和解决"></a>出现内存泄露该如何检测和解决</h2><p>我们利用 Android Studio 自带的工具进行检测，运行我们上面的第一个《静态变量造成的内存泄露》DEMO</p>
-<p>第一步：运行项目，进入MainActivity，然后跳转到LeakActivity，最后点击 Bakc键 返回到 MainActivity。</p>
-<p>第二步： 点击  AS 下方的 Android Monitor ,切换到 Monitors 标签页下</p>
-<p>第三步：点击 <img src="http://img2.ph.126.net/AE_uxPlHzpYzeD_igwmnBQ==/6632420165001105422.jpg" alt="">这个按钮，手动触发 GC，然后点击<img src="http://img2.ph.126.net/ErqcyHByHYi7BbfeS5HDRg==/6632232148512755033.jpg" alt="">这个按钮，会进入到 Java Heap 界面，然后点击右边的 Analyzer Tasker 选项卡，再点击绿色三角形的运行剪头，在Analyzis Activities页面可以看到我们内存泄露的 Activity，双击找到哪个地方引起了泄露，然后跳到相应界面修改它即可。<img src="http://ohxbeadiz.bkt.clouddn.com/analy.jpg" alt=""></p>
-<p>第四步，解决后重新运行程序，我们发现内存占用减小了 100K左右（也是因为我们的 LeakActivity 占用内存不大的原因），终于解决内存泄露了。</p>
-<p>解决前<br><img src="http://img2.ph.126.net/C2wSHORcZgRtfjMr3rau9g==/6632281626536000735.jpg" alt=""></p>
-<p>解决后<br><img src="http://img2.ph.126.net/0oT0MJ-ZGxLfU3E7tmHmCw==/6632125495887526964.jpg" alt=""></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结:"></a>总结:</h2><p>造成内存泄露的原因还是有很多的，不光是我上面的举例，还有 Bitmap 占用内存问题，各种资源打开未关闭的问题，我们要做到工作中尽量避免造成内存泄露，当出现内存泄露时也不需要担心了，耐心用 AS 自带的 monitors 检查出问题并且修复就行啦。</p>
-<h3 id="参考文章与资料"><a href="#参考文章与资料" class="headerlink" title="参考文章与资料"></a>参考文章与资料</h3><ul>
-<li><p><a href="http://blog.csdn.net/xuefu_78/article/details/66968922" target="_blank" rel="external"> 基于Android Studio的内存泄漏检测与解决全攻略</a></p>
-</li>
-<li><p><a href="https://drakeet.me/android-leaks" target="_blank" rel="external">Android 内存泄漏案例和解析</a></p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1878,7 +1907,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-count">13</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1925,7 +1954,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
