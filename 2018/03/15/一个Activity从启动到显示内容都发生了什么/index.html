@@ -84,25 +84,31 @@
 
 
 
-<meta name="description" content="1.开始请求执行启动Actiivty一般来说,我们启动Activity是从Launcher启动的,这个时候还需要通过 Zygote fork一个新进程.我们知道,启动 Activity需要通过Binder机制跨进程来告诉服务端ActivityManagerService启动一个Activity
-一般来说在Client端有如下步骤
-MyActivity.startActivity()
-Activit">
+<meta name="description" content="涉及到的几个类
+zygote:开启App新进程,都是通过 zygote的fork 实现的
+ActivityManagerService:管理Activity 的生命周期的服务端
+Instrumentation: 对Application和Activity 初始化以及生命周期管理的工具类
+ActivityThread:与AMS交互的类,程序入口
+ActivityStack:Activity的栈管理类">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一个Activity从启动到显示内容都发生了什么">
 <meta property="og:url" content="http://mashell.cn/2018/03/15/一个Activity从启动到显示内容都发生了什么/index.html">
 <meta property="og:site_name" content="mashell">
-<meta property="og:description" content="1.开始请求执行启动Actiivty一般来说,我们启动Activity是从Launcher启动的,这个时候还需要通过 Zygote fork一个新进程.我们知道,启动 Activity需要通过Binder机制跨进程来告诉服务端ActivityManagerService启动一个Activity
-一般来说在Client端有如下步骤
-MyActivity.startActivity()
-Activit">
-<meta property="og:updated_time" content="2018-04-11T09:06:58.000Z">
+<meta property="og:description" content="涉及到的几个类
+zygote:开启App新进程,都是通过 zygote的fork 实现的
+ActivityManagerService:管理Activity 的生命周期的服务端
+Instrumentation: 对Application和Activity 初始化以及生命周期管理的工具类
+ActivityThread:与AMS交互的类,程序入口
+ActivityStack:Activity的栈管理类">
+<meta property="og:updated_time" content="2018-04-11T09:48:59.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一个Activity从启动到显示内容都发生了什么">
-<meta name="twitter:description" content="1.开始请求执行启动Actiivty一般来说,我们启动Activity是从Launcher启动的,这个时候还需要通过 Zygote fork一个新进程.我们知道,启动 Activity需要通过Binder机制跨进程来告诉服务端ActivityManagerService启动一个Activity
-一般来说在Client端有如下步骤
-MyActivity.startActivity()
-Activit">
+<meta name="twitter:description" content="涉及到的几个类
+zygote:开启App新进程,都是通过 zygote的fork 实现的
+ActivityManagerService:管理Activity 的生命周期的服务端
+Instrumentation: 对Application和Activity 初始化以及生命周期管理的工具类
+ActivityThread:与AMS交互的类,程序入口
+ActivityStack:Activity的栈管理类">
 
 
 
@@ -304,7 +310,15 @@ Activit">
       
 
       
-        <h2 id="1-开始请求执行启动Actiivty"><a href="#1-开始请求执行启动Actiivty" class="headerlink" title="1.开始请求执行启动Actiivty"></a>1.开始请求执行启动Actiivty</h2><p>一般来说,我们启动Activity是从<code>Launcher</code>启动的,这个时候还需要通过 <code>Zygote fork</code>一个新进程.我们知道,启动 <code>Activity</code>需要通过<code>Binder</code>机制跨进程来告诉服务端<code>ActivityManagerService</code>启动一个<code>Activity</code></p>
+        <h2 id="涉及到的几个类"><a href="#涉及到的几个类" class="headerlink" title="涉及到的几个类"></a>涉及到的几个类</h2><ul>
+<li><strong>zygote</strong>:开启App新进程,都是通过 <code>zygote的fork</code> 实现的</li>
+<li><strong>ActivityManagerService</strong>:管理Activity 的生命周期的服务端</li>
+<li><strong>Instrumentation</strong>: 对Application和Activity 初始化以及生命周期管理的工具类</li>
+<li><strong>ActivityThread</strong>:与<code>AMS</code>交互的类,程序入口</li>
+<li><strong>ActivityStack</strong>:Activity的栈管理类</li>
+<li><strong>ActivityStackSupurvior</strong>:管理<code>ActivityStack</code>的类</li>
+</ul>
+<h2 id="1-开始请求执行启动Actiivty"><a href="#1-开始请求执行启动Actiivty" class="headerlink" title="1.开始请求执行启动Actiivty"></a>1.开始请求执行启动Actiivty</h2><p>一般来说,我们启动Activity是从<code>Launcher</code>启动的,这个时候还需要通过 <code>Zygote fork</code>一个新进程.我们知道,启动 <code>Activity</code>需要通过<code>Binder</code>机制跨进程来告诉服务端<code>ActivityManagerService</code>启动一个<code>Activity</code></p>
 <h3 id="一般来说在Client端有如下步骤"><a href="#一般来说在Client端有如下步骤" class="headerlink" title="一般来说在Client端有如下步骤"></a>一般来说在<code>Client端</code>有如下步骤</h3><ul>
 <li><strong>MyActivity</strong>.startActivity()</li>
 <li><strong>Activity</strong>.startActivity()</li>
@@ -577,7 +591,7 @@ Activit">
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-开始请求执行启动Actiivty"><span class="nav-number">1.</span> <span class="nav-text">1.开始请求执行启动Actiivty</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一般来说在Client端有如下步骤"><span class="nav-number">1.1.</span> <span class="nav-text">一般来说在Client端有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-ActivityManagerService-启动-Activity"><span class="nav-number">2.</span> <span class="nav-text">2.ActivityManagerService 启动 Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Server-端有如下步骤"><span class="nav-number">2.1.</span> <span class="nav-text">Server 端有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-栈顶-Activity-的-onPause-方法"><span class="nav-number">3.</span> <span class="nav-text">3.栈顶 Activity 的 onPause 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#启动新-Activity-之前栈顶的-Activity-onPause-主要下面几个步骤"><span class="nav-number">3.1.</span> <span class="nav-text">启动新 Activity ,之前栈顶的 Activity onPause 主要下面几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-启动Activity所属的应用进程"><span class="nav-number">4.</span> <span class="nav-text">4.启动Activity所属的应用进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-启动-Activity"><span class="nav-number">5.</span> <span class="nav-text">5.启动 Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#从启动了对应-应用进程-到启动-Activity-主要包括以下几个步骤"><span class="nav-number">5.1.</span> <span class="nav-text">从启动了对应 应用进程,到启动 Activity,主要包括以下几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#之前栈顶Activity的onStop"><span class="nav-number">6.</span> <span class="nav-text">之前栈顶Activity的onStop</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#之前的栈顶Activity执行-onStop-主要有下面几个步骤"><span class="nav-number">6.1.</span> <span class="nav-text">之前的栈顶Activity执行 onStop 主要有下面几个步骤</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#涉及到的几个类"><span class="nav-number">1.</span> <span class="nav-text">涉及到的几个类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-开始请求执行启动Actiivty"><span class="nav-number">2.</span> <span class="nav-text">1.开始请求执行启动Actiivty</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一般来说在Client端有如下步骤"><span class="nav-number">2.1.</span> <span class="nav-text">一般来说在Client端有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-ActivityManagerService-启动-Activity"><span class="nav-number">3.</span> <span class="nav-text">2.ActivityManagerService 启动 Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Server-端有如下步骤"><span class="nav-number">3.1.</span> <span class="nav-text">Server 端有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-栈顶-Activity-的-onPause-方法"><span class="nav-number">4.</span> <span class="nav-text">3.栈顶 Activity 的 onPause 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#启动新-Activity-之前栈顶的-Activity-onPause-主要下面几个步骤"><span class="nav-number">4.1.</span> <span class="nav-text">启动新 Activity ,之前栈顶的 Activity onPause 主要下面几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-启动Activity所属的应用进程"><span class="nav-number">5.</span> <span class="nav-text">4.启动Activity所属的应用进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-启动-Activity"><span class="nav-number">6.</span> <span class="nav-text">5.启动 Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#从启动了对应-应用进程-到启动-Activity-主要包括以下几个步骤"><span class="nav-number">6.1.</span> <span class="nav-text">从启动了对应 应用进程,到启动 Activity,主要包括以下几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#之前栈顶Activity的onStop"><span class="nav-number">7.</span> <span class="nav-text">之前栈顶Activity的onStop</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#之前的栈顶Activity执行-onStop-主要有下面几个步骤"><span class="nav-number">7.1.</span> <span class="nav-text">之前的栈顶Activity执行 onStop 主要有下面几个步骤</span></a></li></ol></li></ol></div>
             
           </div>
         </section>

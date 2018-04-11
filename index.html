@@ -301,7 +301,15 @@
       
         
           
-            <h2 id="1-开始请求执行启动Actiivty"><a href="#1-开始请求执行启动Actiivty" class="headerlink" title="1.开始请求执行启动Actiivty"></a>1.开始请求执行启动Actiivty</h2><p>一般来说,我们启动Activity是从<code>Launcher</code>启动的,这个时候还需要通过 <code>Zygote fork</code>一个新进程.我们知道,启动 <code>Activity</code>需要通过<code>Binder</code>机制跨进程来告诉服务端<code>ActivityManagerService</code>启动一个<code>Activity</code></p>
+            <h2 id="涉及到的几个类"><a href="#涉及到的几个类" class="headerlink" title="涉及到的几个类"></a>涉及到的几个类</h2><ul>
+<li><strong>zygote</strong>:开启App新进程,都是通过 <code>zygote的fork</code> 实现的</li>
+<li><strong>ActivityManagerService</strong>:管理Activity 的生命周期的服务端</li>
+<li><strong>Instrumentation</strong>: 对Application和Activity 初始化以及生命周期管理的工具类</li>
+<li><strong>ActivityThread</strong>:与<code>AMS</code>交互的类,程序入口</li>
+<li><strong>ActivityStack</strong>:Activity的栈管理类</li>
+<li><strong>ActivityStackSupurvior</strong>:管理<code>ActivityStack</code>的类</li>
+</ul>
+<h2 id="1-开始请求执行启动Actiivty"><a href="#1-开始请求执行启动Actiivty" class="headerlink" title="1.开始请求执行启动Actiivty"></a>1.开始请求执行启动Actiivty</h2><p>一般来说,我们启动Activity是从<code>Launcher</code>启动的,这个时候还需要通过 <code>Zygote fork</code>一个新进程.我们知道,启动 <code>Activity</code>需要通过<code>Binder</code>机制跨进程来告诉服务端<code>ActivityManagerService</code>启动一个<code>Activity</code></p>
 <h3 id="一般来说在Client端有如下步骤"><a href="#一般来说在Client端有如下步骤" class="headerlink" title="一般来说在Client端有如下步骤"></a>一般来说在<code>Client端</code>有如下步骤</h3><ul>
 <li><strong>MyActivity</strong>.startActivity()</li>
 <li><strong>Activity</strong>.startActivity()</li>
