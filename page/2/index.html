@@ -241,6 +241,352 @@
             
               
                 
+                <a class="post-title-link" href="/2017/01/21/Android-View-事件分发机制/" itemprop="url">
+                  Android View 事件分发机制
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-01-21T22:16:27+08:00" content="2017-01-21">
+              2017-01-21
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/01/21/Android-View-事件分发机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/21/Android-View-事件分发机制/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/01/21/Android-View-事件分发机制/" class="leancloud_visitors" data-flag-title="Android View 事件分发机制">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>view有三个重要的方法：</p>
+<ul>
+<li><strong>dispatchTouchEvent</strong>    是否消耗当前事件，消耗返回true</li>
+<li><strong>onIterceptTouchEvent</strong>  是否拦截，拦截了的话就不下发事件，拦截返回true</li>
+<li><strong>onTouchEvent</strong>        返回结果表示是否消耗了当前事件<ul>
+<li>onTouchListener 的 onTouch<ul>
+<li>OnClickListener 的 onClick</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="View"><a href="#View" class="headerlink" title="View"></a>View</h3><h4 id="dispatchTouchEvent"><a href="#dispatchTouchEvent" class="headerlink" title="dispatchTouchEvent"></a>dispatchTouchEvent</h4><p>首先我们要知道，我们点击一个view的时候，首先会进入 dispatchTouchEvent 方法,</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchTouchEvent</span><span class="params">(MotionEvent event)</span> </span>&#123;</div><div class="line">...</div><div class="line"> ListenerInfo li = mListenerInfo;</div><div class="line">        <span class="keyword">if</span> (li != <span class="keyword">null</span> &amp;&amp; li.mOnTouchListener != <span class="keyword">null</span></div><div class="line">                &amp;&amp; (mViewFlags &amp; ENABLED_MASK) == ENABLED</div><div class="line">                &amp;&amp; li.mOnTouchListener.onTouch(<span class="keyword">this</span>, event)) &#123;</div><div class="line">            result = <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!result &amp;&amp; onTouchEvent(event)) &#123;</div><div class="line">            result = <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">...</div><div class="line"><span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们可以看到，在这个方法中，有几句判断语句， </p>
+<ol>
+<li>首先判断 ListenerInfo （他是一堆监听事件的集合类）是否为空。如果不为空，</li>
+<li>接着判断是否设置了 onTouchListener 事件，如果设计了该监听事件的话就不为 null</li>
+<li>继续判断  <code>(mViewFlags &amp; ENABLED_MASK) == ENABLED</code> 表示该 view 是否是 enable 的。</li>
+<li>如果前面的都通过，最后调用 onTouchListener 的 onTouch 方法， 判断返回值。</li>
+<li>最后 dispatchTouchEvent 的返回值取决于 result </li>
+</ol>
+<p>第一段 if 走完后，如果 onTouch 返回 false，我们将进入 onTouchEvent 方法，由于 result 默认为 false ，那么 第二条if判断中， dispatchTouchEvent 的值取决于 onTouchEvent 的返回值，那我们看看 onTouchEvent 的大致源码.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onTouchEvent</span><span class="params">(MotionEvent event)</span> </span>&#123;</div><div class="line">	...</div><div class="line">	<span class="keyword">if</span> (((viewFlags &amp; CLICKABLE) == CLICKABLE ||</div><div class="line">                (viewFlags &amp; LONG_CLICKABLE) == LONG_CLICKABLE) ||</div><div class="line">        (viewFlags &amp; CONTEXT_CLICKABLE) == CONTEXT_CLICKABLE) &#123;</div><div class="line">    <span class="keyword">switch</span> (action) &#123;</div><div class="line">        <span class="keyword">case</span> MotionEvent.ACTION_UP:</div><div class="line">            <span class="keyword">boolean</span> prepressed = (mPrivateFlags &amp; PFLAG_PREPRESSED) != <span class="number">0</span>;</div><div class="line">            <span class="keyword">if</span> ((mPrivateFlags &amp; PFLAG_PRESSED) != <span class="number">0</span> || prepressed) &#123;</div><div class="line">                <span class="comment">// take focus if we don't have it already and we should in</span></div><div class="line">                <span class="comment">// touch mode.</span></div><div class="line">                <span class="keyword">boolean</span> focusTaken = <span class="keyword">false</span>;</div><div class="line">                <span class="keyword">if</span> (isFocusable() &amp;&amp; isFocusableInTouchMode() &amp;&amp; !isFocused()) &#123;</div><div class="line">                    focusTaken = requestFocus();</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                <span class="keyword">if</span> (prepressed) &#123;</div><div class="line">                    <span class="comment">// The button is being released before we actually</span></div><div class="line">                    <span class="comment">// showed it as pressed.  Make it show the pressed</span></div><div class="line">                    <span class="comment">// state now (before scheduling the click) to ensure</span></div><div class="line">                    <span class="comment">// the user sees it.</span></div><div class="line">                    setPressed(<span class="keyword">true</span>, x, y);</div><div class="line">               &#125;</div><div class="line"></div><div class="line">                <span class="keyword">if</span> (!mHasPerformedLongPress &amp;&amp; !mIgnoreNextUpEvent) &#123;</div><div class="line">                    <span class="comment">// This is a tap, so remove the longpress check</span></div><div class="line">                    removeLongPressCallback();</div><div class="line"></div><div class="line">                    <span class="comment">// Only perform take click actions if we were in the pressed state</span></div><div class="line">                    <span class="keyword">if</span> (!focusTaken) &#123;</div><div class="line">                        <span class="comment">// Use a Runnable and post this rather than calling</span></div><div class="line">                        <span class="comment">// performClick directly. This lets other visual state</span></div><div class="line">                        <span class="comment">// of the view update before click actions start.</span></div><div class="line">                        <span class="keyword">if</span> (mPerformClick == <span class="keyword">null</span>) &#123;</div><div class="line">                            mPerformClick = <span class="keyword">new</span> PerformClick();</div><div class="line">                        &#125;</div><div class="line">                        <span class="keyword">if</span> (!post(mPerformClick)) &#123;</div><div class="line">                            performClick();</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                <span class="keyword">if</span> (mUnsetPressedState == <span class="keyword">null</span>) &#123;</div><div class="line">                    mUnsetPressedState = <span class="keyword">new</span> UnsetPressedState();</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                <span class="keyword">if</span> (prepressed) &#123;</div><div class="line">                    postDelayed(mUnsetPressedState,</div><div class="line">                            ViewConfiguration.getPressedStateDuration());</div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!post(mUnsetPressedState)) &#123;</div><div class="line">                    <span class="comment">// If the post failed, unpress right now</span></div><div class="line">                    mUnsetPressedState.run();</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                removeTapCallback();</div><div class="line">            &#125;</div><div class="line">            mIgnoreNextUpEvent = <span class="keyword">false</span>;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line"></div><div class="line">        <span class="keyword">case</span> MotionEvent.ACTION_DOWN:</div><div class="line">            mHasPerformedLongPress = <span class="keyword">false</span>;</div><div class="line"></div><div class="line">            <span class="keyword">if</span> (performButtonActionOnTouchDown(event)) &#123;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="comment">// Walk up the hierarchy to determine if we're inside a scrolling container.</span></div><div class="line">            <span class="keyword">boolean</span> isInScrollingContainer = isInScrollingContainer();</div><div class="line"></div><div class="line">            <span class="comment">// For views inside a scrolling container, delay the pressed feedback for</span></div><div class="line">            <span class="comment">// a short period in case this is a scroll.</span></div><div class="line">            <span class="keyword">if</span> (isInScrollingContainer) &#123;</div><div class="line">                mPrivateFlags |= PFLAG_PREPRESSED;</div><div class="line">                <span class="keyword">if</span> (mPendingCheckForTap == <span class="keyword">null</span>) &#123;</div><div class="line">                    mPendingCheckForTap = <span class="keyword">new</span> CheckForTap();</div><div class="line">                &#125;</div><div class="line">                mPendingCheckForTap.x = event.getX();</div><div class="line">                mPendingCheckForTap.y = event.getY();</div><div class="line">                postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="comment">// Not inside a scrolling container, so show the feedback right away</span></div><div class="line">                setPressed(<span class="keyword">true</span>, x, y);</div><div class="line">                checkForLongClick(<span class="number">0</span>, x, y);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line"></div><div class="line">        <span class="keyword">case</span> MotionEvent.ACTION_CANCEL:</div><div class="line">            setPressed(<span class="keyword">false</span>);</div><div class="line">            removeTapCallback();</div><div class="line">            removeLongPressCallback();</div><div class="line">            mInContextButtonPress = <span class="keyword">false</span>;</div><div class="line">            mHasPerformedLongPress = <span class="keyword">false</span>;</div><div class="line">            mIgnoreNextUpEvent = <span class="keyword">false</span>;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line"></div><div class="line">        <span class="keyword">case</span> MotionEvent.ACTION_MOVE:</div><div class="line">            drawableHotspotChanged(x, y);</div><div class="line"></div><div class="line">            <span class="comment">// Be lenient about moving outside of buttons</span></div><div class="line">            <span class="keyword">if</span> (!pointInView(x, y, mTouchSlop)) &#123;</div><div class="line">                <span class="comment">// Outside button</span></div><div class="line">                removeTapCallback();</div><div class="line">                <span class="keyword">if</span> ((mPrivateFlags &amp; PFLAG_PRESSED) != <span class="number">0</span>) &#123;</div><div class="line">                    <span class="comment">// Remove any future long press/tap checks</span></div><div class="line">                    removeLongPressCallback();</div><div class="line"></div><div class="line">                    setPressed(<span class="keyword">false</span>);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先我们会进入一层判断，当满足其中一个条件时（也就是view是disable的时候），我们才进行 switch 判断事件类型（ACTION_DOWN,ACTION_MOVE,ACTION_UP）, 在 ACTION_UP 中，我们发现了一个方法， performClick（）； 我们点进去看看</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">performClick</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> <span class="keyword">boolean</span> result;</div><div class="line">        <span class="keyword">final</span> ListenerInfo li = mListenerInfo;</div><div class="line">        <span class="keyword">if</span> (li != <span class="keyword">null</span> &amp;&amp; li.mOnClickListener != <span class="keyword">null</span>) &#123;</div><div class="line">            playSoundEffect(SoundEffectConstants.CLICK);</div><div class="line">            li.mOnClickListener.onClick(<span class="keyword">this</span>);</div><div class="line">            result = <span class="keyword">true</span>;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            result = <span class="keyword">false</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);</div><div class="line">        <span class="keyword">return</span> result;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>从这里我们就可以发现，当我们为一个view设置点击事件 setOnClickListener 的时候，在我们的 ACTION_UP 中会回调这个 onClick 方法，这样以来我们可以大致总结一下了</p>
+<ul>
+<li>view 中事件的分发的顺序是 <code>dispatchOnTouchEvent</code> -&gt; OnTouchListener 的 <code>onTouch</code> 方法，如果返回 false -&gt; <code>onTouchEvent</code> -&gt; onClickListener 的 <code>onClick</code></li>
+</ul>
+<h3 id="经过测试后可以小结"><a href="#经过测试后可以小结" class="headerlink" title="经过测试后可以小结:"></a>经过测试后可以小结:</h3><ul>
+<li>onTouchEvent 返回结果影响 dispathTouchEvent 事件，onTouchEvent 返回 true 则 dispatchTouchEvent 返回 true，反之。</li>
+<li>dispatchTouchEvent 事件（ACTION_DOWN,ACTION_MOVE,ACTION_UP）是分发的，一旦 dispatchTouchEvent 返回 false ，那么事件不再向下传递（viewgroup中会分析原因，这里将疑惑记为 <strong>Q1</strong>）</li>
+</ul>
+<h3 id="ViewGroup"><a href="#ViewGroup" class="headerlink" title="ViewGroup"></a>ViewGroup</h3><h4 id="dispatchTouchEvent-1"><a href="#dispatchTouchEvent-1" class="headerlink" title="dispatchTouchEvent"></a>dispatchTouchEvent</h4><p>接下来我们看看viewgroup 的dispatchTouchEvent 方法 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dispatchTouchEvent</span><span class="params">(MotionEvent ev)</span> </span>&#123;</div><div class="line">	...</div><div class="line">	<span class="keyword">final</span> <span class="keyword">boolean</span> intercepted;</div><div class="line">            <span class="keyword">if</span> (actionMasked == MotionEvent.ACTION_DOWN</div><div class="line">                    || mFirstTouchTarget != <span class="keyword">null</span>) &#123;</div><div class="line">                <span class="keyword">final</span> <span class="keyword">boolean</span> disallowIntercept = (mGroupFlags &amp; FLAG_DISALLOW_INTERCEPT) != <span class="number">0</span>;</div><div class="line">                <span class="keyword">if</span> (!disallowIntercept) &#123;</div><div class="line">                    intercepted = onInterceptTouchEvent(ev);</div><div class="line">                    ev.setAction(action); <span class="comment">// restore action in case it was changed</span></div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    intercepted = <span class="keyword">false</span>;</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="comment">// There are no touch targets and this action is not an initial down</span></div><div class="line">                <span class="comment">// so this view group continues to intercept touches.</span></div><div class="line">                intercepted = <span class="keyword">true</span>;</div><div class="line">            &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先看到上面的代码，其中有一个 mFirstTouchTarget 。我们先记住，他是表示事件是否有子类处理，没有子类处理或者找不到子类则为null。在第一次处理事件时，事件为 ACTION_DOWN ，则进入 true 代码块。<br>首先判断 disallowIntercept 状态，他用来表示 是否屏蔽拦截，默认为false。</p>
+<p>当然，我们可以设置 <code>FLAG_DISALLOW_INTERCEPT</code> 来屏蔽拦截，这样以来 viewgroup 无法拦截除了 ACIOTN_DOWN 以外的事件,因为 ViewGroup 会在 <code>ACTION_DOWN</code>事件来临时进行重置等操作</p>
+<p>不管是否拦截，往下看 dispatchTouchEvent 的源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"> <span class="comment">//如果没有取消而且没有拦截</span></div><div class="line"><span class="keyword">if</span> (!canceled &amp;&amp; !intercepted) &#123;</div><div class="line">	...</div><div class="line">	<span class="keyword">final</span> View[] children = mChildren;</div><div class="line">   <span class="keyword">for</span> (<span class="keyword">int</span> i = childrenCount - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</div><div class="line">   		<span class="comment">//依次取出 chilView</span></div><div class="line">       <span class="keyword">final</span> <span class="keyword">int</span> childIndex = getAndVerifyPreorderedIndex(</div><div class="line">               childrenCount, i, customOrder);</div><div class="line">       <span class="keyword">final</span> View child = getAndVerifyPreorderedView(</div><div class="line">               preorderedList, children, childIndex);</div><div class="line"></div><div class="line">       <span class="comment">// If there is a view that has accessibility focus we want it</span></div><div class="line">       <span class="comment">// to get the event first and if not handled we will perform a</span></div><div class="line">       <span class="comment">// normal dispatch. We may do a double iteration but this is</span></div><div class="line">       <span class="comment">// safer given the timeframe.</span></div><div class="line">       <span class="keyword">if</span> (childWithAccessibilityFocus != <span class="keyword">null</span>) &#123;</div><div class="line">           <span class="keyword">if</span> (childWithAccessibilityFocus != child) &#123;</div><div class="line">               <span class="keyword">continue</span>;</div><div class="line">           &#125;</div><div class="line">           childWithAccessibilityFocus = <span class="keyword">null</span>;</div><div class="line">           i = childrenCount - <span class="number">1</span>;</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       <span class="keyword">if</span> (!canViewReceivePointerEvents(child)</div><div class="line">               || !isTransformedTouchPointInView(x, y, child, <span class="keyword">null</span>)) &#123;</div><div class="line">           ev.setTargetAccessibilityFocus(<span class="keyword">false</span>);</div><div class="line">           <span class="keyword">continue</span>;</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       newTouchTarget = getTouchTarget(child);</div><div class="line">       <span class="keyword">if</span> (newTouchTarget != <span class="keyword">null</span>) &#123;</div><div class="line">           <span class="comment">// Child is already receiving touch within its bounds.</span></div><div class="line">           <span class="comment">// Give it the new pointer in addition to the ones it is handling.</span></div><div class="line">           newTouchTarget.pointerIdBits |= idBitsToAssign;</div><div class="line">           <span class="keyword">break</span>;</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       resetCancelNextUpFlag(child);</div><div class="line">       <span class="comment">//调用 chilView 的 dispatchTransformedTouchEvent 方法</span></div><div class="line">       <span class="keyword">if</span> (dispatchTransformedTouchEvent(ev, <span class="keyword">false</span>, child, idBitsToAssign)) &#123;</div><div class="line">           <span class="comment">// Child wants to receive touch within its bounds.</span></div><div class="line">           mLastTouchDownTime = ev.getDownTime();</div><div class="line">           <span class="keyword">if</span> (preorderedList != <span class="keyword">null</span>) &#123;</div><div class="line">               <span class="comment">// childIndex points into presorted list, find original index</span></div><div class="line">               <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; childrenCount; j++) &#123;</div><div class="line">                   <span class="keyword">if</span> (children[childIndex] == mChildren[j]) &#123;</div><div class="line">                       mLastTouchDownIndex = j;</div><div class="line">                       <span class="keyword">break</span>;</div><div class="line">                   &#125;</div><div class="line">               &#125;</div><div class="line">           &#125; <span class="keyword">else</span> &#123;</div><div class="line">               mLastTouchDownIndex = childIndex;</div><div class="line">           &#125;</div><div class="line">           mLastTouchDownX = ev.getX();</div><div class="line">           mLastTouchDownY = ev.getY();</div><div class="line">           newTouchTarget = addTouchTarget(child, idBitsToAssign);</div><div class="line">           alreadyDispatchedToNewTouchTarget = <span class="keyword">true</span>;</div><div class="line">           <span class="keyword">break</span>;</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       <span class="comment">// The accessibility focus didn't handle the event, so clear</span></div><div class="line">       <span class="comment">// the flag and do a normal dispatch to all children.</span></div><div class="line">       ev.setTargetAccessibilityFocus(<span class="keyword">false</span>);</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在上面的代码中，viewgroup如果没拦截事件，回依次取出 chilView ，然后依次调用 childView 的 dispatchTransformedTouchEvent 方法,这个方法很重要，直接将事件传递给子view了，我们进入这个方法里看看</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">dispatchTransformedTouchEvent</span><span class="params">(MotionEvent event, <span class="keyword">boolean</span> cancel,</span></span></div><div class="line">        View child, <span class="keyword">int</span> desiredPointerIdBits) &#123;</div><div class="line">    ...</div><div class="line">    <span class="keyword">if</span> (cancel || oldAction == MotionEvent.ACTION_CANCEL) &#123;</div><div class="line">        event.setAction(MotionEvent.ACTION_CANCEL);</div><div class="line">        <span class="keyword">if</span> (child == <span class="keyword">null</span>) &#123;</div><div class="line">            handled = <span class="keyword">super</span>.dispatchTouchEvent(event);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            handled = child.dispatchTouchEvent(event);</div><div class="line">        &#125;</div><div class="line">        event.setAction(oldAction);</div><div class="line">        <span class="keyword">return</span> handled;</div><div class="line">    &#125;</div><div class="line">	...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们可以看到，在 dispatchTransformedTouchEvent 方法中，会调用 chilView 的 dispatchTouchEvent 方法，这样又回到了我们上面分析的 view 的 dispachTouchEvent 方法里了。从而完成了一轮事件分发。</p>
+<p>遍历完所有的子view后，如果子view 为空或者子view处理了点击事件，但是dispatchTouchEvent 返回了 false，不进入 true 的代码块中，那么没有执行 addTouchTarget 方法（该方法用于初始化 mFirstTouchTarget），</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> TouchTarget <span class="title">addTouchTarget</span><span class="params">(@NonNull View child, <span class="keyword">int</span> pointerIdBits)</span> </span>&#123;</div><div class="line">       <span class="keyword">final</span> TouchTarget target = TouchTarget.obtain(child, pointerIdBits);</div><div class="line">       target.next = mFirstTouchTarget;</div><div class="line">       mFirstTouchTarget = target;</div><div class="line">       <span class="keyword">return</span> target;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (mFirstTouchTarget == <span class="keyword">null</span>) &#123;</div><div class="line">    <span class="comment">// No touch targets so treat this as an ordinary view.</span></div><div class="line">    handled = dispatchTransformedTouchEvent(ev, canceled, <span class="keyword">null</span>,</div><div class="line">            TouchTarget.ALL_POINTER_IDS);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>没有执行 addTouchtarget，mFirstTouchTarget 就为 null ，那么 dispatchTransformedTouchEvent 方法被调用，chilView 传入 null ，由上面源码得知，viewgroup 将会自己处理点击事件.由于 mFirstTouchTarget 为 null ，那么接下来的 ACITON_MOVE,ACTION_UP 中， <code>if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null)</code> 判断为 false，intercepted 就为 true ，这样就无法分发给进入下面的代码中进行事件分发，那么 ACTION_MOVE,ACTION_DOWN 就无法执行了。</p>
+<p>ViewGroup 的分发机制</p>
+<ul>
+<li><p>onInterceptTouchEvent ( <code>if (!canceled &amp;&amp; !intercepted)</code> 返回false，这样就无法分发给子 view )表示是否对事件进行拦截，返回true 则拦截，反之。默认返回 false.</p>
+</li>
+<li><p>子View中如果将传递的事件消费掉(dispatchTouchEvent 返回 false，从而导致 dispatchTransformedTouchEvent 返回 false )，导致 没执行 addTouchTarget ，这样 mFirstTouchTarget 依旧为 null，那么 ACTION-MOVE , ACTION-DOWN 就无法执行了。</p>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="在view-中"><a href="#在view-中" class="headerlink" title="在view 中"></a>在view 中</h3><ul>
+<li>view点击事件的顺序是 <ul>
+<li>OnTouchListener 的 onTouch </li>
+<li>如果 onTouch 返回 false，则执行 onTouchEvent</li>
+<li>在 onTouchEvent 中，如果前一个action返回false，那么后面的action都不会执行 </li>
+</ul>
+</li>
+<li>view 的enable 属性不影响 onTouchEvent 的默认返回 true，只要他的 clickable ，longClickable 有一个为 true，那么他的 onTouchEvent 就返回 true。</li>
+</ul>
+<h3 id="在-ViewGroup-中"><a href="#在-ViewGroup-中" class="headerlink" title="在 ViewGroup 中"></a>在 ViewGroup 中</h3><ul>
+<li>点击事件先传到 viewGroup ，然后再传到 子view</li>
+<li>viewGroup 中有一个 onInterceptTouchEvent（）方法，如果该方法返回true则将事件拦截，子view无法处理事件。返回false则不拦截，默认返回 false</li>
+<li>viewGroup 一旦决定拦截该事件，那么事件都交给它处理，而且不再调用 onInterceptTouchEvent() 方法（mFirstTouchTarget 为 null，不再进入 true 代码块）.</li>
+<li>如果子view消耗了事件，那么viewGroup将无法接收到事件。如果所有子view都无法处理事件，那么将回交给viewGroup处理。</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/01/10/九种单例模式/" itemprop="url">
+                  java 九种单例模式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-01-10T21:06:30+08:00" content="2017-01-10">
+              2017-01-10
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/01/10/九种单例模式/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/10/九种单例模式/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/01/10/九种单例模式/" class="leancloud_visitors" data-flag-title="java 九种单例模式">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>单例模式大家都很常见了，我这篇文章是看了别人的文章后自己学习后写出来的，相当于一个笔记吧。</p>
+<h4 id="饿汉式"><a href="#饿汉式" class="headerlink" title="饿汉式"></a>饿汉式</h4><ul>
+<li><p>优点：线程安全</p>
+</li>
+<li><p>缺点：由于类加载机制，无论类是否被使用，类第一次加载进入内存就回实例化</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton singleton = <span class="keyword">new</span> Singleton();</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="饿汉式-–-静态代码块"><a href="#饿汉式-–-静态代码块" class="headerlink" title="饿汉式 – 静态代码块"></a>饿汉式 – 静态代码块</h4><ul>
+<li><p>优点:线程安全</p>
+</li>
+<li><p>缺点：类装载时创建实例，若实例一直未被使用时，会浪费资源</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</div><div class="line"></div><div class="line">	<span class="keyword">static</span>&#123;</div><div class="line">		singleton = <span class="keyword">new</span> Singleton();</div><div class="line">	&#125;</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式"><a href="#懒汉式" class="headerlink" title="懒汉式"></a>懒汉式</h4><ul>
+<li><p>优点：避免了第一次加载这个类进入内存未使用占用内存</p>
+</li>
+<li><p>缺点：线程不安全,当多线程情况下 getInstance时可能会生成多个实例</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton single = <span class="keyword">null</span>;</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		single =  <span class="keyword">new</span> Singleton();</div><div class="line">	&#125;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">if</span>(<span class="keyword">null</span> == single)</div><div class="line">			single = <span class="keyword">new</span> Singleton();</div><div class="line">		<span class="keyword">return</span> single;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式-–-方法同步"><a href="#懒汉式-–-方法同步" class="headerlink" title="懒汉式 – 方法同步"></a>懒汉式 – 方法同步</h4><ul>
+<li><p>优点：线程安全</p>
+</li>
+<li><p>缺点：同步方法，实际上只需要处理 new Singleton 的同步问题即可，效率太低了</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span></span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton singleton;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span></span>&#123;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</div><div class="line">		<span class="keyword">if</span>(<span class="keyword">null</span> == singleton)&#123;</div><div class="line">			singleton = <span class="keyword">new</span> Singleton();</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式-–-代码块同步"><a href="#懒汉式-–-代码块同步" class="headerlink" title="懒汉式 – 代码块同步"></a>懒汉式 – 代码块同步</h4><ul>
+<li><p>优点：效率高于 方法同步 的懒汉式</p>
+</li>
+<li><p>缺点：判断 singleton 是否为空的时候，如果此时多线程访问了，那么也存在异步问题，实例化了多个singleton</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton singleton;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> == singleton)</div><div class="line">			<span class="keyword">synchronized</span> (Singleton.class) &#123;</div><div class="line">				singleton = <span class="keyword">new</span> Singleton();</div><div class="line">			&#125;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式-–-错误的-double-check"><a href="#懒汉式-–-错误的-double-check" class="headerlink" title="懒汉式 – 错误的 double check"></a>懒汉式 – 错误的 double check</h4><ul>
+<li><p>优点：效率高</p>
+</li>
+<li><p>缺点：线程不安全，依然存在创建多个实例的可能。因为每个线程都有自己的一份拷贝，并不能保证实例化后将INSTANCE的引用拷回主内存，不能保证对其它线程立即可见，所以仍然有可能造成多个实例被创建，具体原因搜索 <strong>volatile</strong> 关键字</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">static</span> Singleton single;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> == single) &#123;</div><div class="line">			<span class="keyword">synchronized</span> (Singleton.class) &#123;</div><div class="line">				<span class="keyword">if</span> (<span class="keyword">null</span> == single) &#123;</div><div class="line">					single = <span class="keyword">new</span> Singleton();</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="懒汉式-–-正确的-doucle-check"><a href="#懒汉式-–-正确的-doucle-check" class="headerlink" title="懒汉式 – 正确的 doucle check"></a>懒汉式 – 正确的 doucle check</h4><ul>
+<li>优点：效率高，解决了线程不安全的问题</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton singleton;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (<span class="keyword">null</span> == singleton)</div><div class="line">			<span class="keyword">synchronized</span> (Singleton.class) &#123;</div><div class="line">				<span class="keyword">if</span>(<span class="keyword">null</span> == singleton)</div><div class="line">					singleton = <span class="keyword">new</span> Singleton();</div><div class="line">			&#125;</div><div class="line">		<span class="keyword">return</span> singleton;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h4><ul>
+<li><p>优点: 无线程同步问题，且能防止通过反射创建新的对象</p>
+</li>
+<li><p>缺点: 使用的是枚举，而非类。同时单一实例的访问点也不是一般单例模式的静态方法</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">enum</span> Singleton &#123;</div><div class="line">	SINGLETON;</div><div class="line">	<span class="comment">//编译器编译时会自动生成</span></div><div class="line">	<span class="comment">//	public static final Singleton SINGLETON;</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h4><ul>
+<li>优点： 静态内部类不存在类加载的时候就初始化，当加载内部类的时候，java 虚拟机初始化其成员变量并且保证线程安全，而且没有锁不会造成性能影响</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Single</span> </span>&#123;</div><div class="line">		<span class="keyword">static</span> Singleton mSingle = <span class="keyword">new</span> Singleton();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> Single.mSingle;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上就是我的笔记，总的来说一般我常用静态内部类的模式，最终的模式选择取决于大家。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/12/15/Android-内存泄露解析/" itemprop="url">
                   Android 内存泄露解析
                 </a>
@@ -471,11 +817,12 @@
         
           
             <h1 id="Handler-消息机制"><a href="#Handler-消息机制" class="headerlink" title="Handler 消息机制"></a>Handler 消息机制</h1><p>今天我们来学习一下Handler的源码,在这之前我们回顾一下Handler的基本使用</p>
-<h2 id="Handler的使用"><a href="#Handler的使用" class="headerlink" title="Handler的使用"></a>Handler的使用</h2><h3 id="1-使用sendMessage的方式实现Handler"><a href="#1-使用sendMessage的方式实现Handler" class="headerlink" title="1.使用sendMessage的方式实现Handler"></a>1.使用sendMessage的方式实现Handler</h3><h4 id="1-Handler自身实现handleMessage方法"><a href="#1-Handler自身实现handleMessage方法" class="headerlink" title="(1) Handler自身实现handleMessage方法"></a>(1) Handler自身实现handleMessage方法</h4><p> <strong>主线程中</strong>(更新UI的地方，创建handler)，这里提一点，想要handler更新UI，那么handler的初始化必须在主线程，handler总是绑定创建他的线程，具体情况我们最后会说明，这里我们将疑问标记为 <strong>Q1</strong></p>
+<h2 id="Handler的使用"><a href="#Handler的使用" class="headerlink" title="Handler的使用"></a>Handler的使用</h2><h3 id="1-使用sendMessage的方式实现Handler"><a href="#1-使用sendMessage的方式实现Handler" class="headerlink" title="1.使用sendMessage的方式实现Handler"></a>1.使用sendMessage的方式实现Handler</h3><h4 id="1-1-1-Handler自身实现handleMessage方法"><a href="#1-1-1-Handler自身实现handleMessage方法" class="headerlink" title="(1.1.1) Handler自身实现handleMessage方法"></a>(1.1.1) Handler自身实现handleMessage方法</h4><p> <strong>主线程中</strong>(更新UI的地方，创建handler)，这里提一点，想要handler更新UI，那么handler的初始化必须在主线程，handler总是绑定创建他的线程，具体情况我们最后会说明，这里我们将疑问标记为 <strong>Q1</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">Handler uiHandler = <span class="keyword">new</span> Handler()&#123;</div><div class="line"><span class="meta">@Override</span></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">       <span class="keyword">switch</span> (msg.what)&#123;</div><div class="line">           <span class="keyword">case</span> <span class="number">1</span>:</div><div class="line">           MainActivity.<span class="keyword">this</span>.statusTextView.setText(<span class="string">"文件下载完成"</span>);</div><div class="line">               <span class="keyword">break</span>;</div><div class="line">       &#125;</div><div class="line">   &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
-<h4 id="2-Handler构造函数传入实现了handleMessage方法的CallBack对象"><a href="#2-Handler构造函数传入实现了handleMessage方法的CallBack对象" class="headerlink" title="(2) Handler构造函数传入实现了handleMessage方法的CallBack对象"></a>(2) Handler构造函数传入实现了handleMessage方法的CallBack对象</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">Handler.Callback callback = <span class="keyword">new</span> Handler.Callback() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">    		 <span class="keyword">switch</span> (msg.what)&#123;</div><div class="line">       		<span class="keyword">case</span> <span class="number">1</span>:</div><div class="line">       			MainActivity.<span class="keyword">this</span>.statusTextView.setText(<span class="string">"文件下载完成"</span>);</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">   &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line">        </div><div class="line">Handler uiHandler = <span class="keyword">new</span> Handler(callback);</div></pre></td></tr></table></figure>
-<p> <strong>其他线程</strong><br> 在非主线程进行的耗时操作的部分操作，完成后调用sendMessage回到主线程</p>
+<h4 id="1-1-2-Handler构造函数传入实现了handleMessage方法的CallBack对象"><a href="#1-1-2-Handler构造函数传入实现了handleMessage方法的CallBack对象" class="headerlink" title="(1.1.2) Handler构造函数传入实现了handleMessage方法的CallBack对象"></a>(1.1.2) Handler构造函数传入实现了handleMessage方法的CallBack对象</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">Handler.Callback callback = <span class="keyword">new</span> Handler.Callback() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">    		 <span class="keyword">switch</span> (msg.what)&#123;</div><div class="line">       		<span class="keyword">case</span> <span class="number">1</span>:</div><div class="line">       			MainActivity.<span class="keyword">this</span>.statusTextView.setText(<span class="string">"文件下载完成"</span>);</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">   &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;;</div><div class="line">        </div><div class="line">Handler uiHandler = <span class="keyword">new</span> Handler(callback);</div></pre></td></tr></table></figure>
+<h3 id="1-2-在其他线程中使用"><a href="#1-2-在其他线程中使用" class="headerlink" title="1.2.在其他线程中使用"></a>1.2.在其他线程中使用</h3><p> 在非主线程进行的耗时操作的部分操作，完成后调用sendMessage回到主线程</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Message message = Message.obtain();</div><div class="line">message.what = <span class="number">1</span>;</div><div class="line">uiHandler.sendMessage(message);</div></pre></td></tr></table></figure>
+<p>以上是使用 <code>sendMessage</code> 实现 Handler 通信</p>
 <h3 id="2-使用post实现Handler"><a href="#2-使用post实现Handler" class="headerlink" title="2.使用post实现Handler"></a>2.使用post实现Handler</h3><p><strong>主线程中</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Handler uiHandler = <span class="keyword">new</span> Handler();</div></pre></td></tr></table></figure>
 <p><strong>其他线程中</strong></p>
@@ -504,7 +851,7 @@
 
 存入消息，自然对应着取出队列消息，从而处理消息，在MessageQueue的next()方法中，通过链表操作取出message
 
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">if</span> (prevMsg != <span class="keyword">null</span>) &#123;</div><div class="line">     prevMsg.next = msg.next;  <span class="comment">//移除将要取出的message</span></div><div class="line">   &#125; <span class="keyword">else</span> &#123;</div><div class="line">     mMessages = msg.next; </div><div class="line">    &#125;</div><div class="line">    msg.next = <span class="keyword">null</span>;</div><div class="line">     ...</div><div class="line">   <span class="keyword">return</span> msg;</div><div class="line">`</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (prevMsg != <span class="keyword">null</span>) &#123;</div><div class="line">    prevMsg.next = msg.next;  <span class="comment">//移除将要取出的message</span></div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    mMessages = msg.next; </div><div class="line">   &#125;</div><div class="line">   msg.next = <span class="keyword">null</span>;</div><div class="line">    ...</div><div class="line">  <span class="keyword">return</span> msg;</div></pre></td></tr></table></figure>
 </code></pre><hr>
 <p>以上就是 MessageQueue 的作用，他是一个消息队列，用于存放和去除message的，而且 <strong>一个线程只有一个MessageQueue</strong></p>
 <h3 id="Looper"><a href="#Looper" class="headerlink" title="Looper"></a>Looper</h3><p>接下来我们分析Looper，进入Looper类，我们可以看一下源码顶部官方给的这个 Looper的Demo</p>
@@ -772,7 +1119,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-count">15</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -782,7 +1129,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

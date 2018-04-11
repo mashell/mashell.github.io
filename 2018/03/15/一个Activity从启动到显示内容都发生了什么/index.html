@@ -1,0 +1,842 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Framework," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="1.开始请求执行启动Actiivty一般来说,我们启动Activity是从Launcher启动的,这个时候还需要通过 Zygote fork一个新进程.我们知道,启动 Activity需要通过Binder机制跨进程来告诉服务端ActivityManagerService启动一个Activity
+一般来说在Client端有如下步骤
+MyActivity.startActivity()
+Activit">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一个Activity从启动到显示内容都发生了什么">
+<meta property="og:url" content="http://mashell.cn/2018/03/15/一个Activity从启动到显示内容都发生了什么/index.html">
+<meta property="og:site_name" content="mashell">
+<meta property="og:description" content="1.开始请求执行启动Actiivty一般来说,我们启动Activity是从Launcher启动的,这个时候还需要通过 Zygote fork一个新进程.我们知道,启动 Activity需要通过Binder机制跨进程来告诉服务端ActivityManagerService启动一个Activity
+一般来说在Client端有如下步骤
+MyActivity.startActivity()
+Activit">
+<meta property="og:updated_time" content="2018-04-11T09:06:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一个Activity从启动到显示内容都发生了什么">
+<meta name="twitter:description" content="1.开始请求执行启动Actiivty一般来说,我们启动Activity是从Launcher启动的,这个时候还需要通过 Zygote fork一个新进程.我们知道,启动 Activity需要通过Binder机制跨进程来告诉服务端ActivityManagerService启动一个Activity
+一般来说在Client端有如下步骤
+MyActivity.startActivity()
+Activit">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://mashell.cn/2018/03/15/一个Activity从启动到显示内容都发生了什么/"/>
+
+
+  <title> 一个Activity从启动到显示内容都发生了什么 | mashell </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">mashell</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">你热爱生命吗？那别浪费时间</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="http://mashell.cn/resume/" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                一个Activity从启动到显示内容都发生了什么
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-03-15T13:47:34+08:00" content="2018-03-15">
+              2018-03-15
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/03/15/一个Activity从启动到显示内容都发生了什么/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/15/一个Activity从启动到显示内容都发生了什么/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/03/15/一个Activity从启动到显示内容都发生了什么/" class="leancloud_visitors" data-flag-title="一个Activity从启动到显示内容都发生了什么">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="1-开始请求执行启动Actiivty"><a href="#1-开始请求执行启动Actiivty" class="headerlink" title="1.开始请求执行启动Actiivty"></a>1.开始请求执行启动Actiivty</h2><p>一般来说,我们启动Activity是从<code>Launcher</code>启动的,这个时候还需要通过 <code>Zygote fork</code>一个新进程.我们知道,启动 <code>Activity</code>需要通过<code>Binder</code>机制跨进程来告诉服务端<code>ActivityManagerService</code>启动一个<code>Activity</code></p>
+<h3 id="一般来说在Client端有如下步骤"><a href="#一般来说在Client端有如下步骤" class="headerlink" title="一般来说在Client端有如下步骤"></a>一般来说在<code>Client端</code>有如下步骤</h3><ul>
+<li><strong>MyActivity</strong>.startActivity()</li>
+<li><strong>Activity</strong>.startActivity()</li>
+<li><strong>Activity</strong>.startActivityFroResult() <ul>
+<li><code>层层调用,最后执行这个方法,如果 requestCode &lt; 0,那么启动 Activity 将不会有 result 返回</code></li>
+</ul>
+</li>
+<li><strong>Instumentation</strong>.execStartActivity<ul>
+<li><code>Instrumentation</code>是 Activity 的<code>Client端</code>的实际操作类</li>
+</ul>
+</li>
+<li><strong>ActivityManager</strong>.getService().startActivity()<ul>
+<li>getService() : <code>IActivityManager.Stub.asInterface(b)</code></li>
+<li><code>ActivityManagerService</code>继承自<code>IActivityManager</code>,getService()会在<code>Client端</code>返回一个 <code>ActivityManagerProxy</code>对象,API26采用了<code>AIDL</code>的方式</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>到目前为止,Activity 启动流程已经从 <code>Client端</code>转移到了<code>Server端了</code></p>
+</blockquote>
+<h2 id="2-ActivityManagerService-启动-Activity"><a href="#2-ActivityManagerService-启动-Activity" class="headerlink" title="2.ActivityManagerService 启动 Activity"></a>2.ActivityManagerService 启动 Activity</h2><h3 id="Server-端有如下步骤"><a href="#Server-端有如下步骤" class="headerlink" title="Server 端有如下步骤"></a><code>Server 端</code>有如下步骤</h3><ul>
+<li>ActivityManagerService.startActivity()</li>
+<li>ActivityManagerService.startActivityAsUser()</li>
+<li><code>ActivityStarter</code>.startActivityMayWait()</li>
+<li><code>ActivityStarter</code>.startActivityLocked()</li>
+<li><code>ActivityStarter</code>.startActivity()</li>
+<li><code>ActivityStarter</code>.startActivityUnchecked()</li>
+<li><code>ActivityStackSupervisor</code>.resumeFocusedStackTopActivityLocked()</li>
+<li><code>ActivityStack</code>.resumeTopActivityUncheckedLocked()</li>
+<li><p><code>ActivityStack</code>.resumeTopActivityInnerLocked()</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">private boolean resumeTopActivityInnerLocked(ActivityRecord prev, Bundle options) &#123;</div><div class="line"></div><div class="line">    ...</div><div class="line">    if (mResumedActivity != null) &#123;</div><div class="line">        if (DEBUG_STATES) Slog.d(TAG_STATES,</div><div class="line">                &quot;resumeTopActivityLocked: Pausing &quot; + mResumedActivity);</div><div class="line">        pausing |= startPausingLocked(userLeaving, false, true, dontWaitForPause);</div><div class="line">    &#125;        ...</div><div class="line">    return true;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>经过一系列调用,最终调用了 <code>startPausingLocked()</code>,该方法作用就是让系统栈的Activity执行 <code>onPause</code></p>
+</blockquote>
+<h2 id="3-栈顶-Activity-的-onPause-方法"><a href="#3-栈顶-Activity-的-onPause-方法" class="headerlink" title="3.栈顶 Activity 的 onPause 方法"></a>3.栈顶 Activity 的 onPause 方法</h2><h3 id="启动新-Activity-之前栈顶的-Activity-onPause-主要下面几个步骤"><a href="#启动新-Activity-之前栈顶的-Activity-onPause-主要下面几个步骤" class="headerlink" title="启动新 Activity ,之前栈顶的 Activity onPause 主要下面几个步骤"></a>启动新 Activity ,之前栈顶的 Activity onPause 主要下面几个步骤</h3><ul>
+<li><code>ActivityStack</code>.startPausingLocked()</li>
+<li><code>ApplicationThread</code>.schedulePauseActivity()</li>
+<li><code>ActivityThread.H</code>.sendMessage()</li>
+<li><code>ActivityThread.H</code>.handleMessage()</li>
+<li><code>ActivityThread</code>.handlePauseActivity()<ul>
+<li>这个方法会让 栈顶Activity 先 <code>onPuase</code>,然后<code>启动 新Activity</code></li>
+</ul>
+</li>
+<li><code>ActivityThread</code>.performPauseActivity()</li>
+<li><code>ActivityThread</code>.performPauseActivityIfNeeded()</li>
+<li><code>Instrumentation</code>.callActivityOnPause()</li>
+<li><code>Activity</code>.performPause()</li>
+<li><code>Activity</code>.onPause()</li>
+</ul>
+<blockquote>
+<p>在这一步,栈顶的 Activity 已经执行了 <code>onPause</code> 方法,此时返回  (3)步骤 的 <code>handlePauseActivity()</code> ,方法最后执行了 <code>ActivityManager.getService().activityPaused(token);</code> 来告诉 AMS “栈顶Activity 已经” <strong>onPuase()</strong>了, Binder 跨进程调用</p>
+</blockquote>
+<ul>
+<li><code>ActivityManager</code>.getService().activityPaused(token);</li>
+<li><code>ActivityStack</code>.activityPausedLocked()</li>
+<li><code>ActivityStack</code>.completePauseLocked()</li>
+<li><code>ActivityStackSupervisor</code>.resumeFocusedStackTopActivityLocked()</li>
+<li><code>ActivityStack</code>.resumeTopActivityUncheckedLocked()</li>
+<li><code>ActivityStack</code>.resumeTopActivityInnerLocked()</li>
+<li><code>ActivityStackSupervisor</code>.resumeTopActivityInnerLocked()</li>
+<li><code>ActivityStackSupervisor</code>.startSpecificActivityLocked()</li>
+</ul>
+<blockquote>
+<p><code>startSpecificActivityLocked</code> 会判断启动的 Activity 是否已经启动,启动的话直接调用 <code>realStartActivityLocked</code>.  否则调用 <code>startProcessLocked()</code>,启动应用进程</p>
+</blockquote>
+<h2 id="4-启动Activity所属的应用进程"><a href="#4-启动Activity所属的应用进程" class="headerlink" title="4.启动Activity所属的应用进程"></a>4.启动Activity所属的应用进程</h2><p>涉及 <code>zygote</code>启动的源码暂时不分析了,我们知道 <code>Zygote</code>通过<code>Socket</code>方式让<code>Zygote fork</code>出一个新进程,然后根据<code>android.app.ActivityThread</code>字符串,反射出对象并且调用<code>main()</code>方法,这样我们的进程已经启动了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public static void main(String[] args) &#123;</div><div class="line">        ...</div><div class="line">        Looper.prepareMainLooper();</div><div class="line"></div><div class="line">        ActivityThread thread = new ActivityThread();</div><div class="line">        thread.attach(false);</div><div class="line">        ...</div><div class="line">        Looper.loop();</div><div class="line">        throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>我们可以看到, <code>ActivityThread 的 main</code> 方法初始化并且启动了一个 <code>loop</code>,并且执行了自己的 <code>attch</code>方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">private void attach(boolean system) &#123;</div><div class="line">    ...</div><div class="line">    final IActivityManager mgr = ActivityManager.getService();</div><div class="line">    try &#123;</div><div class="line">        mgr.attachApplication(mAppThread);</div><div class="line">    &#125; catch (RemoteException ex) &#123;</div><div class="line">        throw ex.rethrowFromSystemServer();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该方法通过<code>Binder</code>调用了<code>ActivityManagerService</code>的<code>attachApplication</code>方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">private final boolean attachApplicationLocked(IApplicationThread thread,</div><div class="line">            int pid) &#123;</div><div class="line">        ...</div><div class="line">        if (normalMode) &#123;</div><div class="line">            try &#123;</div><div class="line">                if (mStackSupervisor.attachApplicationLocked(app)) &#123;</div><div class="line">                    didSomething = true;</div><div class="line">                &#125;</div><div class="line">            &#125; catch (Exception e) &#123;</div><div class="line">                ...</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">        return true;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>在 <code>attachApplicationLocked(app)</code>中,启动了应用进程,并且开始 Activity 的启动</p>
+<h2 id="5-启动-Activity"><a href="#5-启动-Activity" class="headerlink" title="5.启动 Activity"></a>5.启动 Activity</h2><h3 id="从启动了对应-应用进程-到启动-Activity-主要包括以下几个步骤"><a href="#从启动了对应-应用进程-到启动-Activity-主要包括以下几个步骤" class="headerlink" title="从启动了对应 应用进程,到启动 Activity,主要包括以下几个步骤"></a>从启动了对应 应用进程,到启动 Activity,主要包括以下几个步骤</h3><ul>
+<li><code>ActivityStackSupervisor</code>.attachApplicationLocked()</li>
+<li><code>ActivityStackSupervisor</code>.realStartActivityLocked()</li>
+<li><code>ApplicationThread</code>.scheduleLaunchActivity()</li>
+<li><code>ActivityThread</code>.sendMessage()</li>
+<li><code>ActivityThread.H</code>.sendMessage()</li>
+<li><code>ActivityThread.H</code>.handleMessage()</li>
+<li><code>ActivityThread</code>.handleLauncherActivity()</li>
+<li><code>ActivityThread</code>.performLauncherActivity()</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">private Activity performLaunchActivity(ActivityClientRecord r, Intent customIntent) &#123;</div><div class="line">       //从 ActivityClientRecord 获取 Activity的组件信息</div><div class="line">       ActivityInfo aInfo = r.activityInfo;</div><div class="line">       if (r.packageInfo == null) &#123;</div><div class="line">           r.packageInfo = getPackageInfo(aInfo.applicationInfo, r.compatInfo,</div><div class="line">                   Context.CONTEXT_INCLUDE_CODE);</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       ComponentName component = r.intent.getComponent();</div><div class="line">       if (component == null) &#123;</div><div class="line">           component = r.intent.resolveActivity(</div><div class="line">               mInitialApplication.getPackageManager());</div><div class="line">           r.intent.setComponent(component);</div><div class="line">       &#125;</div><div class="line">       </div><div class="line">       //通过 Instrumentation 的 newActivity 使用类加载器创建 Activity 对象</div><div class="line">       if (r.activityInfo.targetActivity != null) &#123;</div><div class="line">           component = new ComponentName(r.activityInfo.packageName,</div><div class="line">                   r.activityInfo.targetActivity);</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       ContextImpl appContext = createBaseContextForActivity(r);</div><div class="line">       Activity activity = null;</div><div class="line">       try &#123;</div><div class="line">           java.lang.ClassLoader cl = appContext.getClassLoader();</div><div class="line">           activity = mInstrumentation.newActivity(</div><div class="line">                   cl, component.getClassName(), r.intent);</div><div class="line">          &#125;</div><div class="line">       ...</div><div class="line">       //通过 LoadedApk 的 makeApplication 创建 Application 对象</div><div class="line">       //在 makeApplication 中,通过 Instrumentation 的 callApplicationOnCreate 来调用 onCreate 方法</div><div class="line">       try &#123;</div><div class="line">           Application app = r.packageInfo.makeApplication(false, mInstrumentation);</div><div class="line"></div><div class="line">           if (activity != null) &#123;</div><div class="line">              ...</div><div class="line">              //调用 activity 的 attach 方法</div><div class="line">              //在 attach 方法中,ContextImpl会与Activity 建立联系</div><div class="line">              //attch 方法中,也会初始化Windows,将自己与Windows建立联系</div><div class="line">               activity.attach(appContext, this, getInstrumentation(), r.token,</div><div class="line">                       r.ident, app, r.intent, r.activityInfo, title, r.parent,</div><div class="line">                       r.embeddedID, r.lastNonConfigurationInstances, config,</div><div class="line">                       r.referrer, r.voiceInteractor, window, r.configCallback);</div><div class="line">               ...</div><div class="line">               //调用 callActivityOnCreate,最终调用了 onCreate</div><div class="line">               if (r.isPersistable()) &#123;</div><div class="line">                   mInstrumentation.callActivityOnCreate(activity, r.state, r.persistentState);</div><div class="line">               &#125; else &#123;</div><div class="line">                   mInstrumentation.callActivityOnCreate(activity, r.state);</div><div class="line">               &#125;</div><div class="line">               ...</div><div class="line">               if (!r.activity.mFinished) &#123;</div><div class="line">               //调用 performStart,最终是调用 onStart</div><div class="line">                   activity.performStart();</div><div class="line">                   r.stopped = false;</div><div class="line">               &#125;</div><div class="line">               ...</div><div class="line">       return activity;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><code>Instrumentation</code>.callActivityOnCreate()</li>
+<li><code>Activity</code>.onCreate()</li>
+<li><code>Activity</code>.performStart()</li>
+<li><code>Activity</code>.onStart()</li>
+<li><code>Instrumentation</code>.callActivityOnStart()</li>
+<li><code>Activity</code>.onStart()</li>
+<li>回到:<code>ActivityThread</code>.performLauncherActivity() -&gt; 继续执行<code>ActivityThread</code>.handleResumeActivity()</li>
+<li><code>ActivityThread</code>.performResumeActivity()</li>
+<li><code>Activity</code>.performResume()</li>
+<li><code>Instrumentation</code>.callActivityOnResume()</li>
+<li><code>Activity</code>.onResume()</li>
+<li>回到: <code>ActivityThread</code>.handleResumeActivity(),继续执行 <code>ActivityManager</code>.getService().activityResumed(token);</li>
+</ul>
+<blockquote>
+<p>到这一步,利用<code>Binder</code>通知<code>ActivityManagerService</code>当前 Activity 已经<code>onResume()</code>了,接下来要做的就是之前栈顶的Activity <code>onStop</code></p>
+</blockquote>
+<h2 id="之前栈顶Activity的onStop"><a href="#之前栈顶Activity的onStop" class="headerlink" title="之前栈顶Activity的onStop"></a>之前栈顶Activity的onStop</h2><h3 id="之前的栈顶Activity执行-onStop-主要有下面几个步骤"><a href="#之前的栈顶Activity执行-onStop-主要有下面几个步骤" class="headerlink" title="之前的栈顶Activity执行 onStop 主要有下面几个步骤"></a>之前的栈顶Activity执行 onStop 主要有下面几个步骤</h3><ul>
+<li><code>ActivityThread</code>.handleResumeActivity()</li>
+<li>Looper.myQueue().addIdleHandler(new Idler());</li>
+<li>在 <code>Idler</code>方法内部,执行了 <code>ActivityManager</code>.getService().activityIdle()</li>
+<li><code>ActivityStackSupervisor</code>.activityIdleInternalLocked() </li>
+<li><code>ActivityStack</code>.stopActivityLocked()</li>
+<li><code>ApplicationThread</code>.scheduleStopActivity()</li>
+<li><code>ActivityThread</code>.sendMessage()</li>
+<li><code>ActivityThread.H</code>.sendMessage()</li>
+<li><code>ActivityThread.H</code>.handleMessage()</li>
+<li><code>ActivityThread</code>.handleStopActivity()<ul>
+<li><code>ActivityThread</code>.performStopActivityInner()</li>
+<li><code>ActivityThread</code>.callCallActivityOnSaveInstanceState()</li>
+<li><code>Instrumentation</code>.callActivityOnSaveInstanceState()</li>
+<li><code>Activity</code>.performSaveInstanceState()</li>
+<li><code>Activity</code>.onSaveInstanceState(): 这个方法就是系统销毁时,还原状态数据的方法</li>
+</ul>
+</li>
+<li>回到: <code>ActivityThread</code>.performStopActivityInner() -&gt; 执行了<code>Activity</code>.performStop()</li>
+<li><code>Instrumentation</code>.callActivityOnStop()</li>
+<li><code>Activity</code>.onStop()</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Framework/" rel="tag">#Framework</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/11/Window、Activity、DecorView之间的联系以及View的绘制流程/" rel="next" title="Window、Activity、DecorView之间的联系以及View的绘制流程">
+                <i class="fa fa-chevron-left"></i> Window、Activity、DecorView之间的联系以及View的绘制流程
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/03/15/一个Activity从启动到显示内容都发生了什么/"
+           data-title="一个Activity从启动到显示内容都发生了什么" data-url="http://mashell.cn/2018/03/15/一个Activity从启动到显示内容都发生了什么/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
+               alt="mashell" />
+          <p class="site-author-name" itemprop="name">mashell</p>
+          <p class="site-description motion-element" itemprop="description">还有什么比不浪费时间更有意义的事呢？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-开始请求执行启动Actiivty"><span class="nav-number">1.</span> <span class="nav-text">1.开始请求执行启动Actiivty</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一般来说在Client端有如下步骤"><span class="nav-number">1.1.</span> <span class="nav-text">一般来说在Client端有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-ActivityManagerService-启动-Activity"><span class="nav-number">2.</span> <span class="nav-text">2.ActivityManagerService 启动 Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Server-端有如下步骤"><span class="nav-number">2.1.</span> <span class="nav-text">Server 端有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-栈顶-Activity-的-onPause-方法"><span class="nav-number">3.</span> <span class="nav-text">3.栈顶 Activity 的 onPause 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#启动新-Activity-之前栈顶的-Activity-onPause-主要下面几个步骤"><span class="nav-number">3.1.</span> <span class="nav-text">启动新 Activity ,之前栈顶的 Activity onPause 主要下面几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-启动Activity所属的应用进程"><span class="nav-number">4.</span> <span class="nav-text">4.启动Activity所属的应用进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-启动-Activity"><span class="nav-number">5.</span> <span class="nav-text">5.启动 Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#从启动了对应-应用进程-到启动-Activity-主要包括以下几个步骤"><span class="nav-number">5.1.</span> <span class="nav-text">从启动了对应 应用进程,到启动 Activity,主要包括以下几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#之前栈顶Activity的onStop"><span class="nav-number">6.</span> <span class="nav-text">之前栈顶Activity的onStop</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#之前的栈顶Activity执行-onStop-主要有下面几个步骤"><span class="nav-number">6.1.</span> <span class="nav-text">之前的栈顶Activity执行 onStop 主要有下面几个步骤</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mashell</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"mashell"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("F8tDrPhvnflgmUOz88q2X3v8-gzGzoHsz", "7G2z5hgOyivnxFAKfLDqhTfK");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>
