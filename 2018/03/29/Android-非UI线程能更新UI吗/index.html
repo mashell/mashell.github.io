@@ -84,28 +84,28 @@
 
 
 
-<meta name="description" content="在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法
+<meta name="description" content="前言我们都知道 Android 非UI线程 不能更新UI,否则会抛异常 CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.,我们来了解为什么
+单线程模型
+采用一个专门的线程从队列中抽取事件，并把他们转发给应用程序定义的事件处理器
 
-ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位
-ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位
-ARGB_8888   ： alpha 8位， red 8位， green 8">
+其实">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android Bitmap 占多大内存">
-<meta property="og:url" content="http://mashell.cn/2017/03/05/Android-Bitmap-占多大内存/index.html">
+<meta property="og:title" content="Android 非UI线程能更新UI吗">
+<meta property="og:url" content="http://mashell.cn/2018/03/29/Android-非UI线程能更新UI吗/index.html">
 <meta property="og:site_name" content="mashell">
-<meta property="og:description" content="在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法
+<meta property="og:description" content="前言我们都知道 Android 非UI线程 不能更新UI,否则会抛异常 CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.,我们来了解为什么
+单线程模型
+采用一个专门的线程从队列中抽取事件，并把他们转发给应用程序定义的事件处理器
 
-ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位
-ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位
-ARGB_8888   ： alpha 8位， red 8位， green 8">
-<meta property="og:updated_time" content="2017-09-02T16:04:28.000Z">
+其实">
+<meta property="og:updated_time" content="2018-04-15T16:02:13.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Android Bitmap 占多大内存">
-<meta name="twitter:description" content="在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法
+<meta name="twitter:title" content="Android 非UI线程能更新UI吗">
+<meta name="twitter:description" content="前言我们都知道 Android 非UI线程 不能更新UI,否则会抛异常 CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.,我们来了解为什么
+单线程模型
+采用一个专门的线程从队列中抽取事件，并把他们转发给应用程序定义的事件处理器
 
-ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位
-ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位
-ARGB_8888   ： alpha 8位， red 8位， green 8">
+其实">
 
 
 
@@ -126,10 +126,10 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
 
 
 
-  <link rel="canonical" href="http://mashell.cn/2017/03/05/Android-Bitmap-占多大内存/"/>
+  <link rel="canonical" href="http://mashell.cn/2018/03/29/Android-非UI线程能更新UI吗/"/>
 
 
-  <title> Android Bitmap 占多大内存 | mashell </title>
+  <title> Android 非UI线程能更新UI吗 | mashell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -251,7 +251,7 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
             
             
               
-                Android Bitmap 占多大内存
+                Android 非UI线程能更新UI吗
               
             
           </h1>
@@ -263,8 +263,8 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-05T14:38:16+08:00" content="2017-03-05">
-              2017-03-05
+            <time itemprop="dateCreated" datetime="2018-03-29T00:01:57+08:00" content="2018-03-29">
+              2018-03-29
             </time>
           </span>
 
@@ -274,8 +274,8 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2017/03/05/Android-Bitmap-占多大内存/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/05/Android-Bitmap-占多大内存/" itemprop="commentsCount"></span>
+                <a href="/2018/03/29/Android-非UI线程能更新UI吗/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/03/29/Android-非UI线程能更新UI吗/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -285,7 +285,7 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
 
           
           
-             <span id="/2017/03/05/Android-Bitmap-占多大内存/" class="leancloud_visitors" data-flag-title="Android Bitmap 占多大内存">
+             <span id="/2018/03/29/Android-非UI线程能更新UI吗/" class="leancloud_visitors" data-flag-title="Android 非UI线程能更新UI吗">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -307,42 +307,28 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
       
 
       
-        <p>在 Android 中，通过 BimapFctory.Options 来加载所需尺寸的图片，它包含四种色彩存储方法</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我们都知道 Android 非UI线程 不能更新UI,否则会抛异常 <code>CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.</code>,我们来了解为什么</p>
+<h2 id="单线程模型"><a href="#单线程模型" class="headerlink" title="单线程模型"></a>单线程模型</h2><blockquote>
+<p>采用一个专门的线程从队列中抽取事件，并把他们转发给应用程序定义的事件处理器</p>
+</blockquote>
+<p>其实也有人视图多线程的GUI,但是由于竞争条件和死锁导致的稳定性问题等,不得不放弃,否则多线程同时操作GUI会线程同步的问题.</p>
+<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><h3 id="更新UI的方法"><a href="#更新UI的方法" class="headerlink" title="更新UI的方法"></a>更新UI的方法</h3><ul>
+<li>requestLayout()</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">-------View.requelayout()-----</div><div class="line">public void requestLayout() &#123;</div><div class="line">    ...</div><div class="line">    if (mParent != null &amp;&amp; !mParent.isLayoutRequested()) &#123;</div><div class="line">            mParent.requestLayout();</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>View调用requestLayout,会一直调用其父类的<code>ViewParent.requestlayout</code>,而我们的<code>ViewRootImpl</code>就是实现了<code>ViewParent</code>的类,我们在分析 View 绘制流程的时候也分析过 ViewRoot,他是View绘制的开始</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">-------------ViewRootImpl.requestlayout()---------</div><div class="line"> @Override</div><div class="line">    public void requestLayout() &#123;</div><div class="line">        if (!mHandlingLayoutInLayoutRequest) &#123;</div><div class="line">            checkThread();</div><div class="line">            mLayoutRequested = true;</div><div class="line">            scheduleTraversals();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">-----------------ViewRootImpl.checkThread-----------</div><div class="line">void checkThread() &#123;</div><div class="line">        if (mThread != Thread.currentThread()) &#123;</div><div class="line">            throw new CalledFromWrongThreadException(</div><div class="line">                    &quot;Only the original thread that created a view hierarchy can touch its views.&quot;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>终于找到了,原来是<code>ViewRootImpl</code>手动检查了操作线程</p>
 <ul>
-<li>ALPHA_8  ： alpha 由8位组成 ，那么一个像素占 8位</li>
-<li>ARGB_4444  ：alpha 4位， red 4位， green 4位， blue 4位， 那么一个像素占 4*4 = 16位</li>
-<li>ARGB_8888   ： alpha 8位， red 8位， green 8位， blue 8位， 那么一个像素点占 32位</li>
-<li>RGB_565 ： red 5位， green 6位， blue 5位，那么一个像素点占 16位</li>
+<li>invalidate()</li>
 </ul>
-<p>图的位数越高，占用的内存越大</p>
-<h3 id="一张图片占用的内存取决于"><a href="#一张图片占用的内存取决于" class="headerlink" title="一张图片占用的内存取决于"></a>一张图片占用的内存取决于</h3><ul>
-<li>图片色彩模式</li>
-<li>原始资源的density（资源目录）</li>
-<li>手机的dp</li>
-</ul>
-<h4 id="科普-资源文件对应的dpi"><a href="#科普-资源文件对应的dpi" class="headerlink" title="科普:资源文件对应的dpi"></a>科普:资源文件对应的dpi</h4><ul>
-<li>ldpi 120dpi</li>
-<li>mdpi 160dpi</li>
-<li>hdpi 240dpi</li>
-<li>xhdpi 320dpi</li>
-<li>xxhdpi 480dpi</li>
-</ul>
-<p>那么,给定一张图片,他在手机内存中所占大小为: </p>
-<figure class="highlight plain"><figcaption><span>= scaleWidth * scaleHeigth * 一个像素所占字节 = getHeight() * getRowByte() ```</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">``` = (imageWidth  * ScaledSize 缩放系数) * (imageHeight * ScaledSize 缩放系数) * 一个像素所占字节</div></pre></td></tr></table></figure>
-<p><code>=  (imageWidth/density*手机dp+0.5)  * (imageHeigth/density*手机dp+0.5) * 一个像素所占字节</code></p>
-<p>比如,一张 <strong>522 * 686</strong> 的 <strong>PNG</strong> (一个像素4字节 )图片,把它放到 <strong>drawable-xxhdpi</strong> 下,在三星S6(640dp)上加载,所占内存为:</p>
-<p>(522/480 <em>640 +0.5) </em> (686/480 <em> 640+0.5) </em> 4 = 2547360 </p>
-<p>参考资料:</p>
-<p> <a href="https://dev.qq.com/topic/591d61f56793d26660901b4e" target="_blank" rel="external">你的Bitmap就究竟占多大内存?</a></p>
-<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><h2 id="dp-dip-sp-px-dpi-区别与转换"><a href="#dp-dip-sp-px-dpi-区别与转换" class="headerlink" title="dp dip  sp  px dpi 区别与转换"></a>dp dip  sp  px dpi 区别与转换</h2><h4 id="px-像素"><a href="#px-像素" class="headerlink" title="px: 像素"></a>px: 像素</h4><h4 id="dpi-屏幕每英寸所包含像素点数目"><a href="#dpi-屏幕每英寸所包含像素点数目" class="headerlink" title="dpi:屏幕每英寸所包含像素点数目"></a>dpi:屏幕每英寸所包含像素点数目</h4><blockquote>
-<p>dpi = 屏幕对角线像素/ 屏幕英寸 </p>
-</blockquote>
-<h4 id="dp-dip-密度无关单位"><a href="#dp-dip-密度无关单位" class="headerlink" title="dp == dip :密度无关单位"></a>dp == dip :密度无关单位</h4><blockquote>
-<p>px = dp*dpi/160</p>
-<p>dp = px*160/dpi</p>
-</blockquote>
-<p>所以对于 160dpi的屏幕 <strong>1dp = 1px</strong></p>
-<h5 id="但是实际的dpi是固定的-120-160-240-320-480"><a href="#但是实际的dpi是固定的-120-160-240-320-480" class="headerlink" title="但是实际的dpi是固定的,120,160,240,320,480"></a>但是实际的dpi是固定的,120,160,240,320,480</h5><p>不同屏幕分辨率下dp差异,我们可以通过单独适配的方法:比如对 <strong>360dp</strong>布局做适配,将布局文件放在 <strong>layout-w320dp</strong> 中,相对单独分辨率做适配,就放在标有分辨率的文件夹中=&gt; <strong>layout-854x480</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">-------------View.invalidate()-----------</div><div class="line"></div><div class="line">public void invalidate() &#123;</div><div class="line">        invalidate(true);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line"> public void invalidate(boolean invalidateCache) &#123;</div><div class="line">        invalidateInternal(0, 0, mRight - mLeft, mBottom - mTop, invalidateCache, true);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">void invalidateInternal(int l, int t, int r, int b, boolean invalidateCache,</div><div class="line">            boolean fullInvalidate) &#123;</div><div class="line">    ...   </div><div class="line">    if (p != null &amp;&amp; ai != null &amp;&amp; l &lt; r &amp;&amp; t &lt; b) &#123;</div><div class="line">                final Rect damage = ai.mTmpInvalRect;</div><div class="line">                damage.set(l, t, r, b);</div><div class="line">               //重点,一直调用父类的 invalidate p.invalidateChild(this, damage);</div><div class="line">            &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,View的<code>invalidate</code>也是一直调用其父类VewGroup的<code>invalidateChild()</code>,</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">--------------ViewGroup.invalidateChild()-------------</div><div class="line"></div><div class="line"> public final void invalidateChild(View child, final Rect dirty) &#123;</div><div class="line">     ...</div><div class="line">     ViewParent parent = this;</div><div class="line">     ...</div><div class="line">     parent = parent.invalidateChildInParent(location, dirty);</div><div class="line">     ...</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>最终,ViewGroup会调用<code>ViewRootImpl</code>的<code>invalidateChildInParent</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">@Override</div><div class="line">    public ViewParent invalidateChildInParent(int[] location, Rect dirty) &#123;</div><div class="line">        checkThread();</div><div class="line">        if (DEBUG_DRAW) Log.v(mTag, &quot;Invalidate child: &quot; + dirty);</div><div class="line"></div><div class="line">        if (dirty == null) &#123;</div><div class="line">            invalidate();</div><div class="line">            return null;</div><div class="line">        &#125; else if (dirty.isEmpty() &amp;&amp; !mIsAnimating) &#123;</div><div class="line">            return null;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        if (mCurScrollY != 0 || mTranslator != null) &#123;</div><div class="line">            mTempRect.set(dirty);</div><div class="line">            dirty = mTempRect;</div><div class="line">            if (mCurScrollY != 0) &#123;</div><div class="line">                dirty.offset(0, -mCurScrollY);</div><div class="line">            &#125;</div><div class="line">            if (mTranslator != null) &#123;</div><div class="line">                mTranslator.translateRectInAppWindowToScreen(dirty);</div><div class="line">            &#125;</div><div class="line">            if (mAttachInfo.mScalingRequired) &#123;</div><div class="line">                dirty.inset(-1, -1);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        invalidateRectOnScreen(dirty);</div><div class="line"></div><div class="line">        return null;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>可以看到, <code>invalidate()</code>最终方法也是手动调用了<code>checkThread()</code>检查操作UI的线程</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>既然规定 UI线程才能操作 UI 是在 <code>ViewRootImpl</code> 检查的,那么我们只需要在创建<code>ViewRootImpl</code>之前非UI线程修改UI就行了,通过我们上次的文章<code>Activiy Window DecorView的关系</code>得知,<strong>ViewRootImpl是在 onResume()回调后创建的</strong>,所以我们在这之前更新UI是不需要在UI线程的.</p>
 
       
     </div>
@@ -368,17 +354,13 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/02/01/AsyncTask源码解析/" rel="next" title="AsyncTask源码解析">
-                <i class="fa fa-chevron-left"></i> AsyncTask源码解析
+              <a href="/2018/03/23/Retrofit-源码分析/" rel="next" title="Retrofit 源码分析">
+                <i class="fa fa-chevron-left"></i> Retrofit 源码分析
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/04/03/JVM学习笔记-一-内存分配/" rel="prev" title="JVM学习笔记(一):内存分配">
-                JVM学习笔记(一):内存分配 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -404,8 +386,8 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/03/05/Android-Bitmap-占多大内存/"
-           data-title="Android Bitmap 占多大内存" data-url="http://mashell.cn/2017/03/05/Android-Bitmap-占多大内存/">
+      <div class="ds-thread" data-thread-key="2018/03/29/Android-非UI线程能更新UI吗/"
+           data-title="Android 非UI线程能更新UI吗" data-url="http://mashell.cn/2018/03/29/Android-非UI线程能更新UI吗/">
       </div>
     
   </div>
@@ -489,7 +471,7 @@ ARGB_8888   ： alpha 8位， red 8位， green 8">
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一张图片占用的内存取决于"><span class="nav-number">1.</span> <span class="nav-text">一张图片占用的内存取决于</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#科普-资源文件对应的dpi"><span class="nav-number">1.1.</span> <span class="nav-text">科普:资源文件对应的dpi</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#补充"><span class="nav-number">2.</span> <span class="nav-text">补充</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dp-dip-sp-px-dpi-区别与转换"><span class="nav-number"></span> <span class="nav-text">dp dip  sp  px dpi 区别与转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#px-像素"><span class="nav-number">0.1.</span> <span class="nav-text">px: 像素</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dpi-屏幕每英寸所包含像素点数目"><span class="nav-number">0.2.</span> <span class="nav-text">dpi:屏幕每英寸所包含像素点数目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dp-dip-密度无关单位"><span class="nav-number">0.3.</span> <span class="nav-text">dp == dip :密度无关单位</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#但是实际的dpi是固定的-120-160-240-320-480"><span class="nav-number">0.3.1.</span> <span class="nav-text">但是实际的dpi是固定的,120,160,240,320,480</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单线程模型"><span class="nav-number">2.</span> <span class="nav-text">单线程模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原因"><span class="nav-number">3.</span> <span class="nav-text">原因</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#更新UI的方法"><span class="nav-number">3.1.</span> <span class="nav-text">更新UI的方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结论"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li></ol></div>
             
           </div>
         </section>
