@@ -1,0 +1,795 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="requestLayout
+requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requestLayout
+
+123456789101112131415161718192021222324public void requestLayout() &amp;#123;        if (mMeasureCache != null) m">
+<meta property="og:type" content="article">
+<meta property="og:title" content="invalidate,requestLayout与ViewGroup.draw()">
+<meta property="og:url" content="http://mashell.cn/2018/04/02/invalidate-requestLayout与ViewGroup-draw/index.html">
+<meta property="og:site_name" content="mashell">
+<meta property="og:description" content="requestLayout
+requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requestLayout
+
+123456789101112131415161718192021222324public void requestLayout() &amp;#123;        if (mMeasureCache != null) m">
+<meta property="og:updated_time" content="2018-04-16T07:34:10.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="invalidate,requestLayout与ViewGroup.draw()">
+<meta name="twitter:description" content="requestLayout
+requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requestLayout
+
+123456789101112131415161718192021222324public void requestLayout() &amp;#123;        if (mMeasureCache != null) m">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://mashell.cn/2018/04/02/invalidate-requestLayout与ViewGroup-draw/"/>
+
+
+  <title> invalidate,requestLayout与ViewGroup.draw() | mashell </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">mashell</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">你热爱生命吗？那别浪费时间</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="http://mashell.cn/resume/" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                invalidate,requestLayout与ViewGroup.draw()
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-04-02T15:33:44+08:00" content="2018-04-02">
+              2018-04-02
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/04/02/invalidate-requestLayout与ViewGroup-draw/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/02/invalidate-requestLayout与ViewGroup-draw/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/04/02/invalidate-requestLayout与ViewGroup-draw/" class="leancloud_visitors" data-flag-title="invalidate,requestLayout与ViewGroup.draw()">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="requestLayout"><a href="#requestLayout" class="headerlink" title="requestLayout"></a>requestLayout</h2><ul>
+<li><code>requestLayout</code> 会调用 <code>ViewGroup 的 requestLayout</code>,直到 <code>ViewRootImpl</code> 的 <code>requestLayout</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public void requestLayout() &#123;</div><div class="line">        if (mMeasureCache != null) mMeasureCache.clear();</div><div class="line"></div><div class="line">        if (mAttachInfo != null &amp;&amp; mAttachInfo.mViewRequestingLayout == null) &#123;</div><div class="line">           </div><div class="line">            ViewRootImpl viewRoot = getViewRootImpl();</div><div class="line">            if (viewRoot != null &amp;&amp; viewRoot.isInLayout()) &#123;</div><div class="line">                if (!viewRoot.requestLayoutDuringLayout(this)) &#123;</div><div class="line">                    return;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            mAttachInfo.mViewRequestingLayout = this;</div><div class="line">        &#125;</div><div class="line">        //将当前 标志 设置 PFLAG_FORCE_LAYOUT 和 PFLAG_INVALIDATED</div><div class="line">        mPrivateFlags |= PFLAG_FORCE_LAYOUT;</div><div class="line">        mPrivateFlags |= PFLAG_INVALIDATED;</div><div class="line">        //调用父类的requestLayout，父类也会被设置标志 PFLAG_FORCE_LAYOUT</div><div class="line">        if (mParent != null &amp;&amp; !mParent.isLayoutRequested()) &#123;</div><div class="line">            mParent.requestLayout();</div><div class="line">        &#125;</div><div class="line">        if (mAttachInfo != null &amp;&amp; mAttachInfo.mViewRequestingLayout == this) &#123;</div><div class="line">            mAttachInfo.mViewRequestingLayout = null;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>ViewRootImpl 的 requestLayout 最终会执行<code>performTravels()</code>,会依次调用<code>measure(),layout(),draw()</code>三个方法</p>
+<h3 id="measure"><a href="#measure" class="headerlink" title="measure()"></a>measure()</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">public final void measure(int widthMeasureSpec, int heightMeasureSpec) &#123;</div><div class="line">       ...</div><div class="line">       //判断是否设置了标志位 PFLAG_FORCE_LAYOUT,requestLayout 设置了</div><div class="line">        final boolean forceLayout = (mPrivateFlags &amp; PFLAG_FORCE_LAYOUT) == PFLAG_FORCE_LAYOUT;</div><div class="line"></div><div class="line">        ...</div><div class="line"></div><div class="line">        if (forceLayout || needsLayout) &#123;</div><div class="line">            ...</div><div class="line">            //由于设置了标志位,所以执行 onMeaure()</div><div class="line">            onMeasure(widthMeasureSpec, heightMeasureSpec);</div><div class="line">               ...</div><div class="line">                ...</div><div class="line">        //设置了 PFLAG_LAYOUT_REQUIRED, layout 中有作用</div><div class="line">        mPrivateFlags |= PFLAG_LAYOUT_REQUIRED;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>可以看到,由于我们 requestLayout 设置了 <code>PFLAG_FORCE_LAYOUT</code>,所以在 measure 会执行 <code>onMeasure()</code>方法,该方法末尾设置了标志位 <code>PFLAG_LAYOUT_REQUIRED</code></p>
+</blockquote>
+<h3 id="layout"><a href="#layout" class="headerlink" title="layout"></a>layout</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">public void layout(int l, int t, int r, int b) &#123;</div><div class="line">        ...</div><div class="line">        //如果view布局变了,setFrame 会返回 true</div><div class="line">        boolean changed = isLayoutModeOptical(mParent) ?</div><div class="line">                setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);</div><div class="line">        //如果布局变了,或者设置了 PFLAG_LAYOUT_REQUIRED,则执行 onLayout</div><div class="line">        if (changed || (mPrivateFlags &amp; PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) &#123;</div><div class="line">            onLayout(changed, l, t, r, b);</div><div class="line">            //在执行完onLayout方法之后，从mPrivateFlags中移除标签PFLAG_LAYOUT_REQUIRED</div><div class="line">            mPrivateFlags &amp;= ~PFLAG_LAYOUT_REQUIRED;</div><div class="line">            &#125;</div><div class="line">        ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>在 layout 方法中,由于我们在 meaesure 设置了 <code>PFLAG_LAYOUT_REQUIRED</code>,所以会执行 onLayout() 方法</p>
+</blockquote>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li><strong>在 requestLayout 过程中，View 以及 父View 不断被设置标志 <code>PFLAG_FORCE_LAYOUT</code>,View 还设置了<code>PFLAG_INVALIDATED</code>,那么最后 performTravel时，<code>measure</code>检测到了标志位，一定会 <code>measure</code>，*</strong></li>
+<li><strong>调用了 measure().该方法最后会设置 <code>PFLAG_FORCE_LAYOUT</code>,所以layout()会执行<code>onLayout()</code>方法</strong></li>
+<li>调用 <code>requestLayout</code>的View以及他的父View <strong>都会进行 measure(),layout()</strong></li>
+<li>对于 onDraw 会否执行,分两种情况<ul>
+<li>如果<code>requestLayout</code>过程,layout没有改变<code>l,t,r,b</code>那么在 <code>performDraw</code>过程中，<code>mDirty</code>为空，所以onDraw不会被执行</li>
+<li>如果<code>requestLayout</code>过程,layout导致<code>l,t,r,b</code>不一样了,那么在<strong>setFrame</strong>中,会调用<code>invalidate()</code>(源码太长不展示了),从而执行 <code>onDraw</code>.</li>
+</ul>
+</li>
+</ul>
+<h2 id="invalidate"><a href="#invalidate" class="headerlink" title="invalidate"></a>invalidate</h2><ul>
+<li>我们调用 <code>invalidate</code> 方法，最终调用到<code>invalidateInternal</code>.他会设置两个标志位<code>FLAG_INVALIDATED</code>和<code>PFLAG_DRAWING_CACHE_VALID</code>，<code>PFLAG_INVALIDATED</code>置为 <strong>1</strong>，<code>PFLAG_DRAWING_CACHE_VALID</code>置为<strong>0</strong>.  。 接着会调用 父View 的 <code>invalidateChild</code></li>
+<li><code>invalidateChild</code>,它里面是一个 while 循环，一直遍历查找 父View，调用 <code>ViewGroup的invalidateChild()</code>。,进而调用<code>invalidateChildInParent()</code>,<strong>该方法清除了 PFLAG_DRAWING_CACHE_VALID 标志</strong>，他们的标志位都会设置<code>PFLAG_DRAWING_CACHE_VALID置为0</code>。(为了筛选出View所在的链，排除其他无关链)</li>
+<li>最终，会执行到 <code>ViewRoot</code> 的 <code>invalidateChildInParent</code></li>
+<li>在 <code>ViewRoot</code> 的 <code>invalidateChildInParent</code> 中，会调用 <code>scheduleTraversals</code></li>
+<li><code>scheduleTraversals</code> <strong>由于没有<code>PFLAG_FORCE_LAYOUT</code>,所以不会调用 <code>measure()</code> 进而不会调用<code>layout()</code>,</strong> 最终进入<code>performDraw()</code>执行<code>mAttachInfo.mThreadedRenderer.draw(mView, mAttachInfo, this);</code></li>
+<li><code>draw(mView, mAttachInfo, this)</code>会调用<code>ThreadedRenderer.updateRootDisplayList() -&gt; ThreadedRenderer.updateViewTreeDisplayList() -&gt; View.updateDisplayListIfDirty()</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">private void updateViewTreeDisplayList(View view) &#123;</div><div class="line">        view.mPrivateFlags |= View.PFLAG_DRAWN;</div><div class="line">        view.mRecreateDisplayList = (view.mPrivateFlags &amp; View.PFLAG_INVALIDATED)</div><div class="line">                == View.PFLAG_INVALIDATED;</div><div class="line">        view.mPrivateFlags &amp;= ~View.PFLAG_INVALIDATED;</div><div class="line">        view.updateDisplayListIfDirty();</div><div class="line">        view.mRecreateDisplayList = false;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>该View指的是 DecorView.我们前面设置了 view 的<code>PFLAG_INVALIDATED</code>为1,<code>PFLAG_DRAWING_CACHE_VALID</code>为0.他的 parentView 为<code>PFLAG_DRAWING_CACHE_VALID</code>和<code>PFLAG_INVALIDATED</code>都为0. <strong>这样我们可以通过 PFLAG_DRAWING_CACHE_VALID 找到那条View链是有关联系,然后通过<code>PFLAG_INVALIDATED</code>知道了哪个View需要重绘</strong>,重绘View.mRecreateDisplayList 为 true</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">public RenderNode updateDisplayListIfDirty() &#123;</div><div class="line">        final RenderNode renderNode = mRenderNode;</div><div class="line">        ...</div><div class="line">        // PFLAG_DRAWING_CACHE_VALID 前面设置的标志位,</div><div class="line">        // 表示这条链与需要重绘的View有关</div><div class="line">        if ((mPrivateFlags &amp; PFLAG_DRAWING_CACHE_VALID) == 0</div><div class="line">                || !renderNode.isValid()</div><div class="line">        </div><div class="line">            if (renderNode.isValid()</div><div class="line">                    &amp;&amp; !mRecreateDisplayList) &#123;</div><div class="line">                mPrivateFlags |= PFLAG_DRAWN | PFLAG_DRAWING_CACHE_VALID;</div><div class="line">                mPrivateFlags &amp;= ~PFLAG_DIRTY_MASK;</div><div class="line">                //继续分发事件,循环调用childView.recreateChildDisplayList()</div><div class="line">                //最终还是调用 view.updateDisplayListIfDirty()</div><div class="line">                dispatchGetDisplayList();</div><div class="line">                ...</div><div class="line">            &#125;</div><div class="line">            ...</div><div class="line"></div><div class="line">            try &#123;</div><div class="line">                if (layerType == LAYER_TYPE_SOFTWARE) &#123;</div><div class="line">                    ...</div><div class="line">                &#125; else &#123;</div><div class="line">                    ...</div><div class="line">                    mPrivateFlags |= PFLAG_DRAWN | PFLAG_DRAWING_CACHE_VALID;</div><div class="line">                    mPrivateFlags &amp;= ~PFLAG_DIRTY_MASK;</div><div class="line">                    </div><div class="line">                    if ((mPrivateFlags &amp; PFLAG_SKIP_DRAW) == PFLAG_SKIP_DRAW) &#123;</div><div class="line">                        //View 是 ViewGroup,直接绘制 子View</div><div class="line">                        dispatchDraw(canvas);</div><div class="line">                        ...</div><div class="line">                    &#125; else &#123;</div><div class="line">                        //如果是重绘 View本身,会调用 draw 方法</div><div class="line">                        draw(canvas);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125; </div><div class="line">            ...</div><div class="line">        &#125; else &#123;</div><div class="line">            ...</div><div class="line">            //不是 view 本身,也不是View相关父View,直接结束</div><div class="line">        &#125;</div><div class="line">        return renderNode;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><strong>可以看到,绘制方法通过<code>PFLAG_DRAWING_CACHE_VALID</code>找到了有关联的View链,然后通过<code>PFLAG_INVALIDATED</code>找到了具体需要重绘的那个View,有以下几种情况</strong><ul>
+<li><code>重绘View 本</code>身,<code>PFLAG_DRAWING_CACHE_VALID = 0</code>而且<code>PFLAG_INVALIDATED = 1</code>.那么走到 <code>draw(canvas)</code>进行绘制.</li>
+<li><code>重绘View的父View</code>,<code>PFLAG_DRAWING_CACHE_VALID = 0</code>,那么走到 <code>dispatchGetDisplayList()</code>继续分发事件给子View,最终还是回到<code>updateDisplayListIfDirty()</code></li>
+<li>其他View链上的View,<code>PFLAG_DRAWING_CACHE_VALID = 1</code>,直接结束</li>
+</ul>
+</li>
+</ul>
+<p><strong>但是整个过程中，View没有强制重新测量的标志位 <code>PFLAG_FORCE_LAYOUT</code>,所以不会执行 <code>measure</code> 方法，没有进入 measure 方法，也就不会设置 <code>PFLAG_LAYOUT_REQUIRED</code>,那么在 <code>onLayout</code> 方法中，也就不会执行 onLayout 进行重新布局了</strong></p>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><p>invalidate 的实现依靠两个标志位</p>
+<ul>
+<li>PFLAG_DRAWING_CACHE_VALID</li>
+<li>PFLAG_INVALIDATED</li>
+</ul>
+<p><strong>PFLAG_INVALIDATED 来判断哪个View 需要重绘，只有它会进行重绘，而<code>PFLAG_DRAWING_CACHE_VALID</code>用于判断是否继续分发，不是 View 所在的 View链，不会进行分发，节省时间。</strong></p>
+<h2 id="ViewGroup-draw"><a href="#ViewGroup-draw" class="headerlink" title="ViewGroup.draw()"></a>ViewGroup.draw()</h2><p>对于 <code>draw(canvas)</code>,会在<code>draw(Canvas canvas, ViewGroup parent, long drawingTime) -&gt; updateDisplayListIfDirty()  -&gt; updateDisplayListIfDirty()</code>被调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">void updateDisplayListIfDirty()&#123;</div><div class="line">if (!hasDisplayList) &#123; //软件绘制</div><div class="line">    // Fast path for layouts with no backgrounds</div><div class="line">    if ((mPrivateFlags &amp; PFLAG_SKIP_DRAW) == PFLAG_SKIP_DRAW) &#123;      </div><div class="line">        //跳过当前View的绘制,直接绘制子view</div><div class="line">        mPrivateFlags &amp;= ~PFLAG_DIRTY_MASK;</div><div class="line">        dispatchDraw(canvas);</div><div class="line">    &#125; else &#123;                            </div><div class="line">        //此时坐标系已经切换到View自身坐标系了,可以纯碎的绘制当前view了,又回到了draw(canvas)</div><div class="line">        draw(canvas);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们可以看到,会判断当前View是否需要绘制(通过<code>PFLAG_SKIP_DRAW</code>标志).</p>
+<ul>
+<li>若 mPrivateFlags <strong>包含</strong><code>PFLAG_SKIP_DRAW</code>,那么直接<strong>跳过</strong>当前View的<code>draw(canvas)</code>,直接调用<code>dispatchDraw</code>绘制当前View的子View</li>
+<li>若 mPrivateFlags <strong>不包含</strong><code>PFLAG_SKIP_DRAW</code>,那么会<strong>调用</strong> draw 方法</li>
+</ul>
+<p>而对于 ViewGroup 初始化的时候,他会调用 <code>initViewGroup()</code> 方法 ,会初始化一些 Flag</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">private void initViewGroup() &#123;</div><div class="line">    // ViewGroup doesn&apos;t draw by default</div><div class="line">    if (!debugDraw()) &#123;</div><div class="line">        setFlags(WILL_NOT_DRAW, DRAW_MASK);</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>而对于 <code>setFlags()</code> 方法,从源码中(篇幅太长不贴源码)可以看出,如果<strong>有 WILL_NOT_DRAW或者当前View没有背景</strong>,那么就会设置 <strong>PFLAG_SKIP_DRAW</strong>标志位,而这个标志位在 <code>draw(Canvas canvas, ViewGroup parent, long drawingTime) -&gt; ThreadedRenderer.updateRootDisplayList()  -&gt; ThreadedRenderer.updateViewTreeDisplayList() -&gt; View.updateDisplayListIfDirty()</code>方法中进行了判断</p>
+<blockquote>
+<p>所以可以看到,因为 <code>WILL_NOT_DRAW</code>标志位,所以ViewGroup 默认不执行 draw() 方法</p>
+</blockquote>
+<h3 id="setWillNotDraw"><a href="#setWillNotDraw" class="headerlink" title="setWillNotDraw"></a>setWillNotDraw</h3><p>View 还有一个重要的方法,来设置清除上面的标志位</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public void setWillNotDraw(boolean willNotDraw) &#123;  </div><div class="line">    setFlags(willNotDraw ? WILL_NOT_DRAW : 0, DRAW_MASK);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果我们想调用 ViewGroup 的 <code>draw(canvas)</code> 方法,我们得调用<code>setWillNotDraw(false)</code>来手动清除 <code>FALG</code>,以达到目的.</p>
+<h3 id="ViewGroup-onDraw"><a href="#ViewGroup-onDraw" class="headerlink" title="ViewGroup.onDraw()"></a>ViewGroup.onDraw()</h3><p>在 View 的 <code>draw</code> 方法中,有一个标志位,他来判断是否需要 onDraw()</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public void draw(Canvas canvas) &#123;</div><div class="line">    final int privateFlags = mPrivateFlags;</div><div class="line">    final boolean dirtyOpaque = (privateFlags &amp; PFLAG_DIRTY_MASK) == PFLAG_DIRTY_OPAQUE &amp;&amp;</div><div class="line">            (mAttachInfo == null || !mAttachInfo.mIgnoreDirtyState);</div><div class="line">    ...</div><div class="line">    //判断是否需要调用 onDraw</div><div class="line">    if (!dirtyOpaque) onDraw(canvas);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>所以说,有了没有即使 <code>draw()</code> 调用了,<code>onDraw()</code>也不一定执行,他必须满足 <code>dirtyOpaque = false</code> 也就是没有设置 <code>PFLAG_DIRTY_OPAQUE</code>,这个 flag 相关逻辑在<code>ViewGroup.invalidateChild()</code>中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">//这里的child表示直接调用invalidate的子View。</div><div class="line">public final void invalidateChild(View child, final Rect dirty) &#123;</div><div class="line">//计算子View是否是实心的</div><div class="line">final boolean isOpaque = child.isOpaque() &amp;&amp; !drawAnimation &amp;&amp; child.getAnimation() == null &amp;&amp; childMatrix.isIdentity();</div><div class="line">//PFLAG_DIRTY和PFLAG_DIRTY_OPAQUE是互斥的</div><div class="line">int opaqueFlag = isOpaque ? PFLAG_DIRTY_OPAQUE : PFLAG_DIRTY;</div><div class="line"></div><div class="line">do &#123; //循环遍历到ViewRootImpl为止</div><div class="line">    View view = null;//父View</div><div class="line">    if (parent instanceof View) &#123;</div><div class="line">        view = (View) parent;</div><div class="line">    &#125;</div><div class="line">    if (view != null) &#123; //给当前父View打上相应的flag</div><div class="line">        //父View若包含FADING_EDGE_MASK标识，那么只能打上FLAG_DIRTY标识，表示会调用ViewGroup.onDraw方法</div><div class="line">        if ((view.mViewFlags &amp; FADING_EDGE_MASK) != 0 &amp;&amp;</div><div class="line">                            view.getSolidColor() == 0) &#123;</div><div class="line">            opaqueFlag = PFLAG_DIRTY;</div><div class="line">        &#125;</div><div class="line">        if ((view.mPrivateFlags &amp; PFLAG_DIRTY_MASK) != PFLAG_DIRTY) &#123;</div><div class="line">            //PFLAG_DIRTY和PFLAG_DIRTY_OPAQUE是互斥的</div><div class="line">            view.mPrivateFlags = (view.mPrivateFlags &amp; ~PFLAG_DIRTY_MASK) | opaqueFlag;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>PFLAG_DIRTY和PFLAG_DIRTY_OPAQUE是互斥的</p>
+<p>可以看到, View.invalidate 会最终调用到<code>ViewRootImpl的方法</code>,若子View是实心的,<strong>会将父控件标记为 <code>PFLAG_DIRTY_OPAQUE</code></strong>,否则为<code>PFLAG_DIRTY</code>,对于<code>PFLAG_DIRTY_OPAQUE</code>的View,绘制过程中,<strong>会跳过 <code>drawBackgroud() 和onDraw()</code>方法</strong>(分析<code>draw(canvas)</code>说过)</p>
+<h4 id="computeOpaqueFlags"><a href="#computeOpaqueFlags" class="headerlink" title="computeOpaqueFlags()"></a>computeOpaqueFlags()</h4><p>决定一个View是否实心,取决于<code>child.isOpaque</code>,而这个方法实质是调用<code>computeOpaqueFlags()</code>计算</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"> protected void computeOpaqueFlags() &#123;</div><div class="line">    // Opaque if:</div><div class="line">    //   - Has a background</div><div class="line">    //   - Background is opaque</div><div class="line">    //   - Doesn&apos;t have scrollbars or scrollbars overlay</div><div class="line">    //若View包含背景，且背景是不透明的，则打上PFLAG_OPAQUE_BACKGROUND标识</div><div class="line">    if (mBackground != null &amp;&amp; mBackground.getOpacity() == PixelFormat.OPAQUE) &#123;</div><div class="line">        mPrivateFlags |= PFLAG_OPAQUE_BACKGROUND;</div><div class="line">    &#125; else &#123;</div><div class="line">        mPrivateFlags &amp;= ~PFLAG_OPAQUE_BACKGROUND;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    final int flags = mViewFlags;</div><div class="line">    //若没有横竖滚动条，或者滚动条是OVERLAY类型的，则打上PFLAG_OPAQUE_SCROLLBARS标识</div><div class="line">    if (((flags &amp; SCROLLBARS_VERTICAL) == 0 &amp;&amp; (flags &amp; SCROLLBARS_HORIZONTAL) == 0) ||</div><div class="line">                (flags &amp; SCROLLBARS_STYLE_MASK) == SCROLLBARS_INSIDE_OVERLAY ||</div><div class="line">                (flags &amp; SCROLLBARS_STYLE_MASK) == SCROLLBARS_OUTSIDE_OVERLAY) &#123;</div><div class="line">        mPrivateFlags |= PFLAG_OPAQUE_SCROLLBARS;</div><div class="line">    &#125; else &#123;</div><div class="line">        mPrivateFlags &amp;= ~PFLAG_OPAQUE_SCROLLBARS;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>ViewGroup 默认情况下(<code>initViewGroup()</code>)会被设置成<code>WILL_NOT_DRAW</code>,会在<code>setFlags()</code>设置了<code>SKIP_DRAW</code>.这样会导致在<code>draw(三个参数)</code>中跳过 <code>draw(canva)</code></li>
+<li>ViewGroup 调用了<code>draw(canvas)</code>还不一定执行<code>onDraw(canvas)</code>,因为会判断<code>PFLAG_DIRTY_OPAQUE</code>,<strong>没有设置这个标志位<code>onDraw</code>才会被调用</strong>. 对于这个 FLAG,是在<code>ViewGroup.invalidateChild()</code>中设置的(这个方法被调用的的实质是<strong>我们调用了 View.invalidate()</strong>),他会将他的<strong>父ViewGroup</strong>设置<code>PFLAG_DIRTY_OPAQUE</code>,这样父ViewGroup 在 invalidate 就不会重复绘制一次了.</li>
+<li>如果我们想调用 onDraw,可以通过以下方法<ul>
+<li>为 ViewGroup 设置背景色</li>
+<li>手动 <code>setWillNotDraw(false)</code>，去掉其<code>WILL_NOT_DRAW</code> flag。</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/29/Android-非UI线程能更新UI吗/" rel="next" title="Android 非UI线程能更新UI吗">
+                <i class="fa fa-chevron-left"></i> Android 非UI线程能更新UI吗
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/04/02/invalidate-requestLayout与ViewGroup-draw/"
+           data-title="invalidate,requestLayout与ViewGroup.draw()" data-url="http://mashell.cn/2018/04/02/invalidate-requestLayout与ViewGroup-draw/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
+               alt="mashell" />
+          <p class="site-author-name" itemprop="name">mashell</p>
+          <p class="site-description motion-element" itemprop="description">还有什么比不浪费时间更有意义的事呢？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#requestLayout"><span class="nav-number">1.</span> <span class="nav-text">requestLayout</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#measure"><span class="nav-number">1.1.</span> <span class="nav-text">measure()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#layout"><span class="nav-number">1.2.</span> <span class="nav-text">layout</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#invalidate"><span class="nav-number">2.</span> <span class="nav-text">invalidate</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-1"><span class="nav-number">2.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewGroup-draw"><span class="nav-number">3.</span> <span class="nav-text">ViewGroup.draw()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#setWillNotDraw"><span class="nav-number">3.1.</span> <span class="nav-text">setWillNotDraw</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewGroup-onDraw"><span class="nav-number">3.2.</span> <span class="nav-text">ViewGroup.onDraw()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#computeOpaqueFlags"><span class="nav-number">3.2.1.</span> <span class="nav-text">computeOpaqueFlags()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-2"><span class="nav-number">3.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mashell</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"mashell"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("F8tDrPhvnflgmUOz88q2X3v8-gzGzoHsz", "7G2z5hgOyivnxFAKfLDqhTfK");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>
