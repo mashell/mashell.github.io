@@ -242,7 +242,7 @@
               
                 
                 <a class="post-title-link" href="/2018/04/02/invalidate-requestLayout与ViewGroup-draw/" itemprop="url">
-                  invalidate,requestLayout与ViewGroup.draw()
+                  Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系
                 </a>
               
             
@@ -277,7 +277,7 @@
 
           
           
-             <span id="/2018/04/02/invalidate-requestLayout与ViewGroup-draw/" class="leancloud_visitors" data-flag-title="invalidate,requestLayout与ViewGroup.draw()">
+             <span id="/2018/04/02/invalidate-requestLayout与ViewGroup-draw/" class="leancloud_visitors" data-flag-title="Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -384,6 +384,10 @@
 <li>手动 <code>setWillNotDraw(false)</code>，去掉其<code>WILL_NOT_DRAW</code> flag。</li>
 </ul>
 </li>
+</ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a href="https://blog.csdn.net/litefish/article/details/52859300" target="_blank" rel="external">从源码看invalidate和requestLayout的区别</a></li>
+<li><a href="https://juejin.im/post/59dae74af265da065755092a" target="_blank" rel="external">你真的了解Android ViewGroup的draw和onDraw的调用时机吗</a></li>
 </ul>
 
           
@@ -1148,6 +1152,179 @@
             
               
                 
+                <a class="post-title-link" href="/2018/02/03/View-绘制流程/" itemprop="url">
+                  View 绘制流程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-02-03T15:48:24+08:00" content="2018-02-03">
+              2018-02-03
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/02/03/View-绘制流程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/02/03/View-绘制流程/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/02/03/View-绘制流程/" class="leancloud_visitors" data-flag-title="View 绘制流程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><code>View</code> 的绘制从 <code>ViewRoot</code> 的 <code>performTraversals</code> 方法开始，他经过 <code>measure，layout，draw</code> 三个过程才能将一个 View 绘制出</p>
+<ul>
+<li><p>对于 draw ,是 <code>performDraw()</code> 以后,他是调用 <code>draw(boolean)</code>,然后调用<code>ThreadedRender.draw(三个参数) -&gt; ThreadedRender.updateRootDisplayList() -&gt; ThreadedRender.updateViewTreeDisplayList() -&gt; View.updateDisplayListIfDirty()</code></p>
+</li>
+<li><p>在最后的<code>View.updateDisplayListIfDirty()</code>里,才会根据一些标志位(<code>PFLAG_DRAWING_CACHE_VALID , PFLAG_SKIP_DRAW</code>)来判断到底是直接执行我们的 <strong>View.draw(canvas)</strong> 绘制自身还是 <strong>View.dispatchDraw()</strong> 不绘制自身,直接分发事件</p>
+</li>
+</ul>
+<h4 id="针对-performTraversals大致流程如下"><a href="#针对-performTraversals大致流程如下" class="headerlink" title="针对 performTraversals大致流程如下."></a>针对 <code>performTraversals</code>大致流程如下.</h4><p><img src="https://ww3.sinaimg.cn/large/006tKfTcly1fd3x1rxbj3j30iv0c0dgr.jpg" alt=""></p>
+<p><code>performTraversals</code> 会依次调用<code>performMeasure, performLayout ,performDraw</code>。其中 <code>performMeasure</code> 会调用 <code>measure</code> 方法， <code>measure</code> 最终会调用 我们自定义的 <code>onMeasure</code>。当然，对于 ViewGroup 来说，onMeasure 就是对所有子元素调用 measure 的过程</p>
+<p>对于 layout 过程也是类似的。唯一不同的是 draw 方法，performDraw 传递过程是 draw 方法中通过 dispatchDraw 来实现的，但是本质是一样的。</p>
+<h2 id="ViewRoot"><a href="#ViewRoot" class="headerlink" title="ViewRoot"></a>ViewRoot</h2><p>ViewRoot 的实现类是 ViewRootImpl ,<strong>他是链接 WindowManager 和 DecorView 的纽带，View 的三大流程均是通过 ViewRoot 来完成的，</strong></p>
+<p>在 ActivityThread 中，当 Activity 对象创建完毕后，就会将 DecorView 添加到 Window 中，同时创建 ViewRootImpl,并且将 ViewRootImpl 与 DecorView 建立关联</p>
+<p><strong>在 setView 中,最终会调用到 <code>ViewRootImpl</code>的 performTravelsals(),他会依次调用<code>ViewRootImpl的</code> <code>performMeasure(),performLayout(),performDraw()</code>,这番个方法会依次向下遍历,最终完成整个View数的绘制</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">root = new ViewRootImpl(view.getContext(),display);</div><div class="line">root.setView(view,wparams,panelParentView);</div></pre></td></tr></table></figure>
+<h2 id="SpecMode-测量模式"><a href="#SpecMode-测量模式" class="headerlink" title="SpecMode 测量模式"></a>SpecMode 测量模式</h2><h3 id="EXACTLY"><a href="#EXACTLY" class="headerlink" title="EXACTLY"></a>EXACTLY</h3><p>父容器已检测出精确大小。</p>
+<blockquote>
+<p>对应于 <strong>match_parent</strong></p>
+</blockquote>
+<h3 id="AT-MOST"><a href="#AT-MOST" class="headerlink" title="AT_MOST"></a>AT_MOST</h3><p>父容器制定了可用大小 SpecSize，View 不能超过这个值。具体值要看 View 的具体实现，比如<code>TextView</code> 根据字数多少定义宽度</p>
+<blockquote>
+<p>对应于 <strong>wrap_content</strong></p>
+</blockquote>
+<h3 id="UNSPECIFIED"><a href="#UNSPECIFIED" class="headerlink" title="UNSPECIFIED"></a>UNSPECIFIED</h3><p>父容器不对 View 限制大小。一般用于系统内部，表示一种测量状态。</p>
+<h2 id="View-工作流程"><a href="#View-工作流程" class="headerlink" title="View 工作流程"></a>View 工作流程</h2><h3 id="measure-过程"><a href="#measure-过程" class="headerlink" title="measure 过程"></a>measure 过程</h3><p>measure 的作用是测量 View 的宽高</p>
+<p>如果是 子View，那么 measure 方法就完成了测量过程</p>
+<p>如果是 ViewGroup，除了测量自身，还需要<strong>遍历去调用所有子元素的 measure 方法</strong></p>
+<h4 id="onMeasure-方法"><a href="#onMeasure-方法" class="headerlink" title="onMeasure 方法"></a>onMeasure 方法</h4><h5 id="View-的-onMeasure"><a href="#View-的-onMeasure" class="headerlink" title="View 的 onMeasure"></a>View 的 onMeasure</h5><p>measure 方法会调用 onMeasure 方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) &#123;</div><div class="line">        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),</div><div class="line">                getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p><strong>setMeasureDimension 方法就会设置 View 的宽高测量值</strong></p>
+<p><code>getDesaultSize()</code>返回的大小就是 <code>measureSpec 中的 specSize</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">MeasureSpec.getSize(measureSpec)</div></pre></td></tr></table></figure>
+<blockquote>
+<p>需要注意，继承 View 的自定义控件需要重写 onMeasure 方法<strong>并且设置 wrap_content时候的自身大小</strong> 。</p>
+</blockquote>
+<p>因为从测量模式中得知，子View<code>wrap_content</code>模式下，他的 specMode 是 <code>AT_MOST</code>,这种情况下宽高都是 parentSize</p>
+<blockquote>
+<p>默认只有 <code>dp</code> 精确模式下，计算出的宽高才是 子View 的真实宽高</p>
+</blockquote>
+<h5 id="ViewGroup-的-onMeasure"><a href="#ViewGroup-的-onMeasure" class="headerlink" title="ViewGroup 的 onMeasure"></a>ViewGroup 的 onMeasure</h5><p>对于 ViewGroup 来说，除了完成自身的 measure 过程，还会遍历调用 子View 的 measure 方法，所以它提供了一个方法，让我们遍历调用子View</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">protected void measureChildren(int widthMeasureSpec, int heightMeasureSpec) &#123;</div><div class="line">        final int size = mChildrenCount;</div><div class="line">        final View[] children = mChildren;</div><div class="line">        for (int i = 0; i &lt; size; ++i) &#123;</div><div class="line">            final View child = children[i];</div><div class="line">            if ((child.mViewFlags &amp; VISIBILITY_MASK) != GONE) &#123;</div><div class="line">            //遍历子View，调用 measureChild</div><div class="line">                measureChild(child, widthMeasureSpec, heightMeasureSpec);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">--------------measureChild 方法------------</div><div class="line">protected void measureChild(View child, int parentWidthMeasureSpec,</div><div class="line">            int parentHeightMeasureSpec) &#123;</div><div class="line">        final LayoutParams lp = child.getLayoutParams();</div><div class="line"></div><div class="line">        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,</div><div class="line">                mPaddingLeft + mPaddingRight, lp.width);</div><div class="line">        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,</div><div class="line">                mPaddingTop + mPaddingBottom, lp.height);</div><div class="line">        //计算 childMeasureSpec ，然后调用 child 自身的 measure 方法</div><div class="line">        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<h3 id="layout-过程"><a href="#layout-过程" class="headerlink" title="layout 过程"></a>layout 过程</h3><h3 id="onLayout"><a href="#onLayout" class="headerlink" title="onLayout"></a>onLayout</h3><p>layout 的作用是 <code>ViewGroup</code> 确定 子View 的位置,当 ViewGroup 的位置被确定后，他在 <code>onLayout</code> 中会遍历所有子View并调用<code>layout</code>方法,子View 的 <code>layout</code>方法又会调用 <code>onLayout</code> 方法</p>
+<p><strong>自定义 ViewGroup 才需要重写 onLayout 方法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">public void layout(int l, int t, int r, int b) &#123;</div><div class="line">        ...</div><div class="line"></div><div class="line">        int oldL = mLeft;</div><div class="line">        int oldT = mTop;</div><div class="line">        int oldB = mBottom;</div><div class="line">        int oldR = mRight;</div><div class="line">        //通过 setFrame 判断是否需要 layout</div><div class="line">        boolean changed = isLayoutModeOptical(mParent) ?</div><div class="line">                setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);</div><div class="line"></div><div class="line">        if (changed || (mPrivateFlags &amp; PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) &#123;</div><div class="line">        //调用 onLayout 方法</div><div class="line">            onLayout(changed, l, t, r, b);</div><div class="line"></div><div class="line">            if (shouldDrawRoundScrollbar()) &#123;</div><div class="line">                if(mRoundScrollbarRenderer == null) &#123;</div><div class="line">                    mRoundScrollbarRenderer = new RoundScrollbarRenderer(this);</div><div class="line">                &#125;</div><div class="line">            &#125; else &#123;</div><div class="line">                mRoundScrollbarRenderer = null;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            mPrivateFlags &amp;= ~PFLAG_LAYOUT_REQUIRED;</div><div class="line"></div><div class="line">            ListenerInfo li = mListenerInfo;</div><div class="line">            if (li != null &amp;&amp; li.mOnLayoutChangeListeners != null) &#123;</div><div class="line">                ArrayList&lt;OnLayoutChangeListener&gt; listenersCopy =</div><div class="line">                        (ArrayList&lt;OnLayoutChangeListener&gt;)li.mOnLayoutChangeListeners.clone();</div><div class="line">                int numListeners = listenersCopy.size();</div><div class="line">                for (int i = 0; i &lt; numListeners; ++i) &#123;</div><div class="line">                    listenersCopy.get(i).onLayoutChange(this, l, t, r, b, oldL, oldT, oldR, oldB);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        mPrivateFlags &amp;= ~PFLAG_FORCE_LAYOUT;</div><div class="line">        mPrivateFlags3 |= PFLAG3_IS_LAID_OUT;</div><div class="line"></div><div class="line">        if ((mPrivateFlags3 &amp; PFLAG3_NOTIFY_AUTOFILL_ENTER_ON_LAYOUT) != 0) &#123;</div><div class="line">            mPrivateFlags3 &amp;= ~PFLAG3_NOTIFY_AUTOFILL_ENTER_ON_LAYOUT;</div><div class="line">            notifyEnterOrExitForAutoFillIfNeeded(true);</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>setFrame 用于判断布局大小是否变过，从而判断是否需要重绘.<strong>如果布局发生过变化,会调用 invalidate() 进而调用 draw()</strong></p>
+<p>onLayout 在 View 和 ViewGroup 中都没有实现，需要我们在自定义 ViewGroup 时自己实现对所有 子View 的 位置确定</p>
+<h2 id="draw"><a href="#draw" class="headerlink" title="draw"></a>draw</h2><p>前面分析我们知道,<code>performDraw()</code>经过几个步骤和几个类,才最终调用到<code>draw(canvas)</code></p>
+<p>draw 作用是将 View 绘制到屏幕上，draw 流程 遵守以下几个步骤</p>
+<ul>
+<li>绘制背景 <code>backgourd.draw(canvas)</code></li>
+<li>绘制自身 <code>onDraw</code></li>
+<li>绘制 children <code>dispatchDraw</code> ,这里与 <code>measure</code> 和 <code>layout</code> 不同，不需要手动遍历调用子View 相应方法</li>
+<li>绘制装饰，比如滚动条 <code>onDrawScrollBars</code></li>
+</ul>
+<p>该方法比较简单，就不再看源码了。View 的绘制过程传递是通过 <code>dispatchDraw</code> 来实现的，他会遍历调用所有 子View 的 <code>draw</code> 方法</p>
+<p><strong>以上就是 View 绘制流程的三个步骤</strong></p>
+<h2 id="Question"><a href="#Question" class="headerlink" title="Question"></a>Question</h2><h4 id="getHeight-与-getMeasureHeight-有什么区别"><a href="#getHeight-与-getMeasureHeight-有什么区别" class="headerlink" title="getHeight 与 getMeasureHeight 有什么区别"></a>getHeight 与 getMeasureHeight 有什么区别</h4><ul>
+<li><code>getMeasureHeight</code> 在 <code>measure</code> 结束就可获取了，而 <code>getHeight</code> 需要在 <code>layout</code> 结束才能获取</li>
+<li><code>getMeasureHeight</code> 是通过 <code>setMeasuredDimission</code> 传入的值获取的。而 <code>getHeight</code> 是通过 <code>下坐标 减去 上坐标</code> 获取的</li>
+<li>默认情况下两者相同，但是如果 <code>layout</code>的时候传入不恰当的值，那么就会导致获取到的值不相同</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">protected void onLayout(boolean changed, int l, int t, int r, int b) &#123;   </div><div class="line">    View childView = getChildAt(0);  </div><div class="line">    childView.layout(l, t, r+200, b+200);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样认为去修改错误的值，会导致最终的宽高总是多 200px</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>View的绘制流程,是从<code>ViewRootImpl</code>的<code>performTravelsals()</code>开始的,他会依次向下遍历,调用对应方法完成绘制.</p>
+<p>performTraversals()会调用<code>performMeasure,performLayout(),performDraw()</code>,在这些方法的内部会对应调用<code>measure(),layout(),draw()</code>,<strong>draw()稍微复杂点,会有 SKIP_DRAW等一些标志位的判断</strong>,最终会调用到我们重写的方法<code>onMeasure(),onLayout(),onDraw()</code></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/05/03/Binder-机制/" itemprop="url">
                   Binder 机制
                 </a>
@@ -1794,169 +1971,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/07/JVM学习笔记-二-垃圾回收/" itemprop="url">
-                  JVM学习笔记(二):垃圾回收
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-07T16:14:11+08:00" content="2017-04-07">
-              2017-04-07
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/04/07/JVM学习笔记-二-垃圾回收/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/07/JVM学习笔记-二-垃圾回收/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/07/JVM学习笔记-二-垃圾回收/" class="leancloud_visitors" data-flag-title="JVM学习笔记(二):垃圾回收">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="对象已死吗"><a href="#对象已死吗" class="headerlink" title="对象已死吗?"></a>对象已死吗?</h4><ul>
-<li>引用计数法:有引用就+1,但是两个对象互相持有引用的时候就没办法回收</li>
-<li>可达性分析:通过一系列 <strong>GC Root</strong>作为起始点,向下搜索,走过的路称为引用链,当一个对象到GC Root没有任何引用链时,就成为不可用的,什么可以当做 <code>GC Root</code>?<ul>
-<li>虚拟机栈中的引用对象</li>
-<li>方法区中静态属性引用的对象</li>
-<li>常量引用的对象</li>
-<li>JNI引用的对象</li>
-</ul>
-</li>
-</ul>
-<h4 id="对象生存还是死亡"><a href="#对象生存还是死亡" class="headerlink" title="对象生存还是死亡?"></a>对象生存还是死亡?</h4><ul>
-<li>当对象没有 GC Root 引用时,会被第一次标记,然后进行筛选,筛选的条件是对象有没有必要执行 <code>finalize()</code> 方法,对象没有覆盖<code>finalize()</code>方法或者已经调用过都算没有必要执行</li>
-<li>如果有必要执行,对象会被放置在 <code>F-Queue</code>队列中,然后被一个低优先级线程执行回收.</li>
-</ul>
-<h3 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h3><h4 id="标记-清除算法"><a href="#标记-清除算法" class="headerlink" title="标记-清除算法"></a>标记-清除算法</h4><p><strong>过程:</strong>标记处需要回收的对象,标记完成后统一回收.</p>
-<p><strong>缺点:</strong>效率低,空间碎片</p>
-<h4 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h4><p>复制算法是先将内存分为连个部分，一部分用来放入对象，而另一部分暂时不用，当使用的一部分内存要进行垃圾回收的时候会将不需要回收的对象复制保存在另一个空间中，然后再对使用过的那部分区域进行垃圾回收，这样虽然效率很高，但是很浪费空间，</p>
-<p>所以一般将新生代分为Eden空间和两个Survivor空间，其大小在HotSpot虚拟机中默认比例为8：1：1，这样在新生代中采用复制算法回收垃圾效率就很高了.</p>
-<p>具体回收过程是将<strong>Eden</strong>区域和<strong>From Survivor</strong>区域作为对象的存储空间，当要进行垃圾回收的时候先将这两个区域中不需要回收的对象复制保存在<strong>To Survivor</strong>区域中，然后再进行垃圾回收,两块 Survivo 交换作用。另外有一点是当一个对象在<strong>Eden</strong>区域和<strong>From Survivor</strong>区域中复制到<strong>To Survivo</strong>的时候发现内存不足，这时会进行内存 <code>分配担保</code></p>
-<h4 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记 - 整理算法"></a>标记 - 整理算法</h4><p>与 <strong>标记-清除</strong> 一样,只是后续步骤让所有存活对象都向一端移动,然后清除边界外的内存</p>
-<h4 id="分代算法"><a href="#分代算法" class="headerlink" title="分代算法"></a>分代算法</h4><p>java区分为新生代和老年代,</p>
-<ul>
-<li><p>新生代用 <strong>复制算法</strong>  </p>
-</li>
-<li><p>老年代用 <strong>标记-清除</strong>, <strong>标记-整理</strong></p>
-</li>
-</ul>
-<h3 id="内存分配与回收策略"><a href="#内存分配与回收策略" class="headerlink" title="内存分配与回收策略"></a>内存分配与回收策略</h3><ul>
-<li>对象优先在 Eden 区域分配, Eden 区域不够时,进行一次 <strong>Minor GC</strong>:时间短，频率高</li>
-<li>大对象直接进老年代,老年代内存不够进行 <strong>Full GC</strong>时间长，频率低</li>
-<li><p>长期存活的对象进入老年代(解释如下)</p>
-<ul>
-<li>关于对象的分配：对象优先在Eden区域分配，大对象会直接进入老年代，长期存活的对象会进入老年代，这里的长期存活是根据新生代中的对象年龄阈值来定义的，对象刚分配到新生代的时候年龄为1，每进行一次GC对象的年龄会加1，HotSpot中默认的阈值是15，也就是说对象年龄达到15岁的时候会被分配到老年区，这个值是可以通过参数配置的。</li>
-<li>如果相同年龄中所有对象大小总和大于 Survivo的一半,那么大于等于这个相同年龄的对象都进入老年代</li>
-</ul>
-</li>
-</ul>
-<h3 id="空间分配担保"><a href="#空间分配担保" class="headerlink" title="空间分配担保"></a>空间分配担保</h3><ul>
-<li><strong>Minor GC</strong> 前,虚拟机会检查老年代最大可连续用空间是否大于新生代所有对象空间,大于则 Minor GC是安全的</li>
-<li>如果不大于,那么看是否允许设置担保失败,允许话:检查<strong>老年代</strong>最大可以的连续空间是否大于历次晋级到老年代的对象的平均大小,大于则尝试 <strong>Minor GC</strong>,小于的话 <strong>Full GC</strong></li>
-</ul>
-<h3 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h3><ul>
-<li>Serial 收集器:(新生代)<strong>单线程</strong>收集器,垃圾回收时暂停其他所有工作线程<code>Stop the world</code></li>
-<li>ParNew 收集器:(新生代)<strong>多线程</strong>版本的 Serial,其他都一样</li>
-<li>Parallel Scavenge 收集器:(新生代)为了达到<strong>可控制的吞吐量</strong>,而不是缩短停顿时间</li>
-<li>Serial Old 收集器:(老年代) <strong>单线程</strong> Serial 收集器的老年代版本</li>
-<li>Parallel Old 收集器:(老年代) <strong>多线程</strong> 注重 <strong>吞吐量</strong></li>
-<li>CMS 收集器:以获取<strong>最短回收停顿时间</strong>为目标,采用 <strong>标记-清除</strong>算法<ul>
-<li>初始标记 -&gt; 并发表及 -&gt;  重新标记- &gt; 并发清楚</li>
-<li><strong>缺点</strong>:对CPU资源敏感 -&gt; 无法清除浮动垃圾- &gt; 标记-清除,产生空间碎片</li>
-</ul>
-</li>
-<li>G1 收集器:</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2002,7 +2016,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-count">19</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

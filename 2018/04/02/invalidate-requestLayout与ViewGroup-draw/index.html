@@ -89,16 +89,16 @@ requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requ
 
 123456789101112131415161718192021222324public void requestLayout() &amp;#123;        if (mMeasureCache != null) m">
 <meta property="og:type" content="article">
-<meta property="og:title" content="invalidate,requestLayout与ViewGroup.draw()">
+<meta property="og:title" content="Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系">
 <meta property="og:url" content="http://mashell.cn/2018/04/02/invalidate-requestLayout与ViewGroup-draw/index.html">
 <meta property="og:site_name" content="mashell">
 <meta property="og:description" content="requestLayout
 requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requestLayout
 
 123456789101112131415161718192021222324public void requestLayout() &amp;#123;        if (mMeasureCache != null) m">
-<meta property="og:updated_time" content="2018-04-16T07:34:10.000Z">
+<meta property="og:updated_time" content="2018-04-16T07:48:09.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="invalidate,requestLayout与ViewGroup.draw()">
+<meta name="twitter:title" content="Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系">
 <meta name="twitter:description" content="requestLayout
 requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requestLayout
 
@@ -126,7 +126,7 @@ requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requ
   <link rel="canonical" href="http://mashell.cn/2018/04/02/invalidate-requestLayout与ViewGroup-draw/"/>
 
 
-  <title> invalidate,requestLayout与ViewGroup.draw() | mashell </title>
+  <title> Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系 | mashell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -248,7 +248,7 @@ requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requ
             
             
               
-                invalidate,requestLayout与ViewGroup.draw()
+                Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系
               
             
           </h1>
@@ -282,7 +282,7 @@ requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requ
 
           
           
-             <span id="/2018/04/02/invalidate-requestLayout与ViewGroup-draw/" class="leancloud_visitors" data-flag-title="invalidate,requestLayout与ViewGroup.draw()">
+             <span id="/2018/04/02/invalidate-requestLayout与ViewGroup-draw/" class="leancloud_visitors" data-flag-title="Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -388,6 +388,10 @@ requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requ
 </ul>
 </li>
 </ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a href="https://blog.csdn.net/litefish/article/details/52859300" target="_blank" rel="external">从源码看invalidate和requestLayout的区别</a></li>
+<li><a href="https://juejin.im/post/59dae74af265da065755092a" target="_blank" rel="external">你真的了解Android ViewGroup的draw和onDraw的调用时机吗</a></li>
+</ul>
 
       
     </div>
@@ -446,7 +450,7 @@ requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requ
   <div class="comments" id="comments">
     
       <div class="ds-thread" data-thread-key="2018/04/02/invalidate-requestLayout与ViewGroup-draw/"
-           data-title="invalidate,requestLayout与ViewGroup.draw()" data-url="http://mashell.cn/2018/04/02/invalidate-requestLayout与ViewGroup-draw/">
+           data-title="Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系" data-url="http://mashell.cn/2018/04/02/invalidate-requestLayout与ViewGroup-draw/">
       </div>
     
   </div>
@@ -491,7 +495,7 @@ requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requ
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-count">19</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -530,7 +534,7 @@ requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requ
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#requestLayout"><span class="nav-number">1.</span> <span class="nav-text">requestLayout</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#measure"><span class="nav-number">1.1.</span> <span class="nav-text">measure()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#layout"><span class="nav-number">1.2.</span> <span class="nav-text">layout</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#invalidate"><span class="nav-number">2.</span> <span class="nav-text">invalidate</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-1"><span class="nav-number">2.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewGroup-draw"><span class="nav-number">3.</span> <span class="nav-text">ViewGroup.draw()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#setWillNotDraw"><span class="nav-number">3.1.</span> <span class="nav-text">setWillNotDraw</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewGroup-onDraw"><span class="nav-number">3.2.</span> <span class="nav-text">ViewGroup.onDraw()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#computeOpaqueFlags"><span class="nav-number">3.2.1.</span> <span class="nav-text">computeOpaqueFlags()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-2"><span class="nav-number">3.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#requestLayout"><span class="nav-number">1.</span> <span class="nav-text">requestLayout</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#measure"><span class="nav-number">1.1.</span> <span class="nav-text">measure()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#layout"><span class="nav-number">1.2.</span> <span class="nav-text">layout</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#invalidate"><span class="nav-number">2.</span> <span class="nav-text">invalidate</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-1"><span class="nav-number">2.1.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewGroup-draw"><span class="nav-number">3.</span> <span class="nav-text">ViewGroup.draw()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#setWillNotDraw"><span class="nav-number">3.1.</span> <span class="nav-text">setWillNotDraw</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewGroup-onDraw"><span class="nav-number">3.2.</span> <span class="nav-text">ViewGroup.onDraw()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#computeOpaqueFlags"><span class="nav-number">3.2.1.</span> <span class="nav-text">computeOpaqueFlags()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-2"><span class="nav-number">3.3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">3.4.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></div>
             
           </div>
         </section>

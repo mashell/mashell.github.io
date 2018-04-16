@@ -241,6 +241,169 @@
             
               
                 
+                <a class="post-title-link" href="/2017/04/07/JVM学习笔记-二-垃圾回收/" itemprop="url">
+                  JVM学习笔记(二):垃圾回收
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-04-07T16:14:11+08:00" content="2017-04-07">
+              2017-04-07
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/04/07/JVM学习笔记-二-垃圾回收/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/07/JVM学习笔记-二-垃圾回收/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/07/JVM学习笔记-二-垃圾回收/" class="leancloud_visitors" data-flag-title="JVM学习笔记(二):垃圾回收">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="对象已死吗"><a href="#对象已死吗" class="headerlink" title="对象已死吗?"></a>对象已死吗?</h4><ul>
+<li>引用计数法:有引用就+1,但是两个对象互相持有引用的时候就没办法回收</li>
+<li>可达性分析:通过一系列 <strong>GC Root</strong>作为起始点,向下搜索,走过的路称为引用链,当一个对象到GC Root没有任何引用链时,就成为不可用的,什么可以当做 <code>GC Root</code>?<ul>
+<li>虚拟机栈中的引用对象</li>
+<li>方法区中静态属性引用的对象</li>
+<li>常量引用的对象</li>
+<li>JNI引用的对象</li>
+</ul>
+</li>
+</ul>
+<h4 id="对象生存还是死亡"><a href="#对象生存还是死亡" class="headerlink" title="对象生存还是死亡?"></a>对象生存还是死亡?</h4><ul>
+<li>当对象没有 GC Root 引用时,会被第一次标记,然后进行筛选,筛选的条件是对象有没有必要执行 <code>finalize()</code> 方法,对象没有覆盖<code>finalize()</code>方法或者已经调用过都算没有必要执行</li>
+<li>如果有必要执行,对象会被放置在 <code>F-Queue</code>队列中,然后被一个低优先级线程执行回收.</li>
+</ul>
+<h3 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h3><h4 id="标记-清除算法"><a href="#标记-清除算法" class="headerlink" title="标记-清除算法"></a>标记-清除算法</h4><p><strong>过程:</strong>标记处需要回收的对象,标记完成后统一回收.</p>
+<p><strong>缺点:</strong>效率低,空间碎片</p>
+<h4 id="复制算法"><a href="#复制算法" class="headerlink" title="复制算法"></a>复制算法</h4><p>复制算法是先将内存分为连个部分，一部分用来放入对象，而另一部分暂时不用，当使用的一部分内存要进行垃圾回收的时候会将不需要回收的对象复制保存在另一个空间中，然后再对使用过的那部分区域进行垃圾回收，这样虽然效率很高，但是很浪费空间，</p>
+<p>所以一般将新生代分为Eden空间和两个Survivor空间，其大小在HotSpot虚拟机中默认比例为8：1：1，这样在新生代中采用复制算法回收垃圾效率就很高了.</p>
+<p>具体回收过程是将<strong>Eden</strong>区域和<strong>From Survivor</strong>区域作为对象的存储空间，当要进行垃圾回收的时候先将这两个区域中不需要回收的对象复制保存在<strong>To Survivor</strong>区域中，然后再进行垃圾回收,两块 Survivo 交换作用。另外有一点是当一个对象在<strong>Eden</strong>区域和<strong>From Survivor</strong>区域中复制到<strong>To Survivo</strong>的时候发现内存不足，这时会进行内存 <code>分配担保</code></p>
+<h4 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记 - 整理算法"></a>标记 - 整理算法</h4><p>与 <strong>标记-清除</strong> 一样,只是后续步骤让所有存活对象都向一端移动,然后清除边界外的内存</p>
+<h4 id="分代算法"><a href="#分代算法" class="headerlink" title="分代算法"></a>分代算法</h4><p>java区分为新生代和老年代,</p>
+<ul>
+<li><p>新生代用 <strong>复制算法</strong>  </p>
+</li>
+<li><p>老年代用 <strong>标记-清除</strong>, <strong>标记-整理</strong></p>
+</li>
+</ul>
+<h3 id="内存分配与回收策略"><a href="#内存分配与回收策略" class="headerlink" title="内存分配与回收策略"></a>内存分配与回收策略</h3><ul>
+<li>对象优先在 Eden 区域分配, Eden 区域不够时,进行一次 <strong>Minor GC</strong>:时间短，频率高</li>
+<li>大对象直接进老年代,老年代内存不够进行 <strong>Full GC</strong>时间长，频率低</li>
+<li><p>长期存活的对象进入老年代(解释如下)</p>
+<ul>
+<li>关于对象的分配：对象优先在Eden区域分配，大对象会直接进入老年代，长期存活的对象会进入老年代，这里的长期存活是根据新生代中的对象年龄阈值来定义的，对象刚分配到新生代的时候年龄为1，每进行一次GC对象的年龄会加1，HotSpot中默认的阈值是15，也就是说对象年龄达到15岁的时候会被分配到老年区，这个值是可以通过参数配置的。</li>
+<li>如果相同年龄中所有对象大小总和大于 Survivo的一半,那么大于等于这个相同年龄的对象都进入老年代</li>
+</ul>
+</li>
+</ul>
+<h3 id="空间分配担保"><a href="#空间分配担保" class="headerlink" title="空间分配担保"></a>空间分配担保</h3><ul>
+<li><strong>Minor GC</strong> 前,虚拟机会检查老年代最大可连续用空间是否大于新生代所有对象空间,大于则 Minor GC是安全的</li>
+<li>如果不大于,那么看是否允许设置担保失败,允许话:检查<strong>老年代</strong>最大可以的连续空间是否大于历次晋级到老年代的对象的平均大小,大于则尝试 <strong>Minor GC</strong>,小于的话 <strong>Full GC</strong></li>
+</ul>
+<h3 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h3><ul>
+<li>Serial 收集器:(新生代)<strong>单线程</strong>收集器,垃圾回收时暂停其他所有工作线程<code>Stop the world</code></li>
+<li>ParNew 收集器:(新生代)<strong>多线程</strong>版本的 Serial,其他都一样</li>
+<li>Parallel Scavenge 收集器:(新生代)为了达到<strong>可控制的吞吐量</strong>,而不是缩短停顿时间</li>
+<li>Serial Old 收集器:(老年代) <strong>单线程</strong> Serial 收集器的老年代版本</li>
+<li>Parallel Old 收集器:(老年代) <strong>多线程</strong> 注重 <strong>吞吐量</strong></li>
+<li>CMS 收集器:以获取<strong>最短回收停顿时间</strong>为目标,采用 <strong>标记-清除</strong>算法<ul>
+<li>初始标记 -&gt; 并发表及 -&gt;  重新标记- &gt; 并发清楚</li>
+<li><strong>缺点</strong>:对CPU资源敏感 -&gt; 无法清除浮动垃圾- &gt; 标记-清除,产生空间碎片</li>
+</ul>
+</li>
+<li>G1 收集器:</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/04/03/JVM学习笔记-一-内存分配/" itemprop="url">
                   JVM学习笔记(一):内存分配
                 </a>
@@ -1585,7 +1748,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-count">19</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
