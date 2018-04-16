@@ -96,7 +96,7 @@ requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requ
 requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requestLayout
 
 123456789101112131415161718192021222324public void requestLayout() &amp;#123;        if (mMeasureCache != null) m">
-<meta property="og:updated_time" content="2018-04-16T13:08:20.000Z">
+<meta property="og:updated_time" content="2018-04-16T13:09:59.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系">
 <meta name="twitter:description" content="requestLayout
@@ -386,7 +386,6 @@ requestLayout 会调用 ViewGroup 的 requestLayout,直到 ViewRootImpl 的 requ
 <li>如果我们想调用 onDraw,可以通过以下方法<ul>
 <li>为 ViewGroup 设置背景色</li>
 <li>手动 <code>setWillNotDraw(false)</code>，去掉其<code>WILL_NOT_DRAW</code> flag。</li>
-<li></li>
 </ul>
 </li>
 </ul>
