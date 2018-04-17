@@ -113,7 +113,9 @@ Socket
 
 Androi">
 <meta property="og:image" content="http://img.blog.csdn.net/20170107102830444">
-<meta property="og:updated_time" content="2018-01-03T15:08:33.000Z">
+<meta property="og:image" content="http://img1.ph.126.net/HA21vW_pLTJ2DpMW3obuOQ==/724235115176904253.png">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/944365-d3c78b193c3e8a38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/700">
+<meta property="og:updated_time" content="2018-04-17T10:43:49.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Binder 机制">
 <meta name="twitter:description" content="Binder 存在的意义?为什么要使用Binder进程隔离
@@ -384,12 +386,12 @@ Androi">
 <h3 id="Binder-模型大致通信过程"><a href="#Binder-模型大致通信过程" class="headerlink" title="Binder 模型大致通信过程"></a>Binder 模型大致通信过程</h3><ul>
 <li><p>在Android开机启动过程中，Android会初始化系统的各种Service，</p>
 </li>
-<li><p>Service向ServiceManager注册（即让ServiceManager管理）。(跨进程)</p>
+<li><p>将这些初始化的Service向ServiceManager注册（即让ServiceManager管理）。ServiceManager将Service名字和新建的引用填入查找表</p>
 </li>
-<li><p>客户端想要得到具体的Service直接向ServiceManager要即可。客户端首先向ServiceManager查询得到具体的Service引用，然后通过这个引用向具体的服务端发送请求，服务端执行完成后就返回。(跨进程)</p>
+<li><p>客户端想要得到具体的Service直接向ServiceManager要即可。客户端首先向ServiceManager查询得到具体的Service引用，然后通过这个引用向具体的服务端发送请求，服务端执行完成后就返回。<strong>返回了Binder代理类</strong></p>
 </li>
 </ul>
-<p>PS:Client向ServiceManager通信的过程也要跨进程通信.<br>从Client和Server的角度来看，ServiceManager永远都是一个Server，任何访问ServiceManager的都是Client。</p>
+<p><img src="http://img1.ph.126.net/HA21vW_pLTJ2DpMW3obuOQ==/724235115176904253.png" alt=""></p>
 <h3 id="Binder-驱动"><a href="#Binder-驱动" class="headerlink" title="Binder 驱动"></a>Binder 驱动</h3><p>Binder 驱动是一段运行在内核空间的代码,他是 Binder 机制的核心,负责 Binder 节点的建立和进程间信息的传递.通过 <code>&quot;/dev/binder&quot;</code>的文件在内核空间和用户空间来回搬动数据. <code>Linux inctl</code> 函数实现了从用户空间转移到内核空间的功能.</p>
 <h3 id="ServiceManager"><a href="#ServiceManager" class="headerlink" title="ServiceManager"></a>ServiceManager</h3><p>ServiceManager提供了注册,检索服务的功能.所有的服务由 ServiceManager 统一管理.<br>他做了三件事</p>
 <ol>
@@ -406,18 +408,23 @@ Androi">
 <h3 id="客户端调用服务"><a href="#客户端调用服务" class="headerlink" title="客户端调用服务"></a>客户端调用服务</h3><ol>
 <li>客户端想调用某个服务,把<code>服务名+句柄0的值</code>封装成数据报发送给 <code>Binder 驱动</code></li>
 <li><code>Binder驱动接收到句柄0</code>,把数据包发给 <code>ServiceManager</code></li>
-<li><code>ServiceManager</code>接收到数据包后,找到对应服务,将服务的结果发给 <code>Binder驱动</code>,再发给客户端</li>
+<li><code>ServiceManager</code>接收到数据包后,找到对应服务,将服务的局并发给 <code>Binder驱动</code>,再发给服务端</li>
 <li>客户端收到句柄后,利用句柄在本地创建 <code>远程Server的代理对象</code></li>
 <li>客户端调用这个服务,会加上<code>参数,标志服</code>等数据放入 <code>Client的共享内存</code>,Binder驱动根据数据找到 <code>Server 的共享内存</code>,<strong>把数据拷贝到内核空间,并且映射到远程服务进程中,执行 onTrasact() 函数</strong></li>
 <li>远程服务执行完后将结果写入自己的共享内存,<strong>Binder驱动再将数据结果拷贝到内核空间,映射到用户端进程中,唤醒客户端线程</strong></li>
 </ol>
-<h3 id="Binder-如何实现拷贝一次"><a href="#Binder-如何实现拷贝一次" class="headerlink" title="Binder 如何实现拷贝一次"></a>Binder 如何实现拷贝一次</h3><p>Linux 内核只有 用户空间拷贝到内核空间 <code>copy_from_user</code> 和内核空间到用户空间 <code>copy_to_user</code> ,为了实现 用户到用户 的拷贝. <code>mmap()</code>分配的内存除了映射到接收方进程(接收方可以使 Server 也可以是 Client),还映射到内核空间,所以 <code>copy_from_user</code>时,将数据拷贝到内核空间也相当于拷贝到了接收方的用户空间,这就是拷贝一次的原因.</p>
+<h3 id="Binder-如何实现拷贝一次-mmap-内存映射"><a href="#Binder-如何实现拷贝一次-mmap-内存映射" class="headerlink" title="Binder 如何实现拷贝一次,mmap()内存映射"></a>Binder 如何实现拷贝一次,mmap()内存映射</h3><p>Linux 内核只有 用户空间拷贝到内核空间 <code>copy_from_user</code> 和内核空间到用户空间 <code>copy_to_user</code>.</p>
+<p>为了实现一次拷贝.Binder利用<code>mmap()</code>实现<code>内核缓存区</code>与<code>接收进程用户空间</code>(接收方可以使 Server 也可以是 Client)<strong>同时映射到同一个共享接收缓存区中</strong>,这样当发送方<code>copy_from_user()</code>发送数据到内核缓存区时,由于<code>内核缓存区Binder创建的接收缓存区&amp;&amp;接收方用户空间地址存在映射关系</code>,所以也相当于发送到了接收进程的用户空间.达到跨进程通信</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/944365-d3c78b193c3e8a38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/700" alt=""></p>
 <h3 id="IBinder-IInterface-Binder-BinderProxy-Stub-代表什么"><a href="#IBinder-IInterface-Binder-BinderProxy-Stub-代表什么" class="headerlink" title="IBinder IInterface Binder BinderProxy Stub 代表什么"></a>IBinder IInterface Binder BinderProxy Stub 代表什么</h3><ul>
 <li><strong>IBinder</strong> 表示跨进程传输的能力</li>
 <li><strong>IInterface</strong> 代表远程服务具体有那种能力 (IRemote 继承自 IInterface)</li>
 <li><strong>Binder</strong> Binder 本地对象. </li>
 <li><strong>BinderProxy</strong> 远程 Binder 的代理对象,与Binder类在同一个类文件中 (文章错误)</li>
-<li><strong>Stub</strong> Binder 本地对象,需要我们具体去实现</li>
+<li><p><strong>Stub</strong> Binder 本地对象抽象类,需要我们具体去实现</p>
+</li>
+<li><p>IActivityManager 就是一个 <code>IInterface</code>,代表远程Service具有的能力,<code>ActivityManager.getDefault()</code>是Binder本地对象,具体实现是<code>ActivityManagerService</code>,对于<code>Binder</code>代理类,就是<code>ActivityThread</code>的<code>ApplicationThread</code></p>
+</li>
 </ul>
 
       
@@ -565,7 +572,7 @@ Androi">
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-存在的意义-为什么要使用Binder"><span class="nav-number">1.</span> <span class="nav-text">Binder 存在的意义?为什么要使用Binder</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#进程隔离"><span class="nav-number">1.1.</span> <span class="nav-text">进程隔离</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#跨进程方式"><span class="nav-number">1.2.</span> <span class="nav-text">跨进程方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-使用"><span class="nav-number">2.</span> <span class="nav-text">Binder 使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo-演示"><span class="nav-number">3.</span> <span class="nav-text">Demo 演示</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Server-端"><span class="nav-number">3.1.</span> <span class="nav-text">Server 端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Client-端"><span class="nav-number">3.2.</span> <span class="nav-text">Client 端</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原理分析"><span class="nav-number">4.</span> <span class="nav-text">原理分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#asInterface"><span class="nav-number">4.1.</span> <span class="nav-text">asInterface()</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#asInterface-拿到-IBinder-对象-让我们来分析一下这个方法"><span class="nav-number">4.1.1.</span> <span class="nav-text">asInterface() 拿到 IBinder 对象,让我们来分析一下这个方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#queryLocalInterface"><span class="nav-number">4.1.2.</span> <span class="nav-text">queryLocalInterface()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#onTransact"><span class="nav-number">4.1.3.</span> <span class="nav-text">onTransact()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-通信模型"><span class="nav-number">5.</span> <span class="nav-text">Binder 通信模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-模型大致通信过程"><span class="nav-number">6.</span> <span class="nav-text">Binder 模型大致通信过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-驱动"><span class="nav-number">7.</span> <span class="nav-text">Binder 驱动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ServiceManager"><span class="nav-number">8.</span> <span class="nav-text">ServiceManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务注册"><span class="nav-number">9.</span> <span class="nav-text">服务注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端调用服务"><span class="nav-number">10.</span> <span class="nav-text">客户端调用服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-如何实现拷贝一次"><span class="nav-number">11.</span> <span class="nav-text">Binder 如何实现拷贝一次</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IBinder-IInterface-Binder-BinderProxy-Stub-代表什么"><span class="nav-number">12.</span> <span class="nav-text">IBinder IInterface Binder BinderProxy Stub 代表什么</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-存在的意义-为什么要使用Binder"><span class="nav-number">1.</span> <span class="nav-text">Binder 存在的意义?为什么要使用Binder</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#进程隔离"><span class="nav-number">1.1.</span> <span class="nav-text">进程隔离</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#跨进程方式"><span class="nav-number">1.2.</span> <span class="nav-text">跨进程方式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-使用"><span class="nav-number">2.</span> <span class="nav-text">Binder 使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo-演示"><span class="nav-number">3.</span> <span class="nav-text">Demo 演示</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Server-端"><span class="nav-number">3.1.</span> <span class="nav-text">Server 端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Client-端"><span class="nav-number">3.2.</span> <span class="nav-text">Client 端</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原理分析"><span class="nav-number">4.</span> <span class="nav-text">原理分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#asInterface"><span class="nav-number">4.1.</span> <span class="nav-text">asInterface()</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#asInterface-拿到-IBinder-对象-让我们来分析一下这个方法"><span class="nav-number">4.1.1.</span> <span class="nav-text">asInterface() 拿到 IBinder 对象,让我们来分析一下这个方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#queryLocalInterface"><span class="nav-number">4.1.2.</span> <span class="nav-text">queryLocalInterface()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#onTransact"><span class="nav-number">4.1.3.</span> <span class="nav-text">onTransact()</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-通信模型"><span class="nav-number">5.</span> <span class="nav-text">Binder 通信模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-模型大致通信过程"><span class="nav-number">6.</span> <span class="nav-text">Binder 模型大致通信过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-驱动"><span class="nav-number">7.</span> <span class="nav-text">Binder 驱动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ServiceManager"><span class="nav-number">8.</span> <span class="nav-text">ServiceManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务注册"><span class="nav-number">9.</span> <span class="nav-text">服务注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端调用服务"><span class="nav-number">10.</span> <span class="nav-text">客户端调用服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder-如何实现拷贝一次-mmap-内存映射"><span class="nav-number">11.</span> <span class="nav-text">Binder 如何实现拷贝一次,mmap()内存映射</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IBinder-IInterface-Binder-BinderProxy-Stub-代表什么"><span class="nav-number">12.</span> <span class="nav-text">IBinder IInterface Binder BinderProxy Stub 代表什么</span></a></li></ol></div>
             
           </div>
         </section>
