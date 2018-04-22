@@ -1,0 +1,724 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="基本使用12345LinkedList&amp;lt;String&amp;gt; list = new LinkedList&amp;lt;String&amp;gt;();//添加操作list.add(&amp;quot;语文&amp;quot;);//删除操作liost.remove(&amp;quot;语文&amp;quot;)/remove(1);
+成员属性分析1234transient Node&amp;lt;E&amp;gt; first;transient N">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LinedList 源码分析">
+<meta property="og:url" content="http://mashell.cn/2018/06/15/LinedList-源码分析/index.html">
+<meta property="og:site_name" content="mashell">
+<meta property="og:description" content="基本使用12345LinkedList&amp;lt;String&amp;gt; list = new LinkedList&amp;lt;String&amp;gt;();//添加操作list.add(&amp;quot;语文&amp;quot;);//删除操作liost.remove(&amp;quot;语文&amp;quot;)/remove(1);
+成员属性分析1234transient Node&amp;lt;E&amp;gt; first;transient N">
+<meta property="og:updated_time" content="2018-04-22T12:36:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LinedList 源码分析">
+<meta name="twitter:description" content="基本使用12345LinkedList&amp;lt;String&amp;gt; list = new LinkedList&amp;lt;String&amp;gt;();//添加操作list.add(&amp;quot;语文&amp;quot;);//删除操作liost.remove(&amp;quot;语文&amp;quot;)/remove(1);
+成员属性分析1234transient Node&amp;lt;E&amp;gt; first;transient N">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://mashell.cn/2018/06/15/LinedList-源码分析/"/>
+
+
+  <title> LinedList 源码分析 | mashell </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">mashell</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">你热爱生命吗？那别浪费时间</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="http://mashell.cn/resume/" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                LinedList 源码分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-06-15T21:32:13+08:00" content="2018-06-15">
+              2018-06-15
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/06/15/LinedList-源码分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/06/15/LinedList-源码分析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/06/15/LinedList-源码分析/" class="leancloud_visitors" data-flag-title="LinedList 源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">LinkedList&lt;String&gt; list = new LinkedList&lt;String&gt;();</div><div class="line">//添加操作</div><div class="line">list.add(&quot;语文&quot;);</div><div class="line">//删除操作</div><div class="line">liost.remove(&quot;语文&quot;)/remove(1);</div></pre></td></tr></table></figure>
+<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">transient Node&lt;E&gt; first;</div><div class="line">transient Node&lt;E&gt; last;</div><div class="line">//用于保存链表长度</div><div class="line">int size;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"> private static class Node&lt;E&gt; &#123;</div><div class="line">    E item;</div><div class="line">    Node&lt;E&gt; next;</div><div class="line">    Node&lt;E&gt; prev;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,LinkedList保存了<code>链表首,尾指针</code>,它内部存的是 Node 节点,保存了<code>前后两个节点的指针</code> ,实现了双向链表</p>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public LinkedList() &#123;&#125;</div></pre></td></tr></table></figure>
+<p>默认情况是空队列</p>
+<h3 id="add-方法"><a href="#add-方法" class="headerlink" title="add() 方法"></a>add() 方法</h3><p>用于向集合内添加元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public boolean add(E e) &#123;</div><div class="line">    //添加默认添加到队尾,FIFO</div><div class="line">    linkLast(e);</div><div class="line">    return true;</div><div class="line">&#125;</div><div class="line"></div><div class="line">-----------------linkLast--------------</div><div class="line">void linkLast(E e) &#123;</div><div class="line">    //拿到链表尾指针</div><div class="line">    final Node&lt;E&gt; l = last;</div><div class="line">    //利用 E 创建指针</div><div class="line">    final Node&lt;E&gt; newNode = new Node&lt;&gt;(l, e, null);</div><div class="line">    //修改 last 指针的指向</div><div class="line">    last = newNode;</div><div class="line">    //如果是空链表,那么该节点直接成为 链表头节点</div><div class="line">    if (l == null)</div><div class="line">        first = newNode;</div><div class="line">    else</div><div class="line">    //连接(插)入创建的新指针</div><div class="line">        l.next = newNode;</div><div class="line">    //更新链表长度</div><div class="line">    size++;</div><div class="line">    modCount++;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,添加元素会添加到队列末尾,以此满足<code>FIFO</code></p>
+<h3 id="get-set-方法"><a href="#get-set-方法" class="headerlink" title="get() set()方法"></a>get() set()方法</h3><p>两个方法分别用于获取元素和修改元素值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">public E get(int index) &#123;</div><div class="line">    //检查坐标</div><div class="line">    checkElementIndex(index);</div><div class="line">    //返回node节点的值</div><div class="line">    return node(index).item;</div><div class="line">&#125;</div><div class="line"></div><div class="line">---------------node(index)----------------</div><div class="line"></div><div class="line">Node&lt;E&gt; node(int index) &#123;</div><div class="line">    //size &gt;&gt;1, size的一半,前半段遍历查找</div><div class="line">    if (index &lt; (size &gt;&gt; 1)) &#123;</div><div class="line">        Node&lt;E&gt; x = first;</div><div class="line">        for (int i = 0; i &lt; index; i++)</div><div class="line">            x = x.next;</div><div class="line">        return x;</div><div class="line">    &#125; else &#123;</div><div class="line">    //后半段遍历查找</div><div class="line">        Node&lt;E&gt; x = last;</div><div class="line">        for (int i = size - 1; i &gt; index; i--)</div><div class="line">            x = x.prev;</div><div class="line">        return x;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">--------------set()--------------------</div><div class="line"></div><div class="line">public E set(int index, E element) &#123;</div><div class="line">    //检查坐标</div><div class="line">    checkElementIndex(index);</div><div class="line">    //获取 node 节点</div><div class="line">    Node&lt;E&gt; x = node(index);</div><div class="line">    E oldVal = x.item;</div><div class="line">    //更新 node 节点值</div><div class="line">    x.item = element;</div><div class="line">    return oldVal;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,LinkedList查找,首先判断 index 是在链表的前半段还是后半段,然后在响应区间范围遍历查找,时间复杂度<code>o(n/2)</code></p>
+<h3 id="remove-方法"><a href="#remove-方法" class="headerlink" title="remove() 方法"></a>remove() 方法</h3><p>remove 用于删除元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">E unlink(Node&lt;E&gt; x) &#123;</div><div class="line">    // assert x != null;</div><div class="line">    final E element = x.item;</div><div class="line">    final Node&lt;E&gt; next = x.next;</div><div class="line">    final Node&lt;E&gt; prev = x.prev;</div><div class="line">    //双向链表操作</div><div class="line">    //如果就是头结点,直接将头结点指向 next</div><div class="line">    if (prev == null) &#123;</div><div class="line">        first = next;</div><div class="line">    &#125; else &#123;</div><div class="line">    //将 preNode 指向 当前节点的下一个节点</div><div class="line">        prev.next = next;</div><div class="line">        x.prev = null;</div><div class="line">    &#125;</div><div class="line">    //如果是尾节点,直接将尾节点指向 preNode</div><div class="line">    if (next == null) &#123;</div><div class="line">        last = prev;</div><div class="line">    &#125; else &#123;</div><div class="line">    //将下一个节点的 pre 指向当前节点的pre</div><div class="line">        next.prev = prev;</div><div class="line">        x.next = null;</div><div class="line">    &#125;</div><div class="line">    //置null,方便回收</div><div class="line">    x.item = null;</div><div class="line">    size--;</div><div class="line">    modCount++;</div><div class="line">    return element;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>remove函数比较简单,就是基本的双向链表移除元素操作</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/02/ArrayList-源码分析/" rel="next" title="ArrayList 源码分析">
+                <i class="fa fa-chevron-left"></i> ArrayList 源码分析
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/23/HashMap-源码分析/" rel="prev" title="HashMap 源码分析">
+                HashMap 源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/06/15/LinedList-源码分析/"
+           data-title="LinedList 源码分析" data-url="http://mashell.cn/2018/06/15/LinedList-源码分析/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
+               alt="mashell" />
+          <p class="site-author-name" itemprop="name">mashell</p>
+          <p class="site-description motion-element" itemprop="description">还有什么比不浪费时间更有意义的事呢？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">24</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本使用"><span class="nav-number">1.</span> <span class="nav-text">基本使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成员属性分析"><span class="nav-number">2.</span> <span class="nav-text">成员属性分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造函数"><span class="nav-number">3.</span> <span class="nav-text">构造函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#add-方法"><span class="nav-number">4.</span> <span class="nav-text">add() 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get-set-方法"><span class="nav-number">5.</span> <span class="nav-text">get() set()方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#remove-方法"><span class="nav-number">6.</span> <span class="nav-text">remove() 方法</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mashell</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"mashell"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("F8tDrPhvnflgmUOz88q2X3v8-gzGzoHsz", "7G2z5hgOyivnxFAKfLDqhTfK");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>

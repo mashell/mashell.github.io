@@ -1,0 +1,719 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="使用123456LinkedHashMap&amp;lt;String, Integer&amp;gt; lmap = new LinkedHashMap&amp;lt;String, Integer&amp;gt;();lmap.put(&amp;quot;语文&amp;quot;, 1);lmap.put(&amp;quot;数学&amp;quot;, 2);for(Entry&amp;lt;String, Integer&amp;gt; entry : lmap.ent">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LinkedHashMap 源码分析">
+<meta property="og:url" content="http://mashell.cn/2018/07/06/LinkedHashMap-源码分析/index.html">
+<meta property="og:site_name" content="mashell">
+<meta property="og:description" content="使用123456LinkedHashMap&amp;lt;String, Integer&amp;gt; lmap = new LinkedHashMap&amp;lt;String, Integer&amp;gt;();lmap.put(&amp;quot;语文&amp;quot;, 1);lmap.put(&amp;quot;数学&amp;quot;, 2);for(Entry&amp;lt;String, Integer&amp;gt; entry : lmap.ent">
+<meta property="og:updated_time" content="2018-04-22T12:36:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LinkedHashMap 源码分析">
+<meta name="twitter:description" content="使用123456LinkedHashMap&amp;lt;String, Integer&amp;gt; lmap = new LinkedHashMap&amp;lt;String, Integer&amp;gt;();lmap.put(&amp;quot;语文&amp;quot;, 1);lmap.put(&amp;quot;数学&amp;quot;, 2);for(Entry&amp;lt;String, Integer&amp;gt; entry : lmap.ent">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://mashell.cn/2018/07/06/LinkedHashMap-源码分析/"/>
+
+
+  <title> LinkedHashMap 源码分析 | mashell </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">mashell</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">你热爱生命吗？那别浪费时间</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="http://mashell.cn/resume/" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                LinkedHashMap 源码分析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-07-06T20:32:13+08:00" content="2018-07-06">
+              2018-07-06
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/07/06/LinkedHashMap-源码分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/07/06/LinkedHashMap-源码分析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/07/06/LinkedHashMap-源码分析/" class="leancloud_visitors" data-flag-title="LinkedHashMap 源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">LinkedHashMap&lt;String, Integer&gt; lmap = new LinkedHashMap&lt;String, Integer&gt;();</div><div class="line">lmap.put(&quot;语文&quot;, 1);</div><div class="line">lmap.put(&quot;数学&quot;, 2);</div><div class="line">for(Entry&lt;String, Integer&gt; entry : lmap.entrySet()) &#123;</div><div class="line">    System.out.println(entry.getKey() + &quot;: &quot; + entry.getValue());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>LinkedHashMap 继承自 HashMap</p>
+<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">//头结点</div><div class="line">transient LinkedHashMap.Entry&lt;K,V&gt; head;</div><div class="line">//尾节点</div><div class="line">transient LinkedHashMap.Entry&lt;K,V&gt; tail;</div><div class="line">//true表示实现FIFO的顺序排列元素,false表示按照插入顺序排列元素</div><div class="line">final boolean accessOrder;</div></pre></td></tr></table></figure>
+<p>LinkedHashMap 保存了头尾节点,内部实现是<strong>双链表</strong></p>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">public LinkedHashMap() &#123;</div><div class="line">    super();</div><div class="line">    accessOrder = false;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="三个重要的函数"><a href="#三个重要的函数" class="headerlink" title="三个重要的函数"></a>三个重要的函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">void afterNodeAccess(Node&lt;K,V&gt; p) &#123; &#125;</div><div class="line">void afterNodeInsertion(boolean evict) &#123; &#125;</div><div class="line">void afterNodeRemoval(Node&lt;K,V&gt; p) &#123; &#125;</div></pre></td></tr></table></figure>
+<h4 id="afterNodeAccess函数"><a href="#afterNodeAccess函数" class="headerlink" title="afterNodeAccess函数"></a>afterNodeAccess函数</h4><p>访问链表节点后的操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">void afterNodeAccess(Node&lt;K,V&gt; e) &#123; </div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; last;</div><div class="line">    if (accessOrder &amp;&amp; (last = tail) != e) &#123;</div><div class="line">    //p作为指针,b为p的前指针,a为p的后指针</div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</div><div class="line">            (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</div><div class="line">        //p的后节点置null</div><div class="line">        p.after = null;</div><div class="line">        if (b == null)</div><div class="line">            head = a;</div><div class="line">        else</div><div class="line">        //设置 before 的后节点,为了移除 p</div><div class="line">            b.after = a;</div><div class="line">        if (a != null)</div><div class="line">        //设置 after 的前节点,为了移除 p</div><div class="line">            a.before = b;</div><div class="line">        else</div><div class="line">            last = b;</div><div class="line">        //空链表,那么 p 就是头结点</div><div class="line">        if (last == null)</div><div class="line">            head = p;</div><div class="line">        else &#123;</div><div class="line">        //将移除的P节点,移动到链表尾部</div><div class="line">            p.before = last;</div><div class="line">            last.after = p;</div><div class="line">        &#125;</div><div class="line">        tail = p;</div><div class="line">        ++modCount;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到,这个函数就是为了访问元素后,将元素移动到链表尾部,保证 FIFO</p>
+<h4 id="afterNodeInsertion函数"><a href="#afterNodeInsertion函数" class="headerlink" title="afterNodeInsertion函数"></a>afterNodeInsertion函数</h4><p>节点插入后的操作,可能会因为超过容量而移除最早最少使用的元素<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">void afterNodeInsertion(boolean evict) &#123; </div><div class="line">    LinkedHashMap.Entry&lt;K,V&gt; first;</div><div class="line">    if (evict &amp;&amp; (first = head) != null &amp;&amp; removeEldestEntry(first)) &#123;</div><div class="line">        K key = first.key;</div><div class="line">        //移除第一个元素,也就是最近最少使用的元素</div><div class="line">        removeNode(hash(key), key, null, false, true);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="afterNodeRemoval函数"><a href="#afterNodeRemoval函数" class="headerlink" title="afterNodeRemoval函数"></a>afterNodeRemoval函数</h4><p>用于移除节点操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">void afterNodeRemoval(Node&lt;K,V&gt; e) &#123; // unlink</div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</div><div class="line">        (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</div><div class="line">    p.before = p.after = null;</div><div class="line">    if (b == null)</div><div class="line">        head = a;</div><div class="line">    else</div><div class="line">        b.after = a;</div><div class="line">    if (a == null)</div><div class="line">        tail = b;</div><div class="line">    else</div><div class="line">        a.before = b;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="以上三个函数就是为了保证链表始终保持最近最少使用的规则"><a href="#以上三个函数就是为了保证链表始终保持最近最少使用的规则" class="headerlink" title="以上三个函数就是为了保证链表始终保持最近最少使用的规则"></a>以上三个函数就是为了保证链表始终保持最近最少使用的规则</h4><h3 id="put-函数"><a href="#put-函数" class="headerlink" title="put()函数"></a>put()函数</h3><p>put函数在LinkedHashMap中未重新实现，只是实现了afterNodeAccess和afterNodeInsertion两个回调函数。</p>
+<p>对于<code>LinkedHashMap</code>的put(),每次操作都会调用<code>afterNodeAccess()</code>,这样就将节点插入到双链表了.</p>
+<h3 id="get-函数"><a href="#get-函数" class="headerlink" title="get()函数"></a>get()函数</h3><p>get()则重新实现了,在函数中加入了 <code>accessOrder</code> 来保证访问顺序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public V get(Object key) &#123;</div><div class="line">    Node&lt;K,V&gt; e;</div><div class="line">    if ((e = getNode(hash(key), key)) == null)</div><div class="line">        return null;</div><div class="line">    //如果是需要按照访问的顺序排序</div><div class="line">    if (accessOrder)</div><div class="line">    //回调这个方法,实现是将元素放在最后面</div><div class="line">        afterNodeAccess(e);</div><div class="line">    return e.value;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/23/HashMap-源码分析/" rel="next" title="HashMap 源码分析">
+                <i class="fa fa-chevron-left"></i> HashMap 源码分析
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/18/ConcurrentHashMap-源码分析/" rel="prev" title="ConcurrentHashMap 源码分析">
+                ConcurrentHashMap 源码分析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/07/06/LinkedHashMap-源码分析/"
+           data-title="LinkedHashMap 源码分析" data-url="http://mashell.cn/2018/07/06/LinkedHashMap-源码分析/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
+               alt="mashell" />
+          <p class="site-author-name" itemprop="name">mashell</p>
+          <p class="site-description motion-element" itemprop="description">还有什么比不浪费时间更有意义的事呢？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">24</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">1.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成员属性分析"><span class="nav-number">2.</span> <span class="nav-text">成员属性分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造函数"><span class="nav-number">3.</span> <span class="nav-text">构造函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三个重要的函数"><span class="nav-number">4.</span> <span class="nav-text">三个重要的函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#afterNodeAccess函数"><span class="nav-number">4.1.</span> <span class="nav-text">afterNodeAccess函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afterNodeInsertion函数"><span class="nav-number">4.2.</span> <span class="nav-text">afterNodeInsertion函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#afterNodeRemoval函数"><span class="nav-number">4.3.</span> <span class="nav-text">afterNodeRemoval函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#以上三个函数就是为了保证链表始终保持最近最少使用的规则"><span class="nav-number">4.4.</span> <span class="nav-text">以上三个函数就是为了保证链表始终保持最近最少使用的规则</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#put-函数"><span class="nav-number">5.</span> <span class="nav-text">put()函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get-函数"><span class="nav-number">6.</span> <span class="nav-text">get()函数</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mashell</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"mashell"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("F8tDrPhvnflgmUOz88q2X3v8-gzGzoHsz", "7G2z5hgOyivnxFAKfLDqhTfK");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>

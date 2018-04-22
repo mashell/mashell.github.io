@@ -241,6 +241,731 @@
             
               
                 
+                <a class="post-title-link" href="/2018/07/18/ConcurrentHashMap-源码分析/" itemprop="url">
+                  ConcurrentHashMap 源码分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-07-18T19:42:13+08:00" content="2018-07-18">
+              2018-07-18
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/07/18/ConcurrentHashMap-源码分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/07/18/ConcurrentHashMap-源码分析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/07/18/ConcurrentHashMap-源码分析/" class="leancloud_visitors" data-flag-title="ConcurrentHashMap 源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>JDK1.8的时候,<code>ConcurrentHashMap</code>抛弃了分段锁机制,底层与<code>HashMap</code>一样还是<code>数组+链表</code>,采用<strong>CAS+synchronized</strong>保证并发安全</p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>与<code>HashMap</code>一样,这里就不给出例子了</p>
+<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">//保存数据的数组</div><div class="line">transient volatile Node&lt;K,V&gt;[] table;</div><div class="line">//扩容时新生成的数组,大小为原来的两倍</div><div class="line">//当不为空的时候表示正在扩容</div><div class="line">private transient volatile Node&lt;K,V&gt;[] nextTable;</div><div class="line">//用来控制table的初始化和扩容操作</div><div class="line">private transient volatile int sizeCtl;</div></pre></td></tr></table></figure>
+<p>sizeCtl:默认为0,用来控制table的初始化和扩容操作</p>
+<ul>
+<li><strong>-1</strong>表示正在初始化</li>
+<li><strong>-N</strong>表示有<strong>N-1</strong>个线程在扩容操作(因为扩容时,n&lt;0,源码会 n+1,所以实际扩容线程<code>-(n+1)</code>)</li>
+<li>其他情况<ul>
+<li>如果table未初始化,表示table初始化的大小</li>
+<li>table初始化完成,表示table的容量,默认是 table 的<strong>0.75倍</strong><code>(n-(n&gt;&gt;2))</code><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; &#123;</div><div class="line">  final int hash;</div><div class="line">  final K key;</div><div class="line">  volatile V val;</div><div class="line">  volatile Node&lt;K,V&gt; next;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<p><code>Node</code>与<code>HashMap</code>相比,<strong>value和next都用volatile修饰了</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">final class ForwardingNode&lt;K,V&gt; extends Node&lt;K,V&gt; &#123;</div><div class="line">  final Node&lt;K,V&gt;[] nextTable;</div><div class="line">  ForwardingNode(Node&lt;K,V&gt;[] tab) &#123;</div><div class="line">        //传入 hash = MOVED</div><div class="line">      super(MOVED, null, null, null);</div><div class="line">      this.nextTable = tab;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>一个特殊的节点,hash = -1,存储 <code>nextTable</code> 的引用</p>
+<p>只有当扩容的时候,ForwardingNode 才会发挥作用,作为一个占位符放在<code>table</code>表示当前节点为<strong>null或者已被移动</strong></p>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public ConcurrentHashMap() &#123;&#125;</div></pre></td></tr></table></figure>
+<p>默认空构造函数,如果你想传入初始化的大小<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public ConcurrentHashMap(int initialCapacity) &#123;</div><div class="line">    //检查有效值</div><div class="line">    if (initialCapacity &lt; 0)</div><div class="line">        throw new IllegalArgumentException();</div><div class="line">    //限定值的大小,最大不能超过 MAXIMUM_CAPACITY = 1^30 </div><div class="line">    int cap = ((initialCapacity &gt;= (MAXIMUM_CAPACITY &gt;&gt;&gt; 1)) ?</div><div class="line">               MAXIMUM_CAPACITY :</div><div class="line">               tableSizeFor(initialCapacity + (initialCapacity &gt;&gt;&gt; 1) + 1));</div><div class="line">   //初始化 sizeCtl,前面说了如果没有初始化</div><div class="line">   //那么这个值表示 ,table 初始化的大小</div><div class="line">    this.sizeCtl = cap;</div><div class="line">&#125;</div><div class="line"></div><div class="line">--------------------tableSizeFor----------------</div><div class="line">//确保table的大小总是2的幂次方</div><div class="line">private static final int tableSizeFor(int c) &#123;</div><div class="line">    int n = c - 1;</div><div class="line">    n |= n &gt;&gt;&gt; 1;</div><div class="line">    n |= n &gt;&gt;&gt; 2;</div><div class="line">    n |= n &gt;&gt;&gt; 4;</div><div class="line">    n |= n &gt;&gt;&gt; 8;</div><div class="line">    n |= n &gt;&gt;&gt; 16;</div><div class="line">    return (n &lt; 0) ? 1 : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="put-函数"><a href="#put-函数" class="headerlink" title="put 函数"></a>put 函数</h3><p>put() 用于添加/修改元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div></pre></td><td class="code"><pre><div class="line">final V putVal(K key, V value, boolean onlyIfAbsent) &#123;</div><div class="line">    if (key == null || value == null) throw new NullPointerException();</div><div class="line">    //计算 key的hash,比 HashMap 多了 [&amp; HASH_BITS(0x7fffffff)]</div><div class="line">    int hash = spread(key.hashCode());</div><div class="line">    int binCount = 0;</div><div class="line">    //插入操作,是一个死循环</div><div class="line">    for (Node&lt;K,V&gt;[] tab = table;;) &#123;</div><div class="line">        Node&lt;K,V&gt; f; int n, i, fh;</div><div class="line">        //第一次 put的时候才会初始化 table,我们后面分析 initTable()</div><div class="line">        if (tab == null || (n = tab.length) == 0)</div><div class="line">            tab = initTable();</div><div class="line">        //利用 [(n-1) &amp; hash] 获取 数组 index,与 HashMap 一致</div><div class="line">        //然后用 CAS 操作拿到 index 对应的数组值</div><div class="line">        else if ((f = tabAt(tab, i = (n - 1) &amp; hash)) == null) &#123;</div><div class="line">        //null 表示数组对应位置还没有元素,那么直接 CAS 操作放入元素值即可</div><div class="line">        //方法内部就是 CAS 操作,CAS操作成功才会返回 true,直接跳出 for死循环</div><div class="line">        //CAS操作失败,证明有其他线程在修改值最外层 for死循环一直自旋,直到成功插入元素</div><div class="line">            if (casTabAt(tab, i, null,</div><div class="line">                         new Node&lt;K,V&gt;(hash, key, value, null)))</div><div class="line">                break;                   </div><div class="line">        &#125;</div><div class="line">        //如果 hash = MOVED(-1),前面分析 ForwardingNode </div><div class="line">        //说了代表其他线程正在扩容,那么一起扩容</div><div class="line">        else if ((fh = f.hash) == MOVED)</div><div class="line">            tab = helpTransfer(tab, f);</div><div class="line">        else &#123;</div><div class="line">        //其他正常情况,就把节点插入到链表或者红黑树的合适位置</div><div class="line">            V oldVal = null;</div><div class="line">            //利用 synchronized,保证 put 并发安全</div><div class="line">            synchronized (f) &#123;</div><div class="line">            //利用CAS拿到数组对应 index 值</div><div class="line">                if (tabAt(tab, i) == f) &#123;</div><div class="line">                //是普通链表</div><div class="line">                    if (fh &gt;= 0) &#123;</div><div class="line">                        binCount = 1;</div><div class="line">                        //循环遍历链表</div><div class="line">                        for (Node&lt;K,V&gt; e = f;; ++binCount) &#123;</div><div class="line">                            K ek;</div><div class="line">                            //判断 [节点hash相等 &amp; (节点.key相等 || 节点.key的内容相等)]</div><div class="line">                            //相等表示碰撞了,找到旧元素了,就覆盖旧值</div><div class="line">                            //与 HashMap 一致</div><div class="line">                            if (e.hash == hash &amp;&amp;</div><div class="line">                                ((ek = e.key) == key ||</div><div class="line">                                 (ek != null &amp;&amp; key.equals(ek)))) &#123;</div><div class="line">                                oldVal = e.val;</div><div class="line">                                if (!onlyIfAbsent)</div><div class="line">                                //覆盖旧值</div><div class="line">                                    e.val = value;</div><div class="line">                                break;</div><div class="line">                            &#125;</div><div class="line">                            Node&lt;K,V&gt; pred = e;</div><div class="line">                            //遍历到链表尾部还是没有旧值,证明后面没有元素碰撞</div><div class="line">                            //那就将元素插入到链表尾部</div><div class="line">                            if ((e = e.next) == null) &#123;</div><div class="line">                                pred.next = new Node&lt;K,V&gt;(hash, key,</div><div class="line">                                                          value, null);</div><div class="line">                                break;</div><div class="line">                            &#125;</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                    //是红黑树</div><div class="line">                    else if (f instanceof TreeBin) &#123;</div><div class="line">                        Node&lt;K,V&gt; p;</div><div class="line">                        binCount = 2;</div><div class="line">                        //利用红黑树插入</div><div class="line">                        if ((p = ((TreeBin&lt;K,V&gt;)f).putTreeVal(hash, key,</div><div class="line">                                                       value)) != null) &#123;</div><div class="line">                            oldVal = p.val;</div><div class="line">                            //覆盖旧值</div><div class="line">                            if (!onlyIfAbsent)</div><div class="line">                                p.val = value;</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            if (binCount != 0) &#123;</div><div class="line">            //如果碰撞长度超过 TREEIFY_THRESHOLD = 8,转成红黑树</div><div class="line">                if (binCount &gt;= TREEIFY_THRESHOLD)</div><div class="line">                    treeifyBin(tab, i);</div><div class="line">            //返回旧值</div><div class="line">                if (oldVal != null)</div><div class="line">                    return oldVal;</div><div class="line">                break;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    //只有前面的 数组 index 为null或者普通链表的覆盖旧值以及插入新值有 break</div><div class="line">    //才会执行 addCount,检查是否需要扩容</div><div class="line">    addCount(1L, binCount);</div><div class="line">    return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>put()</code>流程大致如下</p>
+<ul>
+<li>table 为null,没有初始化,那么先 <code>initTable</code>初始化</li>
+<li>利用 <code>[(n-1)&amp;hash]</code> 计算数组索引index<ul>
+<li>利用 CAS 获取数组index 的值,如果为null,直接CAS插入<ul>
+<li>插入成功的话 return</li>
+<li>失败的话外层是 <code>for死循环</code>,会自旋直到插入成功</li>
+</ul>
+</li>
+<li>CAS 获取数组index的值,发现 <code>hash = MOVED = -1</code>的话,表示其他线程正在进行扩容,那么一起参与扩容</li>
+<li>否则为其他情况,链表或者红黑树,利用<code>Synchronized</code>保证并发安全<ul>
+<li>如果是普通链表的话,遍历链表<ul>
+<li>如果 <code>[节点hash相等 &amp; (节点.key相等 || 节点.key的内容相等)]</code>,证明找到了旧值,直接覆盖旧值</li>
+<li>如果遍历到链表尾部还没找到旧值,证明是新元素,插入到链表尾部</li>
+</ul>
+</li>
+<li>如果是红黑树的话利用红黑树插入</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="get-函数"><a href="#get-函数" class="headerlink" title="get() 函数"></a>get() 函数</h3><p>get() 用于获取元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">public V get(Object key) &#123;</div><div class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; e, p; int n, eh; K ek;</div><div class="line">    //计算 hash</div><div class="line">    int h = spread(key.hashCode());</div><div class="line">    //利用 CAS 获取数组对应 index 的值</div><div class="line">    if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;</div><div class="line">        (e = tabAt(tab, (n - 1) &amp; h)) != null) &#123;</div><div class="line">        //利用 [节点hash相等 &amp;(节点.key相等 || 节点.key内容相等)]</div><div class="line">        //先判断链首,看是否命中</div><div class="line">        if ((eh = e.hash) == h) &#123;</div><div class="line">            if ((ek = e.key) == key || (ek != null &amp;&amp; key.equals(ek)))</div><div class="line">            //命中就返回值</div><div class="line">                return e.val;</div><div class="line">        &#125;</div><div class="line">        //hash&lt;0,证明是红黑树的叶子节点,遍历红黑树</div><div class="line">        else if (eh &lt; 0)</div><div class="line">            return (p = e.find(h, key)) != null ? p.val : null;</div><div class="line">        //否则,遍历链表</div><div class="line">        while ((e = e.next) != null) &#123;</div><div class="line">            if (e.hash == h &amp;&amp;</div><div class="line">                ((ek = e.key) == key || (ek != null &amp;&amp; key.equals(ek))))</div><div class="line">                return e.val;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>get()函数大致流程如下</p>
+<ul>
+<li>如果table为null,直接返回 null</li>
+<li>首先判断链表第一个节点(也就是数组index的值)是否命中</li>
+<li>接着在红黑树中查找</li>
+<li>最后在链表中查找</li>
+</ul>
+<h3 id="remove-函数"><a href="#remove-函数" class="headerlink" title="remove() 函数"></a>remove() 函数</h3><p>remove() 用于删除元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div></pre></td><td class="code"><pre><div class="line">//value传入 null,代表要删除</div><div class="line">final V replaceNode(Object key, V value, Object cv) &#123;</div><div class="line">    int hash = spread(key.hashCode());</div><div class="line">    for (Node&lt;K,V&gt;[] tab = table;;) &#123;</div><div class="line">        Node&lt;K,V&gt; f; int n, i, fh;</div><div class="line">        //数组没有初始化,直接 return</div><div class="line">        if (tab == null || (n = tab.length) == 0 ||</div><div class="line">            (f = tabAt(tab, i = (n - 1) &amp; hash)) == null)</div><div class="line">            break;</div><div class="line">        //其他线程正在扩容,一起参与扩容</div><div class="line">        else if ((fh = f.hash) == MOVED)</div><div class="line">            tab = helpTransfer(tab, f);</div><div class="line">        else &#123;</div><div class="line">            V oldVal = null;</div><div class="line">            boolean validated = false;</div><div class="line">            //其他情况,链表/红黑树,采用 synchronized 保证并发安全</div><div class="line">            synchronized (f) &#123;</div><div class="line">                if (tabAt(tab, i) == f) &#123;</div><div class="line">                    if (fh &gt;= 0) &#123;</div><div class="line">                        validated = true;</div><div class="line">                        //是链表,for循环遍历整条链表</div><div class="line">                        for (Node&lt;K,V&gt; e = f, pred = null;;) &#123;</div><div class="line">                            K ek;</div><div class="line">                            //[(节点hash相等&amp;(节点.key相等||节点.key内容相等))],证明找到了节点</div><div class="line">                            </div><div class="line">                            if (e.hash == hash &amp;&amp;</div><div class="line">                                ((ek = e.key) == key ||</div><div class="line">                                 (ek != null &amp;&amp; key.equals(ek)))) &#123;</div><div class="line">                                V ev = e.val;</div><div class="line">                                if (cv == null || cv == ev ||</div><div class="line">                                    (ev != null &amp;&amp; cv.equals(ev))) &#123;</div><div class="line">                                    oldVal = ev;</div><div class="line">                                    //value != null,表示修改值,不是删除</div><div class="line">                                    if (value != null)</div><div class="line">                                        e.val = value;</div><div class="line">                                   //是删除值,那么链表操作,移除节点</div><div class="line">                                    else if (pred != null)</div><div class="line">                                        pred.next = e.next;</div><div class="line">                                    else</div><div class="line">                                //首节点,因为是数组就用CAS操作修改值为链表下一个节点</div><div class="line">                                        setTabAt(tab, i, e.next);</div><div class="line">                                &#125;</div><div class="line">                                break;</div><div class="line">                            &#125;</div><div class="line">                            //指针指向下一个链表节点</div><div class="line">                            pred = e;</div><div class="line">                            //没有找到,直接结束</div><div class="line">                            if ((e = e.next) == null)</div><div class="line">                                break;</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                    else if (f instanceof TreeBin) &#123;</div><div class="line">                        validated = true;</div><div class="line">                        TreeBin&lt;K,V&gt; t = (TreeBin&lt;K,V&gt;)f;</div><div class="line">                        TreeNode&lt;K,V&gt; r, p;</div><div class="line">                        if ((r = t.root) != null &amp;&amp;</div><div class="line">                            (p = r.findTreeNode(hash, key, null)) != null) &#123;</div><div class="line">                            V pv = p.val;</div><div class="line">                            if (cv == null || cv == pv ||</div><div class="line">                                (pv != null &amp;&amp; cv.equals(pv))) &#123;</div><div class="line">                                oldVal = pv;</div><div class="line">                                //value != null,表示修改值</div><div class="line">                                if (value != null)</div><div class="line">                                    p.val = value;</div><div class="line">                                //红黑树删除节点</div><div class="line">                                else if (t.removeTreeNode(p))</div><div class="line">                                    setTabAt(tab, i, untreeify(t.first));</div><div class="line">                            &#125;</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            if (validated) &#123;</div><div class="line">                if (oldVal != null) &#123;</div><div class="line">                    if (value == null)</div><div class="line">                        addCount(-1L, -1);</div><div class="line">                    return oldVal;</div><div class="line">                &#125;</div><div class="line">                break;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>remove()函数比较简单,在几种不同的情况下分别按照各自办法删除节点即可</p>
+<h3 id="initTable-初始化"><a href="#initTable-初始化" class="headerlink" title="initTable() 初始化"></a>initTable() 初始化</h3><p>CHM的table初始化不在构造函数,而在第一次 put 节点的时候,源码比较简单,就是在判断<code>sizeCtl &gt;=0</code>(这样才表示其他线程没有初始化或者没有扩容)的情况下,new了数组,同时利用<code>CAS</code>操作修改<code>sizeCtl</code>为-1,告诉其他线程table正在扩容,初始化成功修改回<code>sizeCtl</code>的值</p>
+<h3 id="addCount-扩容"><a href="#addCount-扩容" class="headerlink" title="addCount() 扩容"></a>addCount() 扩容</h3><p>在分析 <code>put()</code>的时候,最后会调用<code>addCount</code>表示检查是否需要扩容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">private final void addCount(long x, int check) &#123;</div><div class="line">    ... 省略部分代码</div><div class="line">    //check&gt;0才能扩容,其他情况表示有其他线程正在扩容</div><div class="line">    if (check &gt;= 0) &#123;</div><div class="line">        Node&lt;K,V&gt;[] tab, nt; int n, sc;</div><div class="line">        while (s &gt;= (long)(sc = sizeCtl) &amp;&amp; (tab = table) != null &amp;&amp;</div><div class="line">               (n = tab.length) &lt; MAXIMUM_CAPACITY) &#123;</div><div class="line">            int rs = resizeStamp(n);</div><div class="line">            // sizeCtl &lt;0表示其他线程在扩容</div><div class="line">            if (sc &lt; 0) &#123;</div><div class="line">                if ((sc &gt;&gt;&gt; RESIZE_STAMP_SHIFT) != rs || sc == rs + 1 ||</div><div class="line">                    sc == rs + MAX_RESIZERS || (nt = nextTable) == null ||</div><div class="line">                    transferIndex &lt;= 0)</div><div class="line">                    break;</div><div class="line">                //CAS修改 sizeCtl的值+1,表示只有一个线程能够扩容</div><div class="line">                if (U.compareAndSwapInt(this, SIZECTL, sc, sc + 1))</div><div class="line">                    transfer(tab, nt);</div><div class="line">            &#125;</div><div class="line">            else if (U.compareAndSwapInt(this, SIZECTL, sc,</div><div class="line">                                         (rs &lt;&lt; RESIZE_STAMP_SHIFT) + 2))</div><div class="line">                transfer(tab, null);</div><div class="line">            s = sumCount();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>addCount 会通过判断 sizeCtl 的值来决定是否需要扩容,利用<code>transfer()</code>实现扩容的后数组的大小为原来的<code>2倍</code>,实际大小为原来的<code>1,5倍</code>(loadFactory),然后拷贝旧数据到新的数组中,然后构造反序链表，把他们分别放在nextTable的i和i+n的位置上，移动完成，采用<code>Unsafe.putObjectVolatile</code>方法给table原位置赋值fwd.具体过程可以看<a href="https://www.jianshu.com/p/f6730d5784ad" target="_blank" rel="external">这篇文章</a></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>1.8的CHM利用了<code>CAS+Synchronized</code>保证并发的安全,扩容也是原来数组的<code>2倍</code></li>
+<li>判断节点是否冲突与<code>HashMap</code>一样,<code>[节点hash相等&amp;[节点.key相等||节点.key内容相等]]</code>.</li>
+<li>CHM全局有一个<code>sizeCtl</code>,他是一个标志位,可以在并发的情况下告诉其他线程当前的数组容器状态(初始化/扩容中/扩容完成)等,从而让其他线程根据实际情况作出相应操作.</li>
+</ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.jianshu.com/p/c0642afe03e0" target="_blank" rel="external">深入浅出ConcurrentHashMap1.8</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/07/06/LinkedHashMap-源码分析/" itemprop="url">
+                  LinkedHashMap 源码分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-07-06T20:32:13+08:00" content="2018-07-06">
+              2018-07-06
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/07/06/LinkedHashMap-源码分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/07/06/LinkedHashMap-源码分析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/07/06/LinkedHashMap-源码分析/" class="leancloud_visitors" data-flag-title="LinkedHashMap 源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">LinkedHashMap&lt;String, Integer&gt; lmap = new LinkedHashMap&lt;String, Integer&gt;();</div><div class="line">lmap.put(&quot;语文&quot;, 1);</div><div class="line">lmap.put(&quot;数学&quot;, 2);</div><div class="line">for(Entry&lt;String, Integer&gt; entry : lmap.entrySet()) &#123;</div><div class="line">    System.out.println(entry.getKey() + &quot;: &quot; + entry.getValue());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>LinkedHashMap 继承自 HashMap</p>
+<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">//头结点</div><div class="line">transient LinkedHashMap.Entry&lt;K,V&gt; head;</div><div class="line">//尾节点</div><div class="line">transient LinkedHashMap.Entry&lt;K,V&gt; tail;</div><div class="line">//true表示实现FIFO的顺序排列元素,false表示按照插入顺序排列元素</div><div class="line">final boolean accessOrder;</div></pre></td></tr></table></figure>
+<p>LinkedHashMap 保存了头尾节点,内部实现是<strong>双链表</strong></p>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">public LinkedHashMap() &#123;</div><div class="line">    super();</div><div class="line">    accessOrder = false;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="三个重要的函数"><a href="#三个重要的函数" class="headerlink" title="三个重要的函数"></a>三个重要的函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">void afterNodeAccess(Node&lt;K,V&gt; p) &#123; &#125;</div><div class="line">void afterNodeInsertion(boolean evict) &#123; &#125;</div><div class="line">void afterNodeRemoval(Node&lt;K,V&gt; p) &#123; &#125;</div></pre></td></tr></table></figure>
+<h4 id="afterNodeAccess函数"><a href="#afterNodeAccess函数" class="headerlink" title="afterNodeAccess函数"></a>afterNodeAccess函数</h4><p>访问链表节点后的操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">void afterNodeAccess(Node&lt;K,V&gt; e) &#123; </div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; last;</div><div class="line">    if (accessOrder &amp;&amp; (last = tail) != e) &#123;</div><div class="line">    //p作为指针,b为p的前指针,a为p的后指针</div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</div><div class="line">            (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</div><div class="line">        //p的后节点置null</div><div class="line">        p.after = null;</div><div class="line">        if (b == null)</div><div class="line">            head = a;</div><div class="line">        else</div><div class="line">        //设置 before 的后节点,为了移除 p</div><div class="line">            b.after = a;</div><div class="line">        if (a != null)</div><div class="line">        //设置 after 的前节点,为了移除 p</div><div class="line">            a.before = b;</div><div class="line">        else</div><div class="line">            last = b;</div><div class="line">        //空链表,那么 p 就是头结点</div><div class="line">        if (last == null)</div><div class="line">            head = p;</div><div class="line">        else &#123;</div><div class="line">        //将移除的P节点,移动到链表尾部</div><div class="line">            p.before = last;</div><div class="line">            last.after = p;</div><div class="line">        &#125;</div><div class="line">        tail = p;</div><div class="line">        ++modCount;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到,这个函数就是为了访问元素后,将元素移动到链表尾部,保证 FIFO</p>
+<h4 id="afterNodeInsertion函数"><a href="#afterNodeInsertion函数" class="headerlink" title="afterNodeInsertion函数"></a>afterNodeInsertion函数</h4><p>节点插入后的操作,可能会因为超过容量而移除最早最少使用的元素<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">void afterNodeInsertion(boolean evict) &#123; </div><div class="line">    LinkedHashMap.Entry&lt;K,V&gt; first;</div><div class="line">    if (evict &amp;&amp; (first = head) != null &amp;&amp; removeEldestEntry(first)) &#123;</div><div class="line">        K key = first.key;</div><div class="line">        //移除第一个元素,也就是最近最少使用的元素</div><div class="line">        removeNode(hash(key), key, null, false, true);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="afterNodeRemoval函数"><a href="#afterNodeRemoval函数" class="headerlink" title="afterNodeRemoval函数"></a>afterNodeRemoval函数</h4><p>用于移除节点操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">void afterNodeRemoval(Node&lt;K,V&gt; e) &#123; // unlink</div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</div><div class="line">        (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</div><div class="line">    p.before = p.after = null;</div><div class="line">    if (b == null)</div><div class="line">        head = a;</div><div class="line">    else</div><div class="line">        b.after = a;</div><div class="line">    if (a == null)</div><div class="line">        tail = b;</div><div class="line">    else</div><div class="line">        a.before = b;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="以上三个函数就是为了保证链表始终保持最近最少使用的规则"><a href="#以上三个函数就是为了保证链表始终保持最近最少使用的规则" class="headerlink" title="以上三个函数就是为了保证链表始终保持最近最少使用的规则"></a>以上三个函数就是为了保证链表始终保持最近最少使用的规则</h4><h3 id="put-函数"><a href="#put-函数" class="headerlink" title="put()函数"></a>put()函数</h3><p>put函数在LinkedHashMap中未重新实现，只是实现了afterNodeAccess和afterNodeInsertion两个回调函数。</p>
+<p>对于<code>LinkedHashMap</code>的put(),每次操作都会调用<code>afterNodeAccess()</code>,这样就将节点插入到双链表了.</p>
+<h3 id="get-函数"><a href="#get-函数" class="headerlink" title="get()函数"></a>get()函数</h3><p>get()则重新实现了,在函数中加入了 <code>accessOrder</code> 来保证访问顺序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public V get(Object key) &#123;</div><div class="line">    Node&lt;K,V&gt; e;</div><div class="line">    if ((e = getNode(hash(key), key)) == null)</div><div class="line">        return null;</div><div class="line">    //如果是需要按照访问的顺序排序</div><div class="line">    if (accessOrder)</div><div class="line">    //回调这个方法,实现是将元素放在最后面</div><div class="line">        afterNodeAccess(e);</div><div class="line">    return e.value;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/06/23/HashMap-源码分析/" itemprop="url">
+                  HashMap 源码分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-06-23T19:32:13+08:00" content="2018-06-23">
+              2018-06-23
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/06/23/HashMap-源码分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/06/23/HashMap-源码分析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/06/23/HashMap-源码分析/" class="leancloud_visitors" data-flag-title="HashMap 源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">HashMap&lt;String, Integer&gt; map = new HashMap&lt;String, Integer&gt;();</div><div class="line">//添加</div><div class="line">map.put(&quot;语文&quot;, 1);</div><div class="line">map.put(&quot;数学&quot;, 2);</div><div class="line">//查找</div><div class="line">for(Entry&lt;String, Integer&gt; entry : map.entrySet()) &#123;</div><div class="line">    System.out.println(entry.getKey() + &quot;: &quot; + entry.getValue());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>HashMap 存入的是<code>Key-Value</code>,对于键值对任意类型都可以,但是<code>Key</code>必须重写 <code>equals(),hashCode()</code> 保证key 唯一</p>
+<p><strong>HashMap由于需要计算hash确定index,不保证元素顺序</strong></p>
+<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">//默认容量 factor * capacity</div><div class="line">//默认加载因子</div><div class="line">static final float DEFAULT_LOAD_FACTOR = 0.75f;</div><div class="line">//加载因子</div><div class="line">final float loadFactor;</div><div class="line">//初始容量 16</div><div class="line">static final int DEFAULT_INITIAL_CAPACITY = 1 &lt;&lt; 4;</div><div class="line">//碰撞超过8个,自动转为红黑树</div><div class="line">static final int TREEIFY_THRESHOLD = 8;</div><div class="line">//存储在数组中</div><div class="line">transient Node&lt;K,V&gt;[] table;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; &#123;</div><div class="line">    final int hash;</div><div class="line">    //key 值</div><div class="line">    final K key;</div><div class="line">    //value 值</div><div class="line">    V value;</div><div class="line">    //下一个节点的指针</div><div class="line">    Node&lt;K,V&gt; next;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到, HashMap 底层实现就是数组+链表(hash冲突时放在链表中)</p>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">public HashMap() &#123;</div><div class="line">    //设置 loadFactor 为默认加载因子 0.75</div><div class="line">    this.loadFactor = DEFAULT_LOAD_FACTOR; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,构造函数只是设置了 loadFactor,其他都没有初始化,在第一次 <code>put</code> 的时候会判断,然后初始化创建数组,我们待会分析.</p>
+<h3 id="put-方法"><a href="#put-方法" class="headerlink" title="put() 方法"></a>put() 方法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div></pre></td><td class="code"><pre><div class="line">public V put(K key, V value) &#123;</div><div class="line">    // 对key的调用hash()方法</div><div class="line">    return putVal(hash(key), key, value, false, true);</div><div class="line">&#125;</div><div class="line"></div><div class="line">-------------hash---------------</div><div class="line"></div><div class="line">static final int hash(Object key) &#123;</div><div class="line">    int h;</div><div class="line">    //对 key 的hash 与key.hashCode的高16位异或运算</div><div class="line">    return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);</div><div class="line">&#125;</div><div class="line"></div><div class="line">-------------------putVal----------------</div><div class="line"></div><div class="line">final V putVal(int hash, K key, V value, boolean onlyIfAbsent,</div><div class="line">                   boolean evict) &#123;</div><div class="line">    // p 用于操作链表的临时指针</div><div class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; int n, i;</div><div class="line">    //如果 table 为空,resize() 初始化一个,后面分析</div><div class="line">    if ((tab = table) == null || (n = tab.length) == 0)</div><div class="line">        n = (tab = resize()).length;</div><div class="line">        </div><div class="line">    //计算 index,利用 (n-1)&amp;hash &amp;运算获取数组索引</div><div class="line">    //如果index所在数组没有值,那么 newNode()</div><div class="line">    //直接在数组index位置赋值</div><div class="line">    if ((p = tab[i = (n - 1) &amp; hash]) == null)</div><div class="line">        tab[i] = newNode(hash, key, value, null);</div><div class="line">    else &#123;</div><div class="line">    //节点有值,可能有冲突,分情况讨论</div><div class="line">    //如果节点的 [hash值相等&amp;&amp;(节点.key相等||节点.key的内容相等)]</div><div class="line">    //证明是同一个位置的节点,直接覆盖原节点</div><div class="line">        // e 保存找到的节点</div><div class="line">        Node&lt;K,V&gt; e; K k;</div><div class="line">        if (p.hash == hash &amp;&amp;</div><div class="line">            ((k = p.key) == key || (key != null &amp;&amp; key.equals(k))))</div><div class="line">            //找到节点了,保存到 e ,准备覆盖写入数据</div><div class="line">            e = p;</div><div class="line">        //不是同一个节点,继续判断是否是红黑树</div><div class="line">        else if (p instanceof TreeNode)</div><div class="line">        //找到节点了,保存到e,准备覆盖写入原节点</div><div class="line">            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(this, tab, hash, key, value);</div><div class="line">        //不是红黑树,那么就是链表,进行链表操作</div><div class="line">        else &#123;</div><div class="line">        //遍历对应链表</div><div class="line">            for (int binCount = 0; ; ++binCount) &#123;</div><div class="line">            //判断 [节点hash是否相等&amp;&amp;(节点.key是否相等||节点.key的内容是否相等)]</div><div class="line">            //如果没有找到同一个节点,直接添加到链表尾部</div><div class="line">                if ((e = p.next) == null) &#123;</div><div class="line">                    p.next = newNode(hash, key, value, null);</div><div class="line">                    //添加完后判断是否超过红黑树冲突长度,需要转红黑树</div><div class="line">                    if (binCount &gt;= TREEIFY_THRESHOLD - 1) </div><div class="line">                        treeifyBin(tab, hash);</div><div class="line">                    break;</div><div class="line">                &#125;</div><div class="line">                //找到了同一个节点,跳出循环</div><div class="line">                if (e.hash == hash &amp;&amp;</div><div class="line">                    ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))</div><div class="line">                    break;</div><div class="line">                p = e;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        //前面找到节点了,现在写入数据</div><div class="line">         //如果是普通链表的插入操作,才会走到这一步</div><div class="line">        if (e != null) &#123; </div><div class="line">            V oldValue = e.value;</div><div class="line">            if (!onlyIfAbsent || oldValue == null)</div><div class="line">                e.value = value;</div><div class="line">            //访问元素后的调用,HashMap是空实现</div><div class="line">            //主要用于LinkedHashMap等实现特殊功能</div><div class="line">            afterNodeAccess(e);</div><div class="line">            return oldValue;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    //判断容量是否超过了,需要 resize() 扩容</div><div class="line">    ++modCount;</div><div class="line">    if (++size &gt; threshold)</div><div class="line">        resize();</div><div class="line">    //插入元素后的调用,HashMap是空实现,用于LinkedHashMap等实现特殊功能</div><div class="line">    afterNodeInsertion(evict);</div><div class="line">    return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>put()</code> 函数大致流程如下</p>
+<ul>
+<li>通过 <code>(n-1) &amp; hash</code> 找到对应的数组坐标</li>
+<li>如果原位置没有节点,那么直接赋值到原节点</li>
+<li>如果原位置有节点,那么发生碰撞了<ul>
+<li>首先判断链表第一个节点(也就是数组坐标节点),<code>[节点hash相等&amp;&amp;(节点.key相等||节点.key内容相等)]</code>,证明是同一个节点,直接覆盖</li>
+<li>判断对应的链表是不是红黑树,插入到红黑树中</li>
+<li>是链表,遍历判断,<ul>
+<li>没有冲突直接加入到链表尾部,同时判断链表长度过长转成红黑树</li>
+<li>有冲突那么就覆盖</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>容量超过了<code>load factor*current capacity</code>,需要<code>resize()</code>扩容</li>
+</ul>
+<h4 id="get-函数"><a href="#get-函数" class="headerlink" title="get() 函数"></a>get() 函数</h4><p>get() 用于通过key找到对应的value</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">final Node&lt;K,V&gt; getNode(int hash, Object key) &#123;</div><div class="line">        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; int n; K k;</div><div class="line">    if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;</div><div class="line">        (first = tab[(n - 1) &amp; hash]) != null) &#123;</div><div class="line">        //总是先判断第一个节点,命中直接返回</div><div class="line">        //通过 [节点hash相等&amp;&amp;(节点.key相等||节点.key内容相等)] 判断</div><div class="line">        if (first.hash == hash &amp;&amp; </div><div class="line">            ((k = first.key) == key || (key != null &amp;&amp; key.equals(k))))</div><div class="line">            return first;</div><div class="line">        //不是第一个,那么就遍历链表/红黑树</div><div class="line">        if ((e = first.next) != null) &#123;</div><div class="line">        //通过红黑树查找</div><div class="line">            if (first instanceof TreeNode)</div><div class="line">                return ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);</div><div class="line">            do &#123;</div><div class="line">            //是普通链表,遍历查找,找到的依据是[节点hash相等&amp;&amp;(节点.key相等||节点.key内容相等)]</div><div class="line">                if (e.hash == hash &amp;&amp;</div><div class="line">                    ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))</div><div class="line">                    return e;</div><div class="line">            &#125; while ((e = e.next) != null);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    //依旧没找到,返回null</div><div class="line">    return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>put() 函数大致流程如下</p>
+<ul>
+<li>先判断第一个节点,命中的话直接返回</li>
+<li>如果有冲突<ul>
+<li>是红黑树,在红黑树里面找</li>
+<li>是普通链表,遍历链表查找</li>
+</ul>
+</li>
+</ul>
+<h3 id="remove-函数"><a href="#remove-函数" class="headerlink" title="remove 函数"></a>remove 函数</h3><p>remove函数用于移除元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">final Node&lt;K,V&gt; removeNode(int hash, Object key, Object value,</div><div class="line">                               boolean matchValue, boolean movable) &#123;</div><div class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; int n, index;</div><div class="line">    if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;</div><div class="line">        (p = tab[index = (n - 1) &amp; hash]) != null) &#123;</div><div class="line">        //node 用于保存需要删除的元素</div><div class="line">        Node&lt;K,V&gt; node = null, e; K k; V v;</div><div class="line">        //需要删除的元素是数组index,链表头结点</div><div class="line">        if (p.hash == hash &amp;&amp;</div><div class="line">            ((k = p.key) == key || (key != null &amp;&amp; key.equals(k))))</div><div class="line">            node = p;</div><div class="line">        else if ((e = p.next) != null) &#123;</div><div class="line">            if (p instanceof TreeNode)</div><div class="line">            //需要删除的元素是红黑树,在红黑树里找</div><div class="line">                node = ((TreeNode&lt;K,V&gt;)p).getTreeNode(hash, key);</div><div class="line">            else &#123;</div><div class="line">            //普通链表</div><div class="line">                do &#123;</div><div class="line">                //遍历查找元素</div><div class="line">                    if (e.hash == hash &amp;&amp;</div><div class="line">                        ((k = e.key) == key ||</div><div class="line">                         (key != null &amp;&amp; key.equals(k)))) &#123;</div><div class="line">                        node = e;</div><div class="line">                        break;</div><div class="line">                    &#125;</div><div class="line">                    p = e;</div><div class="line">                &#125; while ((e = e.next) != null);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        //找到元素了,现在该移除元素了</div><div class="line">        if (node != null &amp;&amp; (!matchValue || (v = node.value) == value ||</div><div class="line">                             (value != null &amp;&amp; value.equals(v)))) &#123;</div><div class="line">             //红黑树元素移除</div><div class="line">            if (node instanceof TreeNode)</div><div class="line">                ((TreeNode&lt;K,V&gt;)node).removeTreeNode(this, tab, movable);</div><div class="line">            //链表头元素,直接将数组指向下一个元素</div><div class="line">            else if (node == p)</div><div class="line">                tab[index] = node.next;</div><div class="line">            else</div><div class="line">            //普通链表,那么就指针操作</div><div class="line">                p.next = node.next;</div><div class="line">            ++modCount;</div><div class="line">            --size;</div><div class="line">            //该方法用于移除元素后的操作,hashMap空实现</div><div class="line">            //LinkedHashMap等有具体实现</div><div class="line">            afterNodeRemoval(node);</div><div class="line">            return node;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>删除元素比较简单,就是在三种不同的情况下找到元素,然后按照各自的方式移除元素即可</p>
+<h3 id="hash-函数的实现"><a href="#hash-函数的实现" class="headerlink" title="hash 函数的实现"></a>hash 函数的实现</h3><p>计算 index 时,HashMap是这样做的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">hash = (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);</div><div class="line"></div><div class="line">int index = (n-1)&amp;hash;</div></pre></td></tr></table></figure>
+<p>先将自己的hash<code>高16位 , 低16位</code>进行异或,而由于table数组的长度<strong>n为2的幂次方</strong>,这样就不会出现低4位失效,从而导致容易碰撞了.</p>
+<p>这么做可以在bucket的n比较小的时候，也能保证考虑到高低bit都参与到hash的计算中，同时不会有太大的开销。</p>
+<h3 id="resize-函数实现"><a href="#resize-函数实现" class="headerlink" title="resize 函数实现"></a>resize 函数实现</h3><p>当需要扩容的时候,会把原数组扩容成原来的两倍,然后重新计算index,把节点放入新的数组位置去.</p>
+<p>当需要 <code>resize()</code> 时,由于我们是<code>2次幂</code>扩展(扩展原来的两倍),所以元素要么在<strong>原来的位置</strong>,要么在<strong>原来的位置然后移动2次幂</strong></p>
+<h5 id="如何理解"><a href="#如何理解" class="headerlink" title="如何理解?"></a>如何理解?</h5><p>1.比如我们从16扩展为32,变化如下</p>
+<p><img src="https://cloud.githubusercontent.com/assets/1736354/6958256/ceb6e6ac-d93b-11e4-98e7-c5a5a07da8c4.png" alt=""></p>
+<p>2.因此元素在重新计算hash之后，因为n变为2倍，那么n-1的mask范围在高位多1bit(红色)，因此新的index就会发生这样的变化：</p>
+<p><img src="https://cloud.githubusercontent.com/assets/1736354/6958301/519be432-d93c-11e4-85bb-dff0a03af9d3.png" alt=""></p>
+<p><strong>因此我们扩容时,不需要重新计算hash,只需要看原来hash值新增的bit是1还是0,0的话索引没变,1的话变成 [原索引+ oldCap]</strong></p>
+<p><img src="https://cloud.githubusercontent.com/assets/1736354/6958677/d7acbad8-d941-11e4-9493-2c5e69d084c0.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div></pre></td><td class="code"><pre><div class="line">final Node&lt;K,V&gt;[] resize() &#123;</div><div class="line">    Node&lt;K,V&gt;[] oldTab = table;</div><div class="line">    int oldCap = (oldTab == null) ? 0 : oldTab.length;</div><div class="line">    int oldThr = threshold;</div><div class="line">    int newCap, newThr = 0;</div><div class="line">    if (oldCap &gt; 0) &#123;</div><div class="line">    //超过最大值,那么不再扩容</div><div class="line">        if (oldCap &gt;= MAXIMUM_CAPACITY) &#123;</div><div class="line">            threshold = Integer.MAX_VALUE;</div><div class="line">            return oldTab;</div><div class="line">        &#125;</div><div class="line">        else if ((newCap = oldCap &lt;&lt; 1) &lt; MAXIMUM_CAPACITY &amp;&amp;</div><div class="line">                 oldCap &gt;= DEFAULT_INITIAL_CAPACITY)</div><div class="line">        //扩容为原来的两倍</div><div class="line">            newThr = oldThr &lt;&lt; 1; </div><div class="line">    &#125;</div><div class="line">    else if (oldThr &gt; 0) </div><div class="line">    //初始化时制定了容量,那么就按照要求初始化</div><div class="line">        newCap = oldThr;</div><div class="line">    else &#123;                </div><div class="line">    //空白初始化的时候就用 deafult_capacity 初始化</div><div class="line">        newCap = DEFAULT_INITIAL_CAPACITY;</div><div class="line">        newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);</div><div class="line">    &#125;</div><div class="line">    if (newThr == 0) &#123;</div><div class="line">        float ft = (float)newCap * loadFactor;</div><div class="line">        newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (float)MAXIMUM_CAPACITY ?</div><div class="line">                  (int)ft : Integer.MAX_VALUE);</div><div class="line">    &#125;</div><div class="line">    threshold = newThr;</div><div class="line">   //根据计算出的容量创建新数组</div><div class="line">        Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])new Node[newCap];</div><div class="line">    table = newTab;</div><div class="line">    if (oldTab != null) &#123;</div><div class="line">        for (int j = 0; j &lt; oldCap; ++j) &#123;</div><div class="line">            Node&lt;K,V&gt; e;</div><div class="line">            if ((e = oldTab[j]) != null) &#123;</div><div class="line">            //将原数组坐标的元素设置为null,以便于回收</div><div class="line">                oldTab[j] = null;</div><div class="line">                //数组index没有链表,那么直接新数组赋值</div><div class="line">                if (e.next == null)</div><div class="line">                    newTab[e.hash &amp; (newCap - 1)] = e;</div><div class="line">                else if (e instanceof TreeNode)</div><div class="line">                //是红黑树</div><div class="line">                    ((TreeNode&lt;K,V&gt;)e).split(this, newTab, j, oldCap);</div><div class="line">                else &#123; </div><div class="line">                //是普通链表</div><div class="line">                //原索引位置的链表</div><div class="line">                    Node&lt;K,V&gt; loHead = null, loTail = null;</div><div class="line">                //索引+oldCap 的链表</div><div class="line">                    Node&lt;K,V&gt; hiHead = null, hiTail = null;</div><div class="line">                    Node&lt;K,V&gt; next;</div><div class="line">                    do &#123;</div><div class="line">                        next = e.next;</div><div class="line">                        //就是原索引</div><div class="line">                        //遍历到尾节点,然后将头节点返回</div><div class="line">                        if ((e.hash &amp; oldCap) == 0) &#123;</div><div class="line">                            if (loTail == null)</div><div class="line">                                loHead = e;</div><div class="line">                            else</div><div class="line">                                loTail.next = e;</div><div class="line">                            loTail = e;</div><div class="line">                        &#125;</div><div class="line">                        //原索引 + oldCap</div><div class="line">                        //遍历到尾节点,然后将头节点作为新链表的头结点</div><div class="line">                        else &#123;</div><div class="line">                            if (hiTail == null)</div><div class="line">                                hiHead = e;</div><div class="line">                            else</div><div class="line">                                hiTail.next = e;</div><div class="line">                            hiTail = e;</div><div class="line">                        &#125;</div><div class="line">                    &#125; while ((e = next) != null);</div><div class="line">                    //按原索引放到数组里</div><div class="line">                    if (loTail != null) &#123;</div><div class="line">                        loTail.next = null;</div><div class="line">                        newTab[j] = loHead;</div><div class="line">                    &#125;</div><div class="line">                    //按[原索引 +oldCap]放到数组里</div><div class="line">                    if (hiTail != null) &#123;</div><div class="line">                        hiTail.next = null;</div><div class="line">                        newTab[j + oldCap] = hiHead;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    return newTab;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>resize()</code> 方法,会将数组扩容为原来的两倍,然后将原数据插入新数组相应位置.</p>
+<p>由于index的规律,所以新数组添加元素的时候并不需要重新计算hash,只需要按照 原位置/(yuanweizhi + oldCap) 即可.</p>
+<p>HashMap 在resize() 过程中创建了 1.原位置的<code>头尾节点.</code>2.[原索引+oldCap]的<code>头尾节点</code>,利用链表操作,遍历后链表<strong>非倒序</strong></p>
+<h4 id="HashMap-为什么非线程安全"><a href="#HashMap-为什么非线程安全" class="headerlink" title="HashMap 为什么非线程安全"></a>HashMap 为什么非线程安全</h4><ul>
+<li>多线程同时修改同一个节点,最后修改的会覆盖前面修改的值</li>
+<li>多线程同时扩容,复制数据,只有最后一个扩容生效</li>
+<li>多线程可能导致死循环(<strong>JDK1.8不会有这个问题了</strong>)</li>
+</ul>
+<p><strong>原因:</strong></p>
+<p>假设有两个线程A,B,以及<code>newTable[i]</code>对应的链表<code>a-&gt;b-&gt;null</code><br>-线程A先执行,<code>Entry&lt;K,V&gt; next = e.next;</code>后,线程阻塞,此时 <code>e =a; next =b</code><br>-此时线程B已经执行完代码了,执行完后逆序链表,<code>b-&gt;a-&gt;null</code></p>
+<ul>
+<li>线程A继续执行之后的代码,<code>e = next;</code>所以<code>newTable[i]</code>的链表为<code>a&lt;-&gt;b;</code>成环.</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/06/15/LinedList-源码分析/" itemprop="url">
+                  LinedList 源码分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-06-15T21:32:13+08:00" content="2018-06-15">
+              2018-06-15
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/06/15/LinedList-源码分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/06/15/LinedList-源码分析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/06/15/LinedList-源码分析/" class="leancloud_visitors" data-flag-title="LinedList 源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">LinkedList&lt;String&gt; list = new LinkedList&lt;String&gt;();</div><div class="line">//添加操作</div><div class="line">list.add(&quot;语文&quot;);</div><div class="line">//删除操作</div><div class="line">liost.remove(&quot;语文&quot;)/remove(1);</div></pre></td></tr></table></figure>
+<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">transient Node&lt;E&gt; first;</div><div class="line">transient Node&lt;E&gt; last;</div><div class="line">//用于保存链表长度</div><div class="line">int size;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"> private static class Node&lt;E&gt; &#123;</div><div class="line">    E item;</div><div class="line">    Node&lt;E&gt; next;</div><div class="line">    Node&lt;E&gt; prev;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,LinkedList保存了<code>链表首,尾指针</code>,它内部存的是 Node 节点,保存了<code>前后两个节点的指针</code> ,实现了双向链表</p>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public LinkedList() &#123;&#125;</div></pre></td></tr></table></figure>
+<p>默认情况是空队列</p>
+<h3 id="add-方法"><a href="#add-方法" class="headerlink" title="add() 方法"></a>add() 方法</h3><p>用于向集合内添加元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public boolean add(E e) &#123;</div><div class="line">    //添加默认添加到队尾,FIFO</div><div class="line">    linkLast(e);</div><div class="line">    return true;</div><div class="line">&#125;</div><div class="line"></div><div class="line">-----------------linkLast--------------</div><div class="line">void linkLast(E e) &#123;</div><div class="line">    //拿到链表尾指针</div><div class="line">    final Node&lt;E&gt; l = last;</div><div class="line">    //利用 E 创建指针</div><div class="line">    final Node&lt;E&gt; newNode = new Node&lt;&gt;(l, e, null);</div><div class="line">    //修改 last 指针的指向</div><div class="line">    last = newNode;</div><div class="line">    //如果是空链表,那么该节点直接成为 链表头节点</div><div class="line">    if (l == null)</div><div class="line">        first = newNode;</div><div class="line">    else</div><div class="line">    //连接(插)入创建的新指针</div><div class="line">        l.next = newNode;</div><div class="line">    //更新链表长度</div><div class="line">    size++;</div><div class="line">    modCount++;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,添加元素会添加到队列末尾,以此满足<code>FIFO</code></p>
+<h3 id="get-set-方法"><a href="#get-set-方法" class="headerlink" title="get() set()方法"></a>get() set()方法</h3><p>两个方法分别用于获取元素和修改元素值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">public E get(int index) &#123;</div><div class="line">    //检查坐标</div><div class="line">    checkElementIndex(index);</div><div class="line">    //返回node节点的值</div><div class="line">    return node(index).item;</div><div class="line">&#125;</div><div class="line"></div><div class="line">---------------node(index)----------------</div><div class="line"></div><div class="line">Node&lt;E&gt; node(int index) &#123;</div><div class="line">    //size &gt;&gt;1, size的一半,前半段遍历查找</div><div class="line">    if (index &lt; (size &gt;&gt; 1)) &#123;</div><div class="line">        Node&lt;E&gt; x = first;</div><div class="line">        for (int i = 0; i &lt; index; i++)</div><div class="line">            x = x.next;</div><div class="line">        return x;</div><div class="line">    &#125; else &#123;</div><div class="line">    //后半段遍历查找</div><div class="line">        Node&lt;E&gt; x = last;</div><div class="line">        for (int i = size - 1; i &gt; index; i--)</div><div class="line">            x = x.prev;</div><div class="line">        return x;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">--------------set()--------------------</div><div class="line"></div><div class="line">public E set(int index, E element) &#123;</div><div class="line">    //检查坐标</div><div class="line">    checkElementIndex(index);</div><div class="line">    //获取 node 节点</div><div class="line">    Node&lt;E&gt; x = node(index);</div><div class="line">    E oldVal = x.item;</div><div class="line">    //更新 node 节点值</div><div class="line">    x.item = element;</div><div class="line">    return oldVal;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,LinkedList查找,首先判断 index 是在链表的前半段还是后半段,然后在响应区间范围遍历查找,时间复杂度<code>o(n/2)</code></p>
+<h3 id="remove-方法"><a href="#remove-方法" class="headerlink" title="remove() 方法"></a>remove() 方法</h3><p>remove 用于删除元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">E unlink(Node&lt;E&gt; x) &#123;</div><div class="line">    // assert x != null;</div><div class="line">    final E element = x.item;</div><div class="line">    final Node&lt;E&gt; next = x.next;</div><div class="line">    final Node&lt;E&gt; prev = x.prev;</div><div class="line">    //双向链表操作</div><div class="line">    //如果就是头结点,直接将头结点指向 next</div><div class="line">    if (prev == null) &#123;</div><div class="line">        first = next;</div><div class="line">    &#125; else &#123;</div><div class="line">    //将 preNode 指向 当前节点的下一个节点</div><div class="line">        prev.next = next;</div><div class="line">        x.prev = null;</div><div class="line">    &#125;</div><div class="line">    //如果是尾节点,直接将尾节点指向 preNode</div><div class="line">    if (next == null) &#123;</div><div class="line">        last = prev;</div><div class="line">    &#125; else &#123;</div><div class="line">    //将下一个节点的 pre 指向当前节点的pre</div><div class="line">        next.prev = prev;</div><div class="line">        x.next = null;</div><div class="line">    &#125;</div><div class="line">    //置null,方便回收</div><div class="line">    x.item = null;</div><div class="line">    size--;</div><div class="line">    modCount++;</div><div class="line">    return element;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>remove函数比较简单,就是基本的双向链表移除元素操作</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/06/02/ArrayList-源码分析/" itemprop="url">
+                  ArrayList 源码分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-06-02T20:29:45+08:00" content="2018-06-02">
+              2018-06-02
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/06/02/ArrayList-源码分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/06/02/ArrayList-源码分析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/06/02/ArrayList-源码分析/" class="leancloud_visitors" data-flag-title="ArrayList 源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ArrayList&lt;String&gt; list = new ArrayList&lt;String&gt;();</div><div class="line">//添加操作</div><div class="line">list.add(&quot;语文: 99&quot;);</div><div class="line">//删除操作</div><div class="line">list.remove(&quot;语文&quot;)/remove(0);</div></pre></td></tr></table></figure>
+<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">//ArrayList内部实现是数组</div><div class="line">transient Object[] elementData; </div><div class="line">//默认容量10</div><div class="line">private static final int DEFAULT_CAPACITY = 10;</div></pre></td></tr></table></figure>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><p>一般情况下,我们 <code>new ArrayList();</code> 进行使用,</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">//空数组</div><div class="line">private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = &#123;&#125;;</div><div class="line"></div><div class="line">public ArrayList() &#123;</div><div class="line">        this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p><code>DEFAULTCAPACITY_EMPTY_ELEMENTDATA</code> 就是一个长度为0的空数组</p>
+<h3 id="add-方法"><a href="#add-方法" class="headerlink" title="add() 方法"></a>add() 方法</h3><p>用于增加元素.他会将元素放在末尾<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line">public boolean add(E e) &#123;</div><div class="line">    //检查是否需要扩容</div><div class="line">    ensureCapacityInternal(size + 1);  </div><div class="line">    //将元素插入数组</div><div class="line">    elementData[size++] = e;</div><div class="line">    return true;</div><div class="line">&#125;</div><div class="line"></div><div class="line">---------ensureCapacityInternal()------------</div><div class="line"></div><div class="line">private void ensureCapacityInternal(int minCapacity) &#123;</div><div class="line">    //如果是刚初始化,就设置 minCapacity 用于扩容</div><div class="line">    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) &#123;</div><div class="line">        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);</div><div class="line">    &#125;</div><div class="line">    //</div><div class="line">    ensureExplicitCapacity(minCapacity);</div><div class="line">&#125;</div><div class="line"></div><div class="line">---------------ensureExplicitCapacity()----------------</div><div class="line"></div><div class="line">private void ensureExplicitCapacity(int minCapacity) &#123;</div><div class="line">    modCount++;</div><div class="line">    //扩容</div><div class="line">    if (minCapacity - elementData.length &gt; 0)</div><div class="line">        grow(minCapacity);</div><div class="line">&#125;</div><div class="line"></div><div class="line">-------------grow-----------------</div><div class="line">private void grow(int minCapacity) &#123;</div><div class="line">    </div><div class="line">    int oldCapacity = elementData.length;</div><div class="line">    //扩容为原来的1.5倍</div><div class="line">    int newCapacity = oldCapacity + (oldCapacity &gt;&gt; 1);</div><div class="line">    //如果扩容1.5倍还不满足,那么直接扩容为需求值</div><div class="line">    if (newCapacity - minCapacity &lt; 0)</div><div class="line">        newCapacity = minCapacity;</div><div class="line">    //需求值比最大数组大小还要大,就设置 Integer.MAX_VALIUE</div><div class="line">    if (newCapacity - MAX_ARRAY_SIZE &gt; 0)</div><div class="line">        newCapacity = hugeCapacity(minCapacity);</div><div class="line">    //利用 System.arraycopy() 扩容</div><div class="line">    elementData = Arrays.copyOf(elementData, newCapacity);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当增加数据的时候,如果容量不够,就会进行扩容,扩容成原来大小的<strong>1.5倍</strong>,然后把老的数组拷贝到新的数组里面.</p>
+<h3 id="get-set-方法"><a href="#get-set-方法" class="headerlink" title="get() set() 方法"></a>get() set() 方法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">public E get(int index) &#123;</div><div class="line">    //检查边界</div><div class="line">    rangeCheck(index);</div><div class="line">    //利用坐标返回值</div><div class="line">    return elementData(index);</div><div class="line">&#125;</div><div class="line"></div><div class="line">---------elementData()--------</div><div class="line">E elementData(int index) &#123;</div><div class="line">    //直接利用坐标,返回数组坐标的值</div><div class="line">    return (E) elementData[index];</div><div class="line">&#125;</div><div class="line"></div><div class="line">-------------set()------------</div><div class="line"></div><div class="line">public E set(int index, E element) &#123;</div><div class="line">    rangeCheck(index);</div><div class="line">    E oldValue = elementData(index);</div><div class="line">    elementData[index] = element;</div><div class="line">    return oldValue;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>两个方法比较简单,首先检查 index 坐标,然后都是数组操作.</p>
+<h4 id="remove-方法"><a href="#remove-方法" class="headerlink" title="remove() 方法"></a>remove() 方法</h4><p>remove() 用于移除元素,你可以传入 index 或者传入元素值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">public E remove(int index) &#123;</div><div class="line">    //检查边界</div><div class="line">    rangeCheck(index);</div><div class="line">    </div><div class="line">    modCount++;</div><div class="line">    //数组操作,利用index获取元素值</div><div class="line">    E oldValue = elementData(index);</div><div class="line"></div><div class="line">    int numMoved = size - index - 1;</div><div class="line">    if (numMoved &gt; 0)</div><div class="line">    //把idnex后面的元素往前移动</div><div class="line">        System.arraycopy(elementData, index+1, elementData, index,</div><div class="line">                         numMoved);</div><div class="line">    //把最后的多余的元素置位null</div><div class="line">    elementData[--size] = null; </div><div class="line"></div><div class="line">    return oldValue;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>remove()原理也不难,利用<code>System.arraycopy()</code>,将后面的元素向前移动,覆盖前面的元素达到删除的目的.</p>
+<h4 id="补充-System-arraycopy"><a href="#补充-System-arraycopy" class="headerlink" title="补充 System.arraycopy"></a>补充 System.arraycopy</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public static native void arraycopy(Object src,  int  srcPos,</div><div class="line">        Object dest, int destPos,</div><div class="line">            int length);</div></pre></td></tr></table></figure>
+<p>传入五个参数</p>
+<ul>
+<li>原数组</li>
+<li>元素组开始值</li>
+<li>目标数组</li>
+<li>目标数组开始值</li>
+<li>拷贝的长度</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/04/02/invalidate-requestLayout与ViewGroup-draw/" itemprop="url">
                   Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系
                 </a>
@@ -1132,856 +1857,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/02/03/View-绘制流程/" itemprop="url">
-                  View 绘制流程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2018-02-03T15:48:24+08:00" content="2018-02-03">
-              2018-02-03
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2018/02/03/View-绘制流程/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/02/03/View-绘制流程/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2018/02/03/View-绘制流程/" class="leancloud_visitors" data-flag-title="View 绘制流程">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><code>View</code> 的绘制从 <code>ViewRoot</code> 的 <code>performTraversals</code> 方法开始，他经过 <code>measure，layout，draw</code> 三个过程才能将一个 View 绘制出</p>
-<ul>
-<li><p>对于 draw ,是 <code>performDraw()</code> 以后,他是调用 <code>draw(boolean)</code>,然后调用<code>ThreadedRender.draw(三个参数) -&gt; ThreadedRender.updateRootDisplayList() -&gt; ThreadedRender.updateViewTreeDisplayList() -&gt; View.updateDisplayListIfDirty()</code></p>
-</li>
-<li><p>在最后的<code>View.updateDisplayListIfDirty()</code>里,才会根据一些标志位(<code>PFLAG_DRAWING_CACHE_VALID , PFLAG_SKIP_DRAW</code>)来判断到底是直接执行我们的 <strong>View.draw(canvas)</strong> 绘制自身还是 <strong>View.dispatchDraw()</strong> 不绘制自身,直接分发事件</p>
-</li>
-</ul>
-<h4 id="针对-performTraversals大致流程如下"><a href="#针对-performTraversals大致流程如下" class="headerlink" title="针对 performTraversals大致流程如下."></a>针对 <code>performTraversals</code>大致流程如下.</h4><p><img src="https://ww3.sinaimg.cn/large/006tKfTcly1fd3x1rxbj3j30iv0c0dgr.jpg" alt=""></p>
-<p><code>performTraversals</code> 会依次调用<code>performMeasure, performLayout ,performDraw</code>。其中 <code>performMeasure</code> 会调用 <code>measure</code> 方法， <code>measure</code> 最终会调用 我们自定义的 <code>onMeasure</code>。当然，对于 ViewGroup 来说，onMeasure 就是对所有子元素调用 measure 的过程</p>
-<p>对于 layout 过程也是类似的。唯一不同的是 draw 方法，performDraw 传递过程是 draw 方法中通过 dispatchDraw 来实现的，但是本质是一样的。</p>
-<h2 id="ViewRoot"><a href="#ViewRoot" class="headerlink" title="ViewRoot"></a>ViewRoot</h2><p>ViewRoot 的实现类是 ViewRootImpl ,<strong>他是链接 WindowManager 和 DecorView 的纽带，View 的三大流程均是通过 ViewRoot 来完成的，</strong></p>
-<p>在 ActivityThread 中，当 Activity 对象创建完毕后，就会将 DecorView 添加到 Window 中，同时创建 ViewRootImpl,并且将 ViewRootImpl 与 DecorView 建立关联</p>
-<p><strong>在 setView 中,最终会调用到 <code>ViewRootImpl</code>的 performTravelsals(),他会依次调用<code>ViewRootImpl的</code> <code>performMeasure(),performLayout(),performDraw()</code>,这番个方法会依次向下遍历,最终完成整个View数的绘制</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">root = new ViewRootImpl(view.getContext(),display);</div><div class="line">root.setView(view,wparams,panelParentView);</div></pre></td></tr></table></figure>
-<h2 id="SpecMode-测量模式"><a href="#SpecMode-测量模式" class="headerlink" title="SpecMode 测量模式"></a>SpecMode 测量模式</h2><h3 id="EXACTLY"><a href="#EXACTLY" class="headerlink" title="EXACTLY"></a>EXACTLY</h3><p>父容器已检测出精确大小。</p>
-<blockquote>
-<p>对应于 <strong>match_parent</strong></p>
-</blockquote>
-<h3 id="AT-MOST"><a href="#AT-MOST" class="headerlink" title="AT_MOST"></a>AT_MOST</h3><p>父容器制定了可用大小 SpecSize，View 不能超过这个值。具体值要看 View 的具体实现，比如<code>TextView</code> 根据字数多少定义宽度</p>
-<blockquote>
-<p>对应于 <strong>wrap_content</strong></p>
-</blockquote>
-<h3 id="UNSPECIFIED"><a href="#UNSPECIFIED" class="headerlink" title="UNSPECIFIED"></a>UNSPECIFIED</h3><p>父容器不对 View 限制大小。一般用于系统内部，表示一种测量状态。</p>
-<h2 id="View-工作流程"><a href="#View-工作流程" class="headerlink" title="View 工作流程"></a>View 工作流程</h2><h3 id="measure-过程"><a href="#measure-过程" class="headerlink" title="measure 过程"></a>measure 过程</h3><p>measure 的作用是测量 View 的宽高</p>
-<p>如果是 子View，那么 measure 方法就完成了测量过程</p>
-<p>如果是 ViewGroup，除了测量自身，还需要<strong>遍历去调用所有子元素的 measure 方法</strong></p>
-<h4 id="onMeasure-方法"><a href="#onMeasure-方法" class="headerlink" title="onMeasure 方法"></a>onMeasure 方法</h4><h5 id="View-的-onMeasure"><a href="#View-的-onMeasure" class="headerlink" title="View 的 onMeasure"></a>View 的 onMeasure</h5><p>measure 方法会调用 onMeasure 方法</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) &#123;</div><div class="line">        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),</div><div class="line">                getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p><strong>setMeasureDimension 方法就会设置 View 的宽高测量值</strong></p>
-<p><code>getDesaultSize()</code>返回的大小就是 <code>measureSpec 中的 specSize</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">MeasureSpec.getSize(measureSpec)</div></pre></td></tr></table></figure>
-<blockquote>
-<p>需要注意，继承 View 的自定义控件需要重写 onMeasure 方法<strong>并且设置 wrap_content时候的自身大小</strong> 。</p>
-</blockquote>
-<p>因为从测量模式中得知，子View<code>wrap_content</code>模式下，他的 specMode 是 <code>AT_MOST</code>,这种情况下宽高都是 parentSize</p>
-<blockquote>
-<p>默认只有 <code>dp</code> 精确模式下，计算出的宽高才是 子View 的真实宽高</p>
-</blockquote>
-<h5 id="ViewGroup-的-onMeasure"><a href="#ViewGroup-的-onMeasure" class="headerlink" title="ViewGroup 的 onMeasure"></a>ViewGroup 的 onMeasure</h5><p>对于 ViewGroup 来说，除了完成自身的 measure 过程，还会遍历调用 子View 的 measure 方法，所以它提供了一个方法，让我们遍历调用子View</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">protected void measureChildren(int widthMeasureSpec, int heightMeasureSpec) &#123;</div><div class="line">        final int size = mChildrenCount;</div><div class="line">        final View[] children = mChildren;</div><div class="line">        for (int i = 0; i &lt; size; ++i) &#123;</div><div class="line">            final View child = children[i];</div><div class="line">            if ((child.mViewFlags &amp; VISIBILITY_MASK) != GONE) &#123;</div><div class="line">            //遍历子View，调用 measureChild</div><div class="line">                measureChild(child, widthMeasureSpec, heightMeasureSpec);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">--------------measureChild 方法------------</div><div class="line">protected void measureChild(View child, int parentWidthMeasureSpec,</div><div class="line">            int parentHeightMeasureSpec) &#123;</div><div class="line">        final LayoutParams lp = child.getLayoutParams();</div><div class="line"></div><div class="line">        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,</div><div class="line">                mPaddingLeft + mPaddingRight, lp.width);</div><div class="line">        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,</div><div class="line">                mPaddingTop + mPaddingBottom, lp.height);</div><div class="line">        //计算 childMeasureSpec ，然后调用 child 自身的 measure 方法</div><div class="line">        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<h3 id="layout-过程"><a href="#layout-过程" class="headerlink" title="layout 过程"></a>layout 过程</h3><h3 id="onLayout"><a href="#onLayout" class="headerlink" title="onLayout"></a>onLayout</h3><p>layout 的作用是 <code>ViewGroup</code> 确定 子View 的位置,当 ViewGroup 的位置被确定后，他在 <code>onLayout</code> 中会遍历所有子View并调用<code>layout</code>方法,子View 的 <code>layout</code>方法又会调用 <code>onLayout</code> 方法</p>
-<p><strong>自定义 ViewGroup 才需要重写 onLayout 方法</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">public void layout(int l, int t, int r, int b) &#123;</div><div class="line">        ...</div><div class="line"></div><div class="line">        int oldL = mLeft;</div><div class="line">        int oldT = mTop;</div><div class="line">        int oldB = mBottom;</div><div class="line">        int oldR = mRight;</div><div class="line">        //通过 setFrame 判断是否需要 layout</div><div class="line">        boolean changed = isLayoutModeOptical(mParent) ?</div><div class="line">                setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);</div><div class="line"></div><div class="line">        if (changed || (mPrivateFlags &amp; PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) &#123;</div><div class="line">        //调用 onLayout 方法</div><div class="line">            onLayout(changed, l, t, r, b);</div><div class="line"></div><div class="line">            if (shouldDrawRoundScrollbar()) &#123;</div><div class="line">                if(mRoundScrollbarRenderer == null) &#123;</div><div class="line">                    mRoundScrollbarRenderer = new RoundScrollbarRenderer(this);</div><div class="line">                &#125;</div><div class="line">            &#125; else &#123;</div><div class="line">                mRoundScrollbarRenderer = null;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            mPrivateFlags &amp;= ~PFLAG_LAYOUT_REQUIRED;</div><div class="line"></div><div class="line">            ListenerInfo li = mListenerInfo;</div><div class="line">            if (li != null &amp;&amp; li.mOnLayoutChangeListeners != null) &#123;</div><div class="line">                ArrayList&lt;OnLayoutChangeListener&gt; listenersCopy =</div><div class="line">                        (ArrayList&lt;OnLayoutChangeListener&gt;)li.mOnLayoutChangeListeners.clone();</div><div class="line">                int numListeners = listenersCopy.size();</div><div class="line">                for (int i = 0; i &lt; numListeners; ++i) &#123;</div><div class="line">                    listenersCopy.get(i).onLayoutChange(this, l, t, r, b, oldL, oldT, oldR, oldB);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        mPrivateFlags &amp;= ~PFLAG_FORCE_LAYOUT;</div><div class="line">        mPrivateFlags3 |= PFLAG3_IS_LAID_OUT;</div><div class="line"></div><div class="line">        if ((mPrivateFlags3 &amp; PFLAG3_NOTIFY_AUTOFILL_ENTER_ON_LAYOUT) != 0) &#123;</div><div class="line">            mPrivateFlags3 &amp;= ~PFLAG3_NOTIFY_AUTOFILL_ENTER_ON_LAYOUT;</div><div class="line">            notifyEnterOrExitForAutoFillIfNeeded(true);</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>setFrame 用于判断布局大小是否变过，从而判断是否需要重绘.<strong>如果布局发生过变化,会调用 invalidate() 进而调用 draw()</strong></p>
-<p>onLayout 在 View 和 ViewGroup 中都没有实现，需要我们在自定义 ViewGroup 时自己实现对所有 子View 的 位置确定</p>
-<h2 id="draw"><a href="#draw" class="headerlink" title="draw"></a>draw</h2><p>前面分析我们知道,<code>performDraw()</code>经过几个步骤和几个类,才最终调用到<code>draw(canvas)</code></p>
-<p>draw 作用是将 View 绘制到屏幕上，draw 流程 遵守以下几个步骤</p>
-<ul>
-<li>绘制背景 <code>backgourd.draw(canvas)</code></li>
-<li>绘制自身 <code>onDraw</code></li>
-<li>绘制 children <code>dispatchDraw</code> ,这里与 <code>measure</code> 和 <code>layout</code> 不同，不需要手动遍历调用子View 相应方法</li>
-<li>绘制装饰，比如滚动条 <code>onDrawScrollBars</code></li>
-</ul>
-<p>该方法比较简单，就不再看源码了。View 的绘制过程传递是通过 <code>dispatchDraw</code> 来实现的，他会遍历调用所有 子View 的 <code>draw</code> 方法</p>
-<p><strong>以上就是 View 绘制流程的三个步骤</strong></p>
-<h2 id="Question"><a href="#Question" class="headerlink" title="Question"></a>Question</h2><h4 id="getHeight-与-getMeasureHeight-有什么区别"><a href="#getHeight-与-getMeasureHeight-有什么区别" class="headerlink" title="getHeight 与 getMeasureHeight 有什么区别"></a>getHeight 与 getMeasureHeight 有什么区别</h4><ul>
-<li><code>getMeasureHeight</code> 在 <code>measure</code> 结束就可获取了，而 <code>getHeight</code> 需要在 <code>layout</code> 结束才能获取</li>
-<li><code>getMeasureHeight</code> 是通过 <code>setMeasuredDimission</code> 传入的值获取的。而 <code>getHeight</code> 是通过 <code>下坐标 减去 上坐标</code> 获取的</li>
-<li>默认情况下两者相同，但是如果 <code>layout</code>的时候传入不恰当的值，那么就会导致获取到的值不相同</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">protected void onLayout(boolean changed, int l, int t, int r, int b) &#123;   </div><div class="line">    View childView = getChildAt(0);  </div><div class="line">    childView.layout(l, t, r+200, b+200);  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这样认为去修改错误的值，会导致最终的宽高总是多 200px</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>View的绘制流程,是从<code>ViewRootImpl</code>的<code>performTravelsals()</code>开始的,他会依次向下遍历,调用对应方法完成绘制.</p>
-<p>performTraversals()会调用<code>performMeasure,performLayout(),performDraw()</code>,在这些方法的内部会对应调用<code>measure(),layout(),draw()</code>,<strong>draw()稍微复杂点,会有 SKIP_DRAW等一些标志位的判断</strong>,最终会调用到我们重写的方法<code>onMeasure(),onLayout(),onDraw()</code></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/05/03/Binder-机制/" itemprop="url">
-                  Binder 机制
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-05-03T23:08:10+08:00" content="2017-05-03">
-              2017-05-03
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/05/03/Binder-机制/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/05/03/Binder-机制/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/05/03/Binder-机制/" class="leancloud_visitors" data-flag-title="Binder 机制">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="Binder-存在的意义-为什么要使用Binder"><a href="#Binder-存在的意义-为什么要使用Binder" class="headerlink" title="Binder 存在的意义?为什么要使用Binder"></a>Binder 存在的意义?为什么要使用Binder</h3><h4 id="进程隔离"><a href="#进程隔离" class="headerlink" title="进程隔离"></a>进程隔离</h4><blockquote>
-<p>进程隔离是为保护操作系统中进程互不干扰而设计的一组不同硬件和软件的技术。这个技术是为了避免进程A写入进程B的情况发生。</p>
-</blockquote>
-<p>操作系统的不同进程之间，数据不共享；对于每个进程来说，因此一个进程需要与另外一个进程通信，需要某种系统机制才能完成。</p>
-<h4 id="跨进程方式"><a href="#跨进程方式" class="headerlink" title="跨进程方式"></a>跨进程方式</h4><ul>
-<li><p>Linux 传统跨进程(未严格验证通信双方身份)</p>
-<ul>
-<li>Socket</li>
-<li>管道</li>
-</ul>
-</li>
-<li><p>Android : <strong>Binder</strong></p>
-<ul>
-<li>动态可加载模块 LKM: 运行时被动态加载到内核,作为内核的一部分.成为内核与用户空间的桥梁,完成通信.Android 中称为 <code>Binder 驱动</code></li>
-</ul>
-</li>
-</ul>
-<h3 id="Binder-使用"><a href="#Binder-使用" class="headerlink" title="Binder 使用"></a>Binder 使用</h3><p>想要使用跨进程通信 Binder,最常见的就是Service中,我们首先需要创建一个 <code>aidl</code>文件,里面定义好跨进程通信的接口.</p>
-<p>比如</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">interface IRemote &#123;</div><div class="line">    int getAIDLResult(int i);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>然后我们 <code>Rebuild</code> 一下,编译器会自动生成对应的 Java 文件,</p>
-<h3 id="Demo-演示"><a href="#Demo-演示" class="headerlink" title="Demo 演示"></a>Demo 演示</h3><h4 id="Server-端"><a href="#Server-端" class="headerlink" title="Server 端"></a>Server 端</h4><p>我们创建一个远程 Service 对象,并且覆盖onBind() 方法并返回 IRemoteService.Stub 实例 mBinder<br>注意到 Stub 是一个抽象类,我们得实现 <code>aidl</code>文件中定义的方法.</p>
-<p>Service</p>
-<ul>
-<li>本地服务:依附于主进程,非独立进程,无进程隔离</li>
-<li>远程服务:<strong>声明android:process=”:remote”</strong>,成为独立进程,有进程隔离,需要使用AIDL进行IPC</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">public class RemoteService extends Service &#123;</div><div class="line"></div><div class="line">    private static final String TAG = RemoteService.class.getSimpleName();</div><div class="line">    </div><div class="line">    private  IRemote.Stub mBinder = new IRemote.Stub()&#123;</div><div class="line">        @Override</div><div class="line">        public int getAIDLResult(int result) throws RemoteException &#123;</div><div class="line">            Log.e(&quot;AIDLDemo&quot;,&quot;Service getRequest&quot;);</div><div class="line">            Log.e(&quot;AIDLDemo ; &quot;,&quot;Service pid &quot;+android.os.Process.myPid() );</div><div class="line">            return i+1;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">    </div><div class="line">    @Override</div><div class="line">    public IBinder onBind(Intent intent) &#123;</div><div class="line">        return mBinder;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="Client-端"><a href="#Client-端" class="headerlink" title="Client 端"></a>Client 端</h4><p>我们在客户端服务连接 <code>ServiceConnection</code> 的 <code>onServiceConnected()</code> 获取到了 IBinder 实例,通过 Binder 的 <code>asInterface</code> 获取到了远程服务的代理对象 <code>remoteService</code>,最后我们通过 <code>remoteService.getResult()</code> 就可以像本地方法一样调用远程服务的方法了,实现了跨进程通信.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">public class MainActivity extends AppCompatActivity &#123;</div><div class="line">    private ServiceConnection mConnection = new ServiceConnection() &#123;</div><div class="line">        @Override</div><div class="line">        public void onServiceConnected(ComponentName name, IBinder service) &#123;</div><div class="line">        //通过 asInterface ,获取 Binder 代理对象,调用远程方法跨进程通信</div><div class="line">            IRemote remoteService = IRemote.Stub.asInterface(service);</div><div class="line">            try &#123;</div><div class="line">                remoteService.getResult();</div><div class="line">            &#125; catch (RemoteException e) &#123;</div><div class="line">                e.printStackTrace();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">    &#125;;</div><div class="line">    ...</div><div class="line">    @Override</div><div class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</div><div class="line">        ...</div><div class="line">        //启动Service</div><div class="line">        Intent intent = new Intent(this,MyService.class);</div><div class="line">        bindService(intent,mServiceConnection,BIND_AUTO_CREATE);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">Q: IBinder是什么,IInterface是什么,IBinder为什么能转成IInterface</div></pre></td></tr></table></figure></p>
-<h3 id="原理分析"><a href="#原理分析" class="headerlink" title="原理分析"></a>原理分析</h3><p>我们来分析一下这个文件.需要了解的地方已经写在注释中了.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div></pre></td><td class="code"><pre><div class="line">public interface IRemote extends android.os.IInterface &#123;</div><div class="line">    </div><div class="line">    public static abstract class Stub extends android.os.Binder implements com.mashell.taskb.IRemote &#123;</div><div class="line">        private static final java.lang.String DESCRIPTOR = &quot;com.mashell.taskb.IRemote&quot;;</div><div class="line"></div><div class="line">        public Stub() &#123;</div><div class="line">            this.attachInterface(this, DESCRIPTOR);</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        //客户端通过 Stub.asInterface() 得到 Binder 代理对象,远程调用 Server 的方法,实现跨进程通信.</div><div class="line">        public static com.mashell.taskb.IRemote asInterface(android.os.IBinder obj) &#123;</div><div class="line">            if ((obj == null)) &#123;</div><div class="line">                return null;</div><div class="line">            &#125;</div><div class="line">            //查找本地 Binder 对象</div><div class="line">            android.os.IInterface iin = obj.queryLocalInterface(DESCRIPTOR);</div><div class="line">            //找到了而且是同一个进程,直接向上转型成 Binder 本地对象.</div><div class="line">            if (((iin != null) &amp;&amp; (iin instanceof com.mashell.taskb.IRemote))) &#123;</div><div class="line">                return ((com.mashell.taskb.IRemote) iin);</div><div class="line">            &#125;</div><div class="line">            //不是同一个进程,返回 Binder 代理对象.</div><div class="line">            return new com.mashell.taskb.IRemote.Stub.Proxy(obj);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        @Override</div><div class="line">        public android.os.IBinder asBinder() &#123;</div><div class="line">            return this;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        //Service端处理请求的方法</div><div class="line">        @Override</div><div class="line">        public boolean onTransact(int code, android.os.Parcel data, android.os.Parcel reply, int flags) throws android.os.RemoteException &#123;</div><div class="line">            switch (code) &#123;</div><div class="line">                case INTERFACE_TRANSACTION: &#123;</div><div class="line">                    reply.writeString(DESCRIPTOR);</div><div class="line">                    return true;</div><div class="line">                &#125;</div><div class="line">                case TRANSACTION_getResult: &#123;</div><div class="line">                    data.enforceInterface(DESCRIPTOR);</div><div class="line">                    int _arg0;</div><div class="line">                    _arg0 = data.readInt();</div><div class="line">                    //调用我们定义的方法,是抽象方法,需要在服务端实例中重写实现这个方法</div><div class="line">                    this.getResult(_arg0);</div><div class="line">                    reply.writeNoException();</div><div class="line">                    return true;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            return super.onTransact(code, data, reply, flags);</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        //具体的代理类, 远程 Binder</div><div class="line">        private static class Proxy implements com.mashell.taskb.IRemote &#123;</div><div class="line">            private android.os.IBinder mRemote;</div><div class="line"></div><div class="line">            Proxy(android.os.IBinder remote) &#123;</div><div class="line">                mRemote = remote;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            @Override</div><div class="line">            public android.os.IBinder asBinder() &#123;</div><div class="line">                return mRemote;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            public java.lang.String getInterfaceDescriptor() &#123;</div><div class="line">                return DESCRIPTOR;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            @Override</div><div class="line">            public void getResult(int result) throws android.os.RemoteException &#123;</div><div class="line">                android.os.Parcel _data = android.os.Parcel.obtain();</div><div class="line">                android.os.Parcel _reply = android.os.Parcel.obtain();</div><div class="line">                try &#123;</div><div class="line">                    _data.writeInterfaceToken(DESCRIPTOR);</div><div class="line">                    _data.writeInt(result);</div><div class="line">                   //对于跨进程调用方法,调用 transact() 这个 native 方法,要知道最终调用 talkWithDriver 方法</div><div class="line">                   //然后该函数通过 ioctl 系统调用, Client 进程陷入内核态,Client 调用我们定义的 getResult 方法线程挂起等待返回.</div><div class="line">                   //Binder 驱动操作后唤醒 Server进程,调用 Binder 本地对象的 onTransact 函数.</div><div class="line">                   //该函数通过参数判断调用到具体对应的函数.最终Binder 驱动唤醒 Client 并将结果返回.</div><div class="line">                   mRemote.transact(Stub.TRANSACTION_getResult, _data, _reply, 0);</div><div class="line">                    _reply.readException();</div><div class="line">                &#125; finally &#123;</div><div class="line">                    _reply.recycle();</div><div class="line">                    _data.recycle();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        static final int TRANSACTION_getResult = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void getResult(int result) throws android.os.RemoteException;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="asInterface"><a href="#asInterface" class="headerlink" title="asInterface()"></a>asInterface()</h4><h5 id="asInterface-拿到-IBinder-对象-让我们来分析一下这个方法"><a href="#asInterface-拿到-IBinder-对象-让我们来分析一下这个方法" class="headerlink" title="asInterface() 拿到 IBinder 对象,让我们来分析一下这个方法"></a>asInterface() 拿到 IBinder 对象,让我们来分析一下这个方法</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public static com.mashell.taskb.IRemote asInterface(android.os.IBinder obj) &#123;</div><div class="line">            if ((obj == null)) &#123;</div><div class="line">                return null;</div><div class="line">            &#125;</div><div class="line">            android.os.IInterface iin = obj.queryLocalInterface(DESCRIPTOR);</div><div class="line">            if (((iin != null) &amp;&amp; (iin instanceof com.mashell.taskb.IRemote))) &#123;</div><div class="line">                return ((com.mashell.taskb.IRemote) iin);</div><div class="line">            &#125;</div><div class="line">            return new com.mashell.taskb.IRemote.Stub.Proxy(obj);</div><div class="line">        &#125;</div></pre></td></tr></table></figure>
-<p>Binder 会根据情况查找返回 Binder 对象,如果是同一进程就直接返回 <strong>Binder</strong> 本地对象.如果是跨进程那么就返回 <strong>BinderProxy</strong></p>
-<h5 id="queryLocalInterface"><a href="#queryLocalInterface" class="headerlink" title="queryLocalInterface()"></a>queryLocalInterface()</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">在 Binder 类中,查找本地 Interface 返回</div><div class="line">public IInterface queryLocalInterface(String descriptor) &#123;</div><div class="line">        if (mDescriptor.equals(descriptor)) &#123;</div><div class="line">            return mOwner;</div><div class="line">        &#125;</div><div class="line">        return null;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">在 BinderProxy 中,直接返回 null</div><div class="line">public IInterface queryLocalInterface(String descriptor) &#123;</div><div class="line">        return null;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>对于 asInterface,通过上面的分析,</p>
-<ul>
-<li>如果是同一进程直接向下转型</li>
-<li>如果是跨进程的<strong>BinderProxy</strong>,返回一个 Proxy(IBinder mRemote);</li>
-</ul>
-<p>对于我们远程服务端方法的调用,</p>
-<ul>
-<li>Binder 本地对象,不需要跨进程,直接调用抽象方法</li>
-<li>对于 Binder 代理对象,<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">public int getAIDLResult(int i) throws android.os.RemoteException &#123;</div><div class="line">    android.os.Parcel _data = android.os.Parcel.obtain();</div><div class="line">    android.os.Parcel _reply = android.os.Parcel.obtain();</div><div class="line">    int _result;</div><div class="line">    try &#123;</div><div class="line">        _data.writeInterfaceToken(DESCRIPTOR);</div><div class="line">        _data.writeInt(i);</div><div class="line">        </div><div class="line">        mRemote.transact(Stub.TRANSACTION_getAIDLResult, _data, _reply, 0);</div><div class="line">        _reply.readException();</div><div class="line">        _result = _reply.readInt();</div><div class="line">    &#125; finally &#123;</div><div class="line">        _reply.recycle();</div><div class="line">        _data.recycle();</div><div class="line">    &#125;</div><div class="line">    return _result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>重点看 <strong>transact()</strong>,既然是 BinderProxy,我们进入具体类中查看<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">public native boolean transactNative(int code, Parcel data, Parcel reply,</div><div class="line">            int flags) throws RemoteException;</div></pre></td></tr></table></figure></p>
-<blockquote>
-<p>这是一个本地方法；它的实现在native层，具体来说在frameworks/base/core/jni/android_util_Binder.cpp文件，里面进行了一系列的函数调用，调用链实在太长这里就不给出了；要知道的是它最终调用到了talkWithDriver函数；看这个函数的名字就知道，通信过程要交给驱动完成了；这个函数最后通过ioctl系统调用，Client进程陷入内核态，Client调用add方法的线程挂起等待返回；驱动完成一系列的操作之后唤醒Server进程，调用了Server进程本地对象的onTransact函数（实际上由Server端线程池完成）。</p>
-</blockquote>
-<h5 id="onTransact"><a href="#onTransact" class="headerlink" title="onTransact()"></a>onTransact()</h5><p>在 <strong>BinderProxy</strong> 的transact()中,我们传入了编号,默认命名是 <strong>TRANSACTION</strong>+方法名,在 <strong>onTransact()</strong> 方法中,通过编号调用具体函数,唤醒Client 返回结果.</p>
-<h3 id="Binder-通信模型"><a href="#Binder-通信模型" class="headerlink" title="Binder 通信模型"></a>Binder 通信模型</h3><p><img src="http://img.blog.csdn.net/20170107102830444" alt=""></p>
-<h3 id="Binder-模型大致通信过程"><a href="#Binder-模型大致通信过程" class="headerlink" title="Binder 模型大致通信过程"></a>Binder 模型大致通信过程</h3><ul>
-<li><p>在Android开机启动过程中，Android会初始化系统的各种Service，</p>
-</li>
-<li><p>将这些初始化的Service向ServiceManager注册（即让ServiceManager管理）。ServiceManager将Service名字和新建的引用填入查找表</p>
-</li>
-<li><p>客户端想要得到具体的Service直接向ServiceManager要即可。客户端首先向ServiceManager查询得到具体的Service引用，然后通过这个引用向具体的服务端发送请求，服务端执行完成后就返回。<strong>返回了Binder代理类</strong></p>
-</li>
-</ul>
-<p><img src="http://img1.ph.126.net/HA21vW_pLTJ2DpMW3obuOQ==/724235115176904253.png" alt=""></p>
-<h3 id="Binder-驱动"><a href="#Binder-驱动" class="headerlink" title="Binder 驱动"></a>Binder 驱动</h3><p>Binder 驱动是一段运行在内核空间的代码,他是 Binder 机制的核心,负责 Binder 节点的建立和进程间信息的传递.通过 <code>&quot;/dev/binder&quot;</code>的文件在内核空间和用户空间来回搬动数据. <code>Linux inctl</code> 函数实现了从用户空间转移到内核空间的功能.</p>
-<h3 id="ServiceManager"><a href="#ServiceManager" class="headerlink" title="ServiceManager"></a>ServiceManager</h3><p>ServiceManager提供了注册,检索服务的功能.所有的服务由 ServiceManager 统一管理.<br>他做了三件事</p>
-<ol>
-<li>打开设备文件 <code>/dev/binder</code>,把文件内容映射到内核空间,借助这块区域,可以实现进程间通信.</li>
-<li>将当前进程注册到 <code>Binder 驱动</code>,系统会将跨进程的服务注册到他的服务列表中.</li>
-<li>ServiceManager也会进入一个无限循环,等待客户端 IPC 请求状态.</li>
-</ol>
-<h3 id="服务注册"><a href="#服务注册" class="headerlink" title="服务注册"></a>服务注册</h3><p><code>ActivityManagerService,WindowManagerService</code>等系统服务,都会调用 <code>ServiceManager.addService()</code>方法添加到 <code>ServiceManager</code>的服务列表中</p>
-<ol>
-<li>Server将自己作为对象,附上一个句柄为0的值(用于访问 ServiceManager),并将这些内容封装成数据报发送给 <code>Binder驱动</code></li>
-<li><code>Binder驱动</code>先检查是否有Server对应的Binder实体,没有就创建 <code>Binder实体</code>并且赋予一个大于0的句柄,然后把句柄和服务名称等信息发送给ServiceManager</li>
-<li>ServiceManager检查服务列表中是否有这个服务,不存在就将服务和它的句柄放入到服务列表中.</li>
-</ol>
-<h3 id="客户端调用服务"><a href="#客户端调用服务" class="headerlink" title="客户端调用服务"></a>客户端调用服务</h3><ol>
-<li>客户端想调用某个服务,把<code>服务名+句柄0的值</code>封装成数据报发送给 <code>Binder 驱动</code></li>
-<li><code>Binder驱动接收到句柄0</code>,把数据包发给 <code>ServiceManager</code></li>
-<li><code>ServiceManager</code>接收到数据包后,找到对应服务,将服务的局并发给 <code>Binder驱动</code>,再发给服务端</li>
-<li>客户端收到句柄后,利用句柄在本地创建 <code>远程Server的代理对象</code></li>
-<li>客户端调用这个服务,会加上<code>参数,标志服</code>等数据放入 <code>Client的共享内存</code>,Binder驱动根据数据找到 <code>Server 的共享内存</code>,<strong>把数据拷贝到内核空间,并且映射到远程服务进程中,执行 onTrasact() 函数</strong></li>
-<li>远程服务执行完后将结果写入自己的共享内存,<strong>Binder驱动再将数据结果拷贝到内核空间,映射到用户端进程中,唤醒客户端线程</strong></li>
-</ol>
-<h3 id="Binder-如何实现拷贝一次-mmap-内存映射"><a href="#Binder-如何实现拷贝一次-mmap-内存映射" class="headerlink" title="Binder 如何实现拷贝一次,mmap()内存映射"></a>Binder 如何实现拷贝一次,mmap()内存映射</h3><p>Linux 内核只有 用户空间拷贝到内核空间 <code>copy_from_user</code> 和内核空间到用户空间 <code>copy_to_user</code>.</p>
-<p>为了实现一次拷贝.Binder利用<code>mmap()</code>实现<code>内核缓存区</code>与<code>接收进程用户空间</code>(接收方可以使 Server 也可以是 Client)<strong>同时映射到同一个共享接收缓存区中</strong>,这样当发送方<code>copy_from_user()</code>发送数据到内核缓存区时,由于<code>内核缓存区Binder创建的接收缓存区&amp;&amp;接收方用户空间地址存在映射关系</code>,所以也相当于发送到了接收进程的用户空间.达到跨进程通信</p>
-<p><img src="https://upload-images.jianshu.io/upload_images/944365-d3c78b193c3e8a38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/700" alt=""></p>
-<h3 id="IBinder-IInterface-Binder-BinderProxy-Stub-代表什么"><a href="#IBinder-IInterface-Binder-BinderProxy-Stub-代表什么" class="headerlink" title="IBinder IInterface Binder BinderProxy Stub 代表什么"></a>IBinder IInterface Binder BinderProxy Stub 代表什么</h3><ul>
-<li><strong>IBinder</strong> 表示跨进程传输的能力</li>
-<li><strong>IInterface</strong> 代表远程服务具体有那种能力 (IRemote 继承自 IInterface)</li>
-<li><strong>Binder</strong> Binder 本地对象. </li>
-<li><strong>BinderProxy</strong> 远程 Binder 的代理对象,与Binder类在同一个类文件中 (文章错误)</li>
-<li><p><strong>Stub</strong> Binder 本地对象抽象类,需要我们具体去实现</p>
-</li>
-<li><p>IActivityManager 就是一个 <code>IInterface</code>,代表远程Service具有的能力,<code>ActivityManager.getDefault()</code>是Binder本地对象,具体实现是<code>ActivityManagerService</code>,对于<code>Binder</code>代理类,就是<code>ActivityThread</code>的<code>ApplicationThread</code></p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" itemprop="url">
-                  JVM学习笔记(五):JVM方法调用内部机制
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-17T17:46:56+08:00" content="2017-04-17">
-              2017-04-17
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/17/JVM学习笔记-五-JVM方法调用内部机制/" class="leancloud_visitors" data-flag-title="JVM学习笔记(五):JVM方法调用内部机制">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>JVM方法调用的内部机制</p>
-<h3 id="栈帧结构"><a href="#栈帧结构" class="headerlink" title="栈帧结构"></a>栈帧结构</h3><p>为了调用方法和返回方法,JVM维护了一个栈结构,里面存放的实体称为栈帧,每个栈帧包括 <strong>局部变量表</strong> <strong>操作数栈</strong> <strong>动态链接</strong> <strong>方法返回地址</strong> 和额外的信息.在编译期,栈帧需要多大的局部变量表已经确定了</p>
-<h4 id="局部变量表"><a href="#局部变量表" class="headerlink" title="局部变量表"></a>局部变量表</h4><p>存放方法参数和方法内创建的局部变量,局部变量表的容量以 Slot 为最小单位,一个 Slot 可以存放一个 32位以内的数据类型.<strong>long double 需要两个</strong></p>
-<p>如果方法时非 <code>static</code> 的,那么局部变量表中第0位索引 Slot 默认用于传递方法所属对象实例的引用   <strong>(this)</strong></p>
-<p>为了节省栈帧空间,Slot是可以重用的,一个局部变量定义了没有赋初始值是不能用的</p>
-<h4 id="操作数栈"><a href="#操作数栈" class="headerlink" title="操作数栈"></a>操作数栈</h4><p>JVM解析执行字节码是基于栈结构,调用其他方法是通过操作数栈来进行参数传递的</p>
-<h5 id="方法大致调用过程"><a href="#方法大致调用过程" class="headerlink" title="方法大致调用过程"></a>方法大致调用过程</h5><ul>
-<li>每一次调用指令前,JVM把方法被调用的<strong>对象引用</strong>引入操作数栈,JVM还会把<strong>方法的参数</strong>依次放入<strong>操作数栈</strong></li>
-<li>调用方法的时候,JVM将参数和对象引用依次从操作数栈弹出,并建立一个新的栈帧存放刚才弹出的变量放入 Slot 1,2,3..</li>
-<li>JVM把新栈帧push入<strong>虚拟机方法栈</strong>,并把PC指向函数第一条待执行的指令</li>
-</ul>
-<blockquote>
-<p>JVM通过编译器的静态绑定或者运行时期的动态绑定获取被调用方法的地址</p>
-</blockquote>
-<h3 id="方法调用字节码指令"><a href="#方法调用字节码指令" class="headerlink" title="方法调用字节码指令"></a>方法调用字节码指令</h3><ul>
-<li>invokestatic 调用静态方法</li>
-<li>invokespecial 调用实例构造器<init>,私有方法和父类方法</init></li>
-<li>invokeVirtual 调用所有的<strong>虚方法</strong>(静态方法,私有方法,实例构造器,父类方法,final 方法 都不是 虚方法)</li>
-<li>invokeinterface 调用接口方法,在运行时期确定一个实现此接口的对象</li>
-</ul>
-<p>invokestatic 和 invokespecial 在类加载阶段就把符号解析为该方法的引用,静态</p>
-<p>invokevirtual和invokeinterface 是在运行时确定具体的方法地址</p>
-<h3 id="动态分配"><a href="#动态分配" class="headerlink" title="动态分配"></a>动态分配</h3><p>当JVM 遇到 invokevirtual或者invokeinterface时,需要运行时根据方法符号找到方法地址,具体过程如下</p>
-<ul>
-<li>方法调用前,将对象的引用压入操作数栈</li>
-<li>方法调用时,找到操作数栈顶的第一个元素所指向的对象实际类型,记为C</li>
-<li>在 C类中找到常量池中描述符和方法名都相符的方法,并校验访问权限,找到方法并通过校验,就返回这个方法的引用</li>
-<li>没找到继续按照继承关系向上找并且校验权限</li>
-<li>还是没找到 抛出<code>AbstractMethodError</code>异常</li>
-</ul>
-<p>为了提高动态分配时候方法查找的效率,JVM为每个类维护一个虚函数表</p>
-<h3 id="虚函数表"><a href="#虚函数表" class="headerlink" title="虚函数表"></a>虚函数表</h3><p>目的:为了快速找到方法索引地址</p>
-<p>JVM在链接类的过程中,给每个类分配相应方法表内存空间,每个类对应一个方法表,都存在于 <strong>方法区</strong> 中,Java 每个对象的<strong>对象头</strong>有一个类型指针,可以找到对应的类,类数据中对应一个方法表,类级别的方法表</p>
-<p><strong>方法表</strong>包含了类所有方法的入口地址,<strong>父类继承</strong>的方法放在前面,然后是**接口</p>
-<p><img src="http://img.blog.csdn.net/20170818151037199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVGVsbEg=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
-<h4 id="invokevirtual-与-invokeInterface-区别"><a href="#invokevirtual-与-invokeInterface-区别" class="headerlink" title="invokevirtual 与 invokeInterface 区别"></a>invokevirtual 与 invokeInterface 区别</h4><p><strong>invokevirtual</strong>虚方法是按照父类到子类的顺序排序的,因此使用 invokevirtual 调用虚函数,JVM可以再编译器就确定虚函数在方法表上的 offset ,从而快速定位方法地址</p>
-<p><strong>invokeInterface</strong> 接口可以由不同的类实现,所以接口方法在不同类的中 方法表 offset 都不一样,因此每次调用接口方法,都要搜寻一遍虚函数表,效率低于 <strong>invokevirtual</strong></p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/15/JVM学习笔记-四-类加载机制/" itemprop="url">
-                  JVM学习笔记(四):类加载机制
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-15T17:45:57+08:00" content="2017-04-15">
-              2017-04-15
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/04/15/JVM学习笔记-四-类加载机制/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/15/JVM学习笔记-四-类加载机制/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/15/JVM学习笔记-四-类加载机制/" class="leancloud_visitors" data-flag-title="JVM学习笔记(四):类加载机制">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="类加载时机"><a href="#类加载时机" class="headerlink" title="类加载时机"></a>类加载时机</h3><ul>
-<li>new getstatic putstatis invokestatic 四个字节码指令</li>
-<li>反射</li>
-<li>发现父类还没有进行初始,加载父类</li>
-<li>main方法所在的类</li>
-<li>当用 jdk 1.7动态语言支持ref_getstatic  ref_putStatic ref_invokeStatic 三个句柄</li>
-</ul>
-<h3 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h3><ul>
-<li><p><strong>加载 </strong></p>
-<ul>
-<li>通过一个类的全限定名获取类的二进制字节流</li>
-<li>将字节流代表的静态存储结构转为方法区的运行时数据结构</li>
-<li>内存中生成一个<code>Class</code>对象,作为方法区这个类的各种数据访问入口</li>
-</ul>
-</li>
-<li><p><strong>验证</strong> :确保字节流包含的信息符合要求</p>
-<ul>
-<li><strong>文件格式验证</strong>:是否符合Class文件规范</li>
-<li><strong>元数据验证</strong>:对<strong>类的元数据</strong>语义分析,符合java语言规范</li>
-<li><strong>字节码验证</strong>:对<strong>类的方法体</strong>进行校验分析</li>
-<li><strong>符号引用雅正</strong></li>
-</ul>
-</li>
-<li><p><strong>准备</strong>:为类变量分配内存和设置初始值 ,所需内存都在方法去分配</p>
-<ul>
-<li>类变量指的 <code>static</code> 修饰的变量</li>
-<li>初始值指的 零值,不是人为代码的赋值</li>
-</ul>
-</li>
-<li><p><strong>解析</strong> : 将常量池的符号引用替换为直接引用</p>
-</li>
-<li><p><strong>初始化</strong>  :赋值人为设置的值</p>
-</li>
-</ul>
-<h3 id="双亲委派模型"><a href="#双亲委派模型" class="headerlink" title="双亲委派模型"></a>双亲委派模型</h3><p>除了顶端的加载器,其他加载器都应该有父类的加载器</p>
-<ul>
-<li>启动类加载器 (BootStrap) C++实现 虚拟机自身一部分</li>
-<li>其他类加载器</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">public void loadClass()&#123;</div><div class="line">	Class c findLoadedClass(name);</div><div class="line">	//类没有被加载过</div><div class="line">	if(c == null)&#123;</div><div class="line">		//尝试加载父类的加载器</div><div class="line">		if(parent != null)&#123;</div><div class="line">			//一层一层向顶部递归调用</div><div class="line">			c = parent.loadClass();</div><div class="line">		&#125;else &#123;</div><div class="line">			//找到最顶端还是没找到,调用 bootstrap</div><div class="line">			c  = findBootstrapClass();</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	if(c == null)&#123;</div><div class="line">		//父类无法加载</div><div class="line">		c = findClass();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>过程:调用父类的加载器,父类无法完成再调用自己的加载器</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/10/JVM学习笔记-三-Java内存模型/" itemprop="url">
-                  JVM学习笔记(三):Java内存模型
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-04-10T16:10:39+08:00" content="2017-04-10">
-              2017-04-10
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/04/10/JVM学习笔记-三-Java内存模型/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/10/JVM学习笔记-三-Java内存模型/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/04/10/JVM学习笔记-三-Java内存模型/" class="leancloud_visitors" data-flag-title="JVM学习笔记(三):Java内存模型">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="java-内存模型"><a href="#java-内存模型" class="headerlink" title="java 内存模型"></a>java 内存模型</h3><p>目标:定义程序各个变量的访问规则</p>
-<ul>
-<li><strong>主内存</strong>(共享-&gt;java堆): 所有变量都存储在这</li>
-<li><strong>工作内存</strong>(私有-虚拟机栈): 变量在工作内存中只是拷贝的副本</li>
-</ul>
-<h4 id="内存间交互操作"><a href="#内存间交互操作" class="headerlink" title="内存间交互操作"></a>内存间交互操作</h4><p>java内存模型定义了以下八种操作,都是原子性的</p>
-<ul>
-<li>lock(锁定)</li>
-<li>unlock(解锁)</li>
-<li>read(读取)</li>
-<li>load(载入)</li>
-<li>use(使用)</li>
-<li>assign(赋值)</li>
-<li>store(存储)</li>
-<li>write(写入)</li>
-</ul>
-<p>使用八种操作要符合以下规则</p>
-<ul>
-<li>一个新变量只能在<strong>主内存</strong>中诞生,对一个变量 <code>use,store</code>前,必须 <code>assign和load</code></li>
-<li>对一个变量 <code>lock</code> 了,那么会清空 <strong>工作内存</strong> 中变量的值,然后需要重新<code>load或assign</code></li>
-<li>对一个变量 <code>unlock</code> 之前,必须把变量同步回<strong>主内存</strong>中,<code>store,write</code></li>
-</ul>
-<h3 id="volatile-操作"><a href="#volatile-操作" class="headerlink" title="volatile 操作"></a>volatile 操作</h3><ul>
-<li>保证了可见性原理<ul>
-<li>产生一个<strong>内存屏障</strong>:他使用一个<code>lock</code>操作,这样会清空工作内存的值,然后从新执行<code>load assign</code>,获取主内存的最新数据</li>
-<li><code>lock</code>后会<code>unlock</code>,会执行 <code>store,write</code>,将数据写回主内存,通过这两点保证了可见性</li>
-</ul>
-</li>
-<li>保证了有序性:<ul>
-<li>因为<strong>内存屏障</strong>,lock指令会把修改同步到主内存中,这样形成了<code>指令重排序无法越过内存屏障</code>也就是volatile</li>
-</ul>
-</li>
-</ul>
-<h4 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h4><ul>
-<li>八个基本操作是原子性的,基本数据类型的访问读写是具有原子性的</li>
-<li>更大范围需要保证原子性,可以用<strong>synchronized</strong></li>
-</ul>
-<h4 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h4><p>一个线程修改了共享变量的值,其他线程能立即获取到这个修改</p>
-<ul>
-<li><strong>synchronized</strong> 通过 <code>unlock</code> 之前,必须将变量同步回主内存</li>
-<li><strong>final</strong> 通过 不传递 <code>this</code></li>
-</ul>
-<h4 id="有序性"><a href="#有序性" class="headerlink" title="有序性"></a>有序性</h4><ul>
-<li>volatile 通过<code>禁止指令重排序</code>保证有序性</li>
-<li>synchronized 通过 <code>一个变量同一时刻只能有一个线程 lock</code></li>
-</ul>
-<h4 id="先行先发生-hapends-before"><a href="#先行先发生-hapends-before" class="headerlink" title="先行先发生 hapends-before"></a>先行先发生 hapends-before</h4><p>如果两个操作间的关系不在下面规则内,那么就没有顺序性保障</p>
-<ul>
-<li><strong>程序次序规则</strong>:单个线程内程序流顺序</li>
-<li><strong>官程锁定规则</strong>:对于同一个锁,<code>unlock</code>发生在<code>lock</code>之前</li>
-<li><strong>valatile 变量规则</strong></li>
-<li><strong>线程启动规则</strong>:start()先行于线程内任何操作</li>
-<li><strong>线程终止规则</strong>:所有操作先行于 线程终止</li>
-<li><strong>线程中断规则</strong>:<code>interrupt()</code>先行发生于被中断的代码</li>
-<li><strong>对象终结规则</strong>:对象的初始化先行于 <code>finalize()</code></li>
-<li><strong>传递性</strong></li>
-</ul>
-<h3 id="JAVA-与-线程"><a href="#JAVA-与-线程" class="headerlink" title="JAVA 与 线程"></a>JAVA 与 线程</h3><h4 id="线程的实现"><a href="#线程的实现" class="headerlink" title="线程的实现"></a>线程的实现</h4><ul>
-<li>使用内核线程实现</li>
-<li>使用用户线程实现</li>
-<li>使用用户线程+轻量级进程(线程)实现<h4 id="线程调度"><a href="#线程调度" class="headerlink" title="线程调度"></a>线程调度</h4></li>
-<li>协同式调度:执行时间由线程本身控制</li>
-<li>抢占式调度,由系统分配执行时间</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -2022,7 +1902,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">19</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
