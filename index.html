@@ -1326,6 +1326,209 @@
             
               
                 
+                <a class="post-title-link" href="/2018/01/03/Binder-机制/" itemprop="url">
+                  Binder 机制
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-01-03T23:08:10+08:00" content="2018-01-03">
+              2018-01-03
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/01/03/Binder-机制/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/01/03/Binder-机制/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/01/03/Binder-机制/" class="leancloud_visitors" data-flag-title="Binder 机制">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="Binder-存在的意义-为什么要使用Binder"><a href="#Binder-存在的意义-为什么要使用Binder" class="headerlink" title="Binder 存在的意义?为什么要使用Binder"></a>Binder 存在的意义?为什么要使用Binder</h3><h4 id="进程隔离"><a href="#进程隔离" class="headerlink" title="进程隔离"></a>进程隔离</h4><blockquote>
+<p>进程隔离是为保护操作系统中进程互不干扰而设计的一组不同硬件和软件的技术。这个技术是为了避免进程A写入进程B的情况发生。</p>
+</blockquote>
+<p>操作系统的不同进程之间，数据不共享；对于每个进程来说，因此一个进程需要与另外一个进程通信，需要某种系统机制才能完成。</p>
+<h4 id="跨进程方式"><a href="#跨进程方式" class="headerlink" title="跨进程方式"></a>跨进程方式</h4><ul>
+<li><p>Linux 传统跨进程(未严格验证通信双方身份)</p>
+<ul>
+<li>Socket</li>
+<li>管道</li>
+</ul>
+</li>
+<li><p>Android : <strong>Binder</strong></p>
+<ul>
+<li>动态可加载模块 LKM: 运行时被动态加载到内核,作为内核的一部分.成为内核与用户空间的桥梁,完成通信.Android 中称为 <code>Binder 驱动</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="Binder-使用"><a href="#Binder-使用" class="headerlink" title="Binder 使用"></a>Binder 使用</h3><p>想要使用跨进程通信 Binder,最常见的就是Service中,我们首先需要创建一个 <code>aidl</code>文件,里面定义好跨进程通信的接口.</p>
+<p>比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">interface IRemote &#123;</div><div class="line">    int getAIDLResult(int i);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后我们 <code>Rebuild</code> 一下,编译器会自动生成对应的 Java 文件,</p>
+<h3 id="Demo-演示"><a href="#Demo-演示" class="headerlink" title="Demo 演示"></a>Demo 演示</h3><h4 id="Server-端"><a href="#Server-端" class="headerlink" title="Server 端"></a>Server 端</h4><p>我们创建一个远程 Service 对象,并且覆盖onBind() 方法并返回 IRemoteService.Stub 实例 mBinder<br>注意到 Stub 是一个抽象类,我们得实现 <code>aidl</code>文件中定义的方法.</p>
+<p>Service</p>
+<ul>
+<li>本地服务:依附于主进程,非独立进程,无进程隔离</li>
+<li>远程服务:<strong>声明android:process=”:remote”</strong>,成为独立进程,有进程隔离,需要使用AIDL进行IPC</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">public class RemoteService extends Service &#123;</div><div class="line"></div><div class="line">    private static final String TAG = RemoteService.class.getSimpleName();</div><div class="line">    </div><div class="line">    private  IRemote.Stub mBinder = new IRemote.Stub()&#123;</div><div class="line">        @Override</div><div class="line">        public int getAIDLResult(int result) throws RemoteException &#123;</div><div class="line">            Log.e(&quot;AIDLDemo&quot;,&quot;Service getRequest&quot;);</div><div class="line">            Log.e(&quot;AIDLDemo ; &quot;,&quot;Service pid &quot;+android.os.Process.myPid() );</div><div class="line">            return i+1;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">    </div><div class="line">    @Override</div><div class="line">    public IBinder onBind(Intent intent) &#123;</div><div class="line">        return mBinder;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="Client-端"><a href="#Client-端" class="headerlink" title="Client 端"></a>Client 端</h4><p>我们在客户端服务连接 <code>ServiceConnection</code> 的 <code>onServiceConnected()</code> 获取到了 IBinder 实例,通过 Binder 的 <code>asInterface</code> 获取到了远程服务的代理对象 <code>remoteService</code>,最后我们通过 <code>remoteService.getResult()</code> 就可以像本地方法一样调用远程服务的方法了,实现了跨进程通信.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">public class MainActivity extends AppCompatActivity &#123;</div><div class="line">    private ServiceConnection mConnection = new ServiceConnection() &#123;</div><div class="line">        @Override</div><div class="line">        public void onServiceConnected(ComponentName name, IBinder service) &#123;</div><div class="line">        //通过 asInterface ,获取 Binder 代理对象,调用远程方法跨进程通信</div><div class="line">            IRemote remoteService = IRemote.Stub.asInterface(service);</div><div class="line">            try &#123;</div><div class="line">                remoteService.getResult();</div><div class="line">            &#125; catch (RemoteException e) &#123;</div><div class="line">                e.printStackTrace();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">    &#125;;</div><div class="line">    ...</div><div class="line">    @Override</div><div class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</div><div class="line">        ...</div><div class="line">        //启动Service</div><div class="line">        Intent intent = new Intent(this,MyService.class);</div><div class="line">        bindService(intent,mServiceConnection,BIND_AUTO_CREATE);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">Q: IBinder是什么,IInterface是什么,IBinder为什么能转成IInterface</div></pre></td></tr></table></figure></p>
+<h3 id="原理分析"><a href="#原理分析" class="headerlink" title="原理分析"></a>原理分析</h3><p>我们来分析一下这个文件.需要了解的地方已经写在注释中了.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div></pre></td><td class="code"><pre><div class="line">public interface IRemote extends android.os.IInterface &#123;</div><div class="line">    </div><div class="line">    public static abstract class Stub extends android.os.Binder implements com.mashell.taskb.IRemote &#123;</div><div class="line">        private static final java.lang.String DESCRIPTOR = &quot;com.mashell.taskb.IRemote&quot;;</div><div class="line"></div><div class="line">        public Stub() &#123;</div><div class="line">            this.attachInterface(this, DESCRIPTOR);</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        //客户端通过 Stub.asInterface() 得到 Binder 代理对象,远程调用 Server 的方法,实现跨进程通信.</div><div class="line">        public static com.mashell.taskb.IRemote asInterface(android.os.IBinder obj) &#123;</div><div class="line">            if ((obj == null)) &#123;</div><div class="line">                return null;</div><div class="line">            &#125;</div><div class="line">            //查找本地 Binder 对象</div><div class="line">            android.os.IInterface iin = obj.queryLocalInterface(DESCRIPTOR);</div><div class="line">            //找到了而且是同一个进程,直接向上转型成 Binder 本地对象.</div><div class="line">            if (((iin != null) &amp;&amp; (iin instanceof com.mashell.taskb.IRemote))) &#123;</div><div class="line">                return ((com.mashell.taskb.IRemote) iin);</div><div class="line">            &#125;</div><div class="line">            //不是同一个进程,返回 Binder 代理对象.</div><div class="line">            return new com.mashell.taskb.IRemote.Stub.Proxy(obj);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        @Override</div><div class="line">        public android.os.IBinder asBinder() &#123;</div><div class="line">            return this;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        //Service端处理请求的方法</div><div class="line">        @Override</div><div class="line">        public boolean onTransact(int code, android.os.Parcel data, android.os.Parcel reply, int flags) throws android.os.RemoteException &#123;</div><div class="line">            switch (code) &#123;</div><div class="line">                case INTERFACE_TRANSACTION: &#123;</div><div class="line">                    reply.writeString(DESCRIPTOR);</div><div class="line">                    return true;</div><div class="line">                &#125;</div><div class="line">                case TRANSACTION_getResult: &#123;</div><div class="line">                    data.enforceInterface(DESCRIPTOR);</div><div class="line">                    int _arg0;</div><div class="line">                    _arg0 = data.readInt();</div><div class="line">                    //调用我们定义的方法,是抽象方法,需要在服务端实例中重写实现这个方法</div><div class="line">                    this.getResult(_arg0);</div><div class="line">                    reply.writeNoException();</div><div class="line">                    return true;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            return super.onTransact(code, data, reply, flags);</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        //具体的代理类, 远程 Binder</div><div class="line">        private static class Proxy implements com.mashell.taskb.IRemote &#123;</div><div class="line">            private android.os.IBinder mRemote;</div><div class="line"></div><div class="line">            Proxy(android.os.IBinder remote) &#123;</div><div class="line">                mRemote = remote;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            @Override</div><div class="line">            public android.os.IBinder asBinder() &#123;</div><div class="line">                return mRemote;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            public java.lang.String getInterfaceDescriptor() &#123;</div><div class="line">                return DESCRIPTOR;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            @Override</div><div class="line">            public void getResult(int result) throws android.os.RemoteException &#123;</div><div class="line">                android.os.Parcel _data = android.os.Parcel.obtain();</div><div class="line">                android.os.Parcel _reply = android.os.Parcel.obtain();</div><div class="line">                try &#123;</div><div class="line">                    _data.writeInterfaceToken(DESCRIPTOR);</div><div class="line">                    _data.writeInt(result);</div><div class="line">                   //对于跨进程调用方法,调用 transact() 这个 native 方法,要知道最终调用 talkWithDriver 方法</div><div class="line">                   //然后该函数通过 ioctl 系统调用, Client 进程陷入内核态,Client 调用我们定义的 getResult 方法线程挂起等待返回.</div><div class="line">                   //Binder 驱动操作后唤醒 Server进程,调用 Binder 本地对象的 onTransact 函数.</div><div class="line">                   //该函数通过参数判断调用到具体对应的函数.最终Binder 驱动唤醒 Client 并将结果返回.</div><div class="line">                   mRemote.transact(Stub.TRANSACTION_getResult, _data, _reply, 0);</div><div class="line">                    _reply.readException();</div><div class="line">                &#125; finally &#123;</div><div class="line">                    _reply.recycle();</div><div class="line">                    _data.recycle();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        static final int TRANSACTION_getResult = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void getResult(int result) throws android.os.RemoteException;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="asInterface"><a href="#asInterface" class="headerlink" title="asInterface()"></a>asInterface()</h4><h5 id="asInterface-拿到-IBinder-对象-让我们来分析一下这个方法"><a href="#asInterface-拿到-IBinder-对象-让我们来分析一下这个方法" class="headerlink" title="asInterface() 拿到 IBinder 对象,让我们来分析一下这个方法"></a>asInterface() 拿到 IBinder 对象,让我们来分析一下这个方法</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public static com.mashell.taskb.IRemote asInterface(android.os.IBinder obj) &#123;</div><div class="line">            if ((obj == null)) &#123;</div><div class="line">                return null;</div><div class="line">            &#125;</div><div class="line">            android.os.IInterface iin = obj.queryLocalInterface(DESCRIPTOR);</div><div class="line">            if (((iin != null) &amp;&amp; (iin instanceof com.mashell.taskb.IRemote))) &#123;</div><div class="line">                return ((com.mashell.taskb.IRemote) iin);</div><div class="line">            &#125;</div><div class="line">            return new com.mashell.taskb.IRemote.Stub.Proxy(obj);</div><div class="line">        &#125;</div></pre></td></tr></table></figure>
+<p>Binder 会根据情况查找返回 Binder 对象,如果是同一进程就直接返回 <strong>Binder</strong> 本地对象.如果是跨进程那么就返回 <strong>BinderProxy</strong></p>
+<h5 id="queryLocalInterface"><a href="#queryLocalInterface" class="headerlink" title="queryLocalInterface()"></a>queryLocalInterface()</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">在 Binder 类中,查找本地 Interface 返回</div><div class="line">public IInterface queryLocalInterface(String descriptor) &#123;</div><div class="line">        if (mDescriptor.equals(descriptor)) &#123;</div><div class="line">            return mOwner;</div><div class="line">        &#125;</div><div class="line">        return null;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">在 BinderProxy 中,直接返回 null</div><div class="line">public IInterface queryLocalInterface(String descriptor) &#123;</div><div class="line">        return null;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>对于 asInterface,通过上面的分析,</p>
+<ul>
+<li>如果是同一进程直接向下转型</li>
+<li>如果是跨进程的<strong>BinderProxy</strong>,返回一个 Proxy(IBinder mRemote);</li>
+</ul>
+<p>对于我们远程服务端方法的调用,</p>
+<ul>
+<li>Binder 本地对象,不需要跨进程,直接调用抽象方法</li>
+<li>对于 Binder 代理对象,<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">public int getAIDLResult(int i) throws android.os.RemoteException &#123;</div><div class="line">    android.os.Parcel _data = android.os.Parcel.obtain();</div><div class="line">    android.os.Parcel _reply = android.os.Parcel.obtain();</div><div class="line">    int _result;</div><div class="line">    try &#123;</div><div class="line">        _data.writeInterfaceToken(DESCRIPTOR);</div><div class="line">        _data.writeInt(i);</div><div class="line">        </div><div class="line">        mRemote.transact(Stub.TRANSACTION_getAIDLResult, _data, _reply, 0);</div><div class="line">        _reply.readException();</div><div class="line">        _result = _reply.readInt();</div><div class="line">    &#125; finally &#123;</div><div class="line">        _reply.recycle();</div><div class="line">        _data.recycle();</div><div class="line">    &#125;</div><div class="line">    return _result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>重点看 <strong>transact()</strong>,既然是 BinderProxy,我们进入具体类中查看<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">public native boolean transactNative(int code, Parcel data, Parcel reply,</div><div class="line">            int flags) throws RemoteException;</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>这是一个本地方法；它的实现在native层，具体来说在frameworks/base/core/jni/android_util_Binder.cpp文件，里面进行了一系列的函数调用，调用链实在太长这里就不给出了；要知道的是它最终调用到了talkWithDriver函数；看这个函数的名字就知道，通信过程要交给驱动完成了；这个函数最后通过ioctl系统调用，Client进程陷入内核态，Client调用add方法的线程挂起等待返回；驱动完成一系列的操作之后唤醒Server进程，调用了Server进程本地对象的onTransact函数（实际上由Server端线程池完成）。</p>
+</blockquote>
+<h5 id="onTransact"><a href="#onTransact" class="headerlink" title="onTransact()"></a>onTransact()</h5><p>在 <strong>BinderProxy</strong> 的transact()中,我们传入了编号,默认命名是 <strong>TRANSACTION</strong>+方法名,在 <strong>onTransact()</strong> 方法中,通过编号调用具体函数,唤醒Client 返回结果.</p>
+<h3 id="Binder-通信模型"><a href="#Binder-通信模型" class="headerlink" title="Binder 通信模型"></a>Binder 通信模型</h3><p><img src="http://img.blog.csdn.net/20170107102830444" alt=""></p>
+<h3 id="Binder-模型大致通信过程"><a href="#Binder-模型大致通信过程" class="headerlink" title="Binder 模型大致通信过程"></a>Binder 模型大致通信过程</h3><ul>
+<li><p>在Android开机启动过程中，Android会初始化系统的各种Service，</p>
+</li>
+<li><p>将这些初始化的Service向ServiceManager注册（即让ServiceManager管理）。ServiceManager将Service名字和新建的引用填入查找表</p>
+</li>
+<li><p>客户端想要得到具体的Service直接向ServiceManager要即可。客户端首先向ServiceManager查询得到具体的Service引用，然后通过这个引用向具体的服务端发送请求，服务端执行完成后就返回。<strong>返回了Binder代理类</strong></p>
+</li>
+</ul>
+<p><img src="http://img1.ph.126.net/HA21vW_pLTJ2DpMW3obuOQ==/724235115176904253.png" alt=""></p>
+<h3 id="Binder-驱动"><a href="#Binder-驱动" class="headerlink" title="Binder 驱动"></a>Binder 驱动</h3><p>Binder 驱动是一段运行在内核空间的代码,他是 Binder 机制的核心,负责 Binder 节点的建立和进程间信息的传递.通过 <code>&quot;/dev/binder&quot;</code>的文件在内核空间和用户空间来回搬动数据. <code>Linux inctl</code> 函数实现了从用户空间转移到内核空间的功能.</p>
+<h3 id="ServiceManager"><a href="#ServiceManager" class="headerlink" title="ServiceManager"></a>ServiceManager</h3><p>ServiceManager提供了注册,检索服务的功能.所有的服务由 ServiceManager 统一管理.<br>他做了三件事</p>
+<ol>
+<li>打开设备文件 <code>/dev/binder</code>,把文件内容映射到内核空间,借助这块区域,可以实现进程间通信.</li>
+<li>将当前进程注册到 <code>Binder 驱动</code>,系统会将跨进程的服务注册到他的服务列表中.</li>
+<li>ServiceManager也会进入一个无限循环,等待客户端 IPC 请求状态.</li>
+</ol>
+<h3 id="服务注册"><a href="#服务注册" class="headerlink" title="服务注册"></a>服务注册</h3><p><code>ActivityManagerService,WindowManagerService</code>等系统服务,都会调用 <code>ServiceManager.addService()</code>方法添加到 <code>ServiceManager</code>的服务列表中</p>
+<ol>
+<li>Server将自己作为对象,附上一个句柄为0的值(用于访问 ServiceManager),并将这些内容封装成数据报发送给 <code>Binder驱动</code></li>
+<li><code>Binder驱动</code>先检查是否有Server对应的Binder实体,没有就创建 <code>Binder实体</code>并且赋予一个大于0的句柄,然后把句柄和服务名称等信息发送给ServiceManager</li>
+<li>ServiceManager检查服务列表中是否有这个服务,不存在就将服务和它的句柄放入到服务列表中.</li>
+</ol>
+<h3 id="客户端调用服务"><a href="#客户端调用服务" class="headerlink" title="客户端调用服务"></a>客户端调用服务</h3><ol>
+<li>客户端想调用某个服务,把<code>服务名+句柄0的值</code>封装成数据报发送给 <code>Binder 驱动</code></li>
+<li><code>Binder驱动接收到句柄0</code>,把数据包发给 <code>ServiceManager</code></li>
+<li><code>ServiceManager</code>接收到数据包后,找到对应服务,将服务的局并发给 <code>Binder驱动</code>,再发给服务端</li>
+<li>客户端收到句柄后,利用句柄在本地创建 <code>远程Server的代理对象</code></li>
+<li>客户端调用这个服务,会加上<code>参数,标志服</code>等数据放入 <code>Client的共享内存</code>,Binder驱动根据数据找到 <code>Server 的共享内存</code>,<strong>把数据拷贝到内核空间,并且映射到远程服务进程中,执行 onTrasact() 函数</strong></li>
+<li>远程服务执行完后将结果写入自己的共享内存,<strong>Binder驱动再将数据结果拷贝到内核空间,映射到用户端进程中,唤醒客户端线程</strong></li>
+</ol>
+<h3 id="Binder-如何实现拷贝一次-mmap-内存映射"><a href="#Binder-如何实现拷贝一次-mmap-内存映射" class="headerlink" title="Binder 如何实现拷贝一次,mmap()内存映射"></a>Binder 如何实现拷贝一次,mmap()内存映射</h3><p>Linux 内核只有 用户空间拷贝到内核空间 <code>copy_from_user</code> 和内核空间到用户空间 <code>copy_to_user</code>.</p>
+<p>为了实现一次拷贝.Binder利用<code>mmap()</code>实现<code>内核缓存区</code>与<code>接收进程用户空间</code>(接收方可以使 Server 也可以是 Client)<strong>同时映射到同一个共享接收缓存区中</strong>,这样当发送方<code>copy_from_user()</code>发送数据到内核缓存区时,由于<code>内核缓存区Binder创建的接收缓存区&amp;&amp;接收方用户空间地址存在映射关系</code>,所以也相当于发送到了接收进程的用户空间.达到跨进程通信</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/944365-d3c78b193c3e8a38.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/700" alt=""></p>
+<h3 id="IBinder-IInterface-Binder-BinderProxy-Stub-代表什么"><a href="#IBinder-IInterface-Binder-BinderProxy-Stub-代表什么" class="headerlink" title="IBinder IInterface Binder BinderProxy Stub 代表什么"></a>IBinder IInterface Binder BinderProxy Stub 代表什么</h3><ul>
+<li><strong>IBinder</strong> 表示跨进程传输的能力</li>
+<li><strong>IInterface</strong> 代表远程服务具体有那种能力 (IRemote 继承自 IInterface)</li>
+<li><strong>Binder</strong> Binder 本地对象. </li>
+<li><strong>BinderProxy</strong> 远程 Binder 的代理对象,与Binder类在同一个类文件中 (文章错误)</li>
+<li><p><strong>Stub</strong> Binder 本地对象抽象类,需要我们具体去实现</p>
+</li>
+<li><p>IActivityManager 就是一个 <code>IInterface</code>,代表远程Service具有的能力,<code>ActivityManager.getDefault()</code>是Binder本地对象,具体实现是<code>ActivityManagerService</code>,对于<code>Binder</code>代理类,就是<code>ActivityThread</code>的<code>ApplicationThread</code></p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/07/18/ConcurrentHashMap-源码分析/" itemprop="url">
                   ConcurrentHashMap 源码分析
                 </a>
@@ -1748,130 +1951,6 @@
 <ul>
 <li>线程A继续执行之后的代码,<code>e = next;</code>所以<code>newTable[i]</code>的链表为<code>a&lt;-&gt;b;</code>成环.</li>
 </ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/15/LinedList-源码分析/" itemprop="url">
-                  LinedList 源码分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-06-15T21:32:13+08:00" content="2017-06-15">
-              2017-06-15
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/06/15/LinedList-源码分析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/06/15/LinedList-源码分析/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/06/15/LinedList-源码分析/" class="leancloud_visitors" data-flag-title="LinedList 源码分析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">LinkedList&lt;String&gt; list = new LinkedList&lt;String&gt;();</div><div class="line">//添加操作</div><div class="line">list.add(&quot;语文&quot;);</div><div class="line">//删除操作</div><div class="line">liost.remove(&quot;语文&quot;)/remove(1);</div></pre></td></tr></table></figure>
-<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">transient Node&lt;E&gt; first;</div><div class="line">transient Node&lt;E&gt; last;</div><div class="line">//用于保存链表长度</div><div class="line">int size;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"> private static class Node&lt;E&gt; &#123;</div><div class="line">    E item;</div><div class="line">    Node&lt;E&gt; next;</div><div class="line">    Node&lt;E&gt; prev;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到,LinkedList保存了<code>链表首,尾指针</code>,它内部存的是 Node 节点,保存了<code>前后两个节点的指针</code> ,实现了双向链表</p>
-<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public LinkedList() &#123;&#125;</div></pre></td></tr></table></figure>
-<p>默认情况是空队列</p>
-<h3 id="add-方法"><a href="#add-方法" class="headerlink" title="add() 方法"></a>add() 方法</h3><p>用于向集合内添加元素</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public boolean add(E e) &#123;</div><div class="line">    //添加默认添加到队尾,FIFO</div><div class="line">    linkLast(e);</div><div class="line">    return true;</div><div class="line">&#125;</div><div class="line"></div><div class="line">-----------------linkLast--------------</div><div class="line">void linkLast(E e) &#123;</div><div class="line">    //拿到链表尾指针</div><div class="line">    final Node&lt;E&gt; l = last;</div><div class="line">    //利用 E 创建指针</div><div class="line">    final Node&lt;E&gt; newNode = new Node&lt;&gt;(l, e, null);</div><div class="line">    //修改 last 指针的指向</div><div class="line">    last = newNode;</div><div class="line">    //如果是空链表,那么该节点直接成为 链表头节点</div><div class="line">    if (l == null)</div><div class="line">        first = newNode;</div><div class="line">    else</div><div class="line">    //连接(插)入创建的新指针</div><div class="line">        l.next = newNode;</div><div class="line">    //更新链表长度</div><div class="line">    size++;</div><div class="line">    modCount++;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到,添加元素会添加到队列末尾,以此满足<code>FIFO</code></p>
-<h3 id="get-set-方法"><a href="#get-set-方法" class="headerlink" title="get() set()方法"></a>get() set()方法</h3><p>两个方法分别用于获取元素和修改元素值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">public E get(int index) &#123;</div><div class="line">    //检查坐标</div><div class="line">    checkElementIndex(index);</div><div class="line">    //返回node节点的值</div><div class="line">    return node(index).item;</div><div class="line">&#125;</div><div class="line"></div><div class="line">---------------node(index)----------------</div><div class="line"></div><div class="line">Node&lt;E&gt; node(int index) &#123;</div><div class="line">    //size &gt;&gt;1, size的一半,前半段遍历查找</div><div class="line">    if (index &lt; (size &gt;&gt; 1)) &#123;</div><div class="line">        Node&lt;E&gt; x = first;</div><div class="line">        for (int i = 0; i &lt; index; i++)</div><div class="line">            x = x.next;</div><div class="line">        return x;</div><div class="line">    &#125; else &#123;</div><div class="line">    //后半段遍历查找</div><div class="line">        Node&lt;E&gt; x = last;</div><div class="line">        for (int i = size - 1; i &gt; index; i--)</div><div class="line">            x = x.prev;</div><div class="line">        return x;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">--------------set()--------------------</div><div class="line"></div><div class="line">public E set(int index, E element) &#123;</div><div class="line">    //检查坐标</div><div class="line">    checkElementIndex(index);</div><div class="line">    //获取 node 节点</div><div class="line">    Node&lt;E&gt; x = node(index);</div><div class="line">    E oldVal = x.item;</div><div class="line">    //更新 node 节点值</div><div class="line">    x.item = element;</div><div class="line">    return oldVal;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到,LinkedList查找,首先判断 index 是在链表的前半段还是后半段,然后在响应区间范围遍历查找,时间复杂度<code>o(n/2)</code></p>
-<h3 id="remove-方法"><a href="#remove-方法" class="headerlink" title="remove() 方法"></a>remove() 方法</h3><p>remove 用于删除元素</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">E unlink(Node&lt;E&gt; x) &#123;</div><div class="line">    // assert x != null;</div><div class="line">    final E element = x.item;</div><div class="line">    final Node&lt;E&gt; next = x.next;</div><div class="line">    final Node&lt;E&gt; prev = x.prev;</div><div class="line">    //双向链表操作</div><div class="line">    //如果就是头结点,直接将头结点指向 next</div><div class="line">    if (prev == null) &#123;</div><div class="line">        first = next;</div><div class="line">    &#125; else &#123;</div><div class="line">    //将 preNode 指向 当前节点的下一个节点</div><div class="line">        prev.next = next;</div><div class="line">        x.prev = null;</div><div class="line">    &#125;</div><div class="line">    //如果是尾节点,直接将尾节点指向 preNode</div><div class="line">    if (next == null) &#123;</div><div class="line">        last = prev;</div><div class="line">    &#125; else &#123;</div><div class="line">    //将下一个节点的 pre 指向当前节点的pre</div><div class="line">        next.prev = prev;</div><div class="line">        x.next = null;</div><div class="line">    &#125;</div><div class="line">    //置null,方便回收</div><div class="line">    x.item = null;</div><div class="line">    size--;</div><div class="line">    modCount++;</div><div class="line">    return element;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>remove函数比较简单,就是基本的双向链表移除元素操作</p>
 
           
         
