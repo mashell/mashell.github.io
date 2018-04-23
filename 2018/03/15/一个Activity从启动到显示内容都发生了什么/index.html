@@ -86,29 +86,35 @@
 
 <meta name="description" content="涉及到的几个类
 zygote:开启App新进程,都是通过 zygote的fork 实现的
+
 ActivityManagerService:管理Activity 的生命周期的服务端
+
 Instrumentation: 对Application和Activity 初始化以及生命周期管理的工具类
 ActivityThread:与AMS交互的类,程序入口
-ActivityStack:Activity的栈管理类">
+ActivityStack:Activity的栈管">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一个Activity从启动到显示内容都发生了什么">
 <meta property="og:url" content="http://mashell.cn/2018/03/15/一个Activity从启动到显示内容都发生了什么/index.html">
 <meta property="og:site_name" content="mashell">
 <meta property="og:description" content="涉及到的几个类
 zygote:开启App新进程,都是通过 zygote的fork 实现的
+
 ActivityManagerService:管理Activity 的生命周期的服务端
+
 Instrumentation: 对Application和Activity 初始化以及生命周期管理的工具类
 ActivityThread:与AMS交互的类,程序入口
-ActivityStack:Activity的栈管理类">
-<meta property="og:updated_time" content="2018-04-11T09:48:59.000Z">
+ActivityStack:Activity的栈管">
+<meta property="og:updated_time" content="2018-04-23T16:29:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一个Activity从启动到显示内容都发生了什么">
 <meta name="twitter:description" content="涉及到的几个类
 zygote:开启App新进程,都是通过 zygote的fork 实现的
+
 ActivityManagerService:管理Activity 的生命周期的服务端
+
 Instrumentation: 对Application和Activity 初始化以及生命周期管理的工具类
 ActivityThread:与AMS交互的类,程序入口
-ActivityStack:Activity的栈管理类">
+ActivityStack:Activity的栈管">
 
 
 
@@ -311,8 +317,10 @@ ActivityStack:Activity的栈管理类">
 
       
         <h2 id="涉及到的几个类"><a href="#涉及到的几个类" class="headerlink" title="涉及到的几个类"></a>涉及到的几个类</h2><ul>
-<li><strong>zygote</strong>:开启App新进程,都是通过 <code>zygote的fork</code> 实现的</li>
-<li><strong>ActivityManagerService</strong>:管理Activity 的生命周期的服务端</li>
+<li><p><strong>zygote</strong>:开启App新进程,都是通过 <code>zygote的fork</code> 实现的</p>
+</li>
+<li><p><strong>ActivityManagerService</strong>:管理Activity 的生命周期的服务端</p>
+</li>
 <li><strong>Instrumentation</strong>: 对Application和Activity 初始化以及生命周期管理的工具类</li>
 <li><strong>ActivityThread</strong>:与<code>AMS</code>交互的类,程序入口</li>
 <li><strong>ActivityStack</strong>:Activity的栈管理类</li>
@@ -344,6 +352,7 @@ ActivityStack:Activity的栈管理类">
 <li>ActivityManagerService.startActivityAsUser()</li>
 <li><code>ActivityStarter</code>.startActivityMayWait()</li>
 <li><code>ActivityStarter</code>.startActivityLocked()</li>
+<li><code>ActivityStarter</code>.startActivity(),函数结尾调用-&gt; </li>
 <li><code>ActivityStarter</code>.startActivity()</li>
 <li><code>ActivityStarter</code>.startActivityUnchecked()</li>
 <li><code>ActivityStackSupervisor</code>.resumeFocusedStackTopActivityLocked()</li>
@@ -361,17 +370,17 @@ ActivityStack:Activity的栈管理类">
 <li><code>ActivityThread.H</code>.sendMessage()</li>
 <li><code>ActivityThread.H</code>.handleMessage()</li>
 <li><code>ActivityThread</code>.handlePauseActivity()<ul>
-<li>这个方法会让 栈顶Activity 先 <code>onPuase</code>,然后<code>启动 新Activity</code></li>
-</ul>
-</li>
+<li>这个方法会让 栈顶Activity 先 <code>onPuase</code>,然后启动<code>新Activity</code></li>
 <li><code>ActivityThread</code>.performPauseActivity()</li>
 <li><code>ActivityThread</code>.performPauseActivityIfNeeded()</li>
 <li><code>Instrumentation</code>.callActivityOnPause()</li>
 <li><code>Activity</code>.performPause()</li>
 <li><code>Activity</code>.onPause()</li>
 </ul>
+</li>
+</ul>
 <blockquote>
-<p>在这一步,栈顶的 Activity 已经执行了 <code>onPause</code> 方法,此时返回  (3)步骤 的 <code>handlePauseActivity()</code> ,方法最后执行了 <code>ActivityManager.getService().activityPaused(token);</code> 来告诉 AMS “栈顶Activity 已经” <strong>onPuase()</strong>了, Binder 跨进程调用</p>
+<p>在这一步,栈顶的 Activity 已经执行了 <code>onPause</code> 方法,此时返回  (3) 步骤 的 <code>handlePauseActivity()</code> ,方法最后执行了 <code>ActivityManager.getService().activityPaused(token);</code> 来告诉 AMS “栈顶Activity 已经” <strong>onPuase()</strong> 了, Binder 跨进程调用</p>
 </blockquote>
 <ul>
 <li><code>ActivityManager</code>.getService().activityPaused(token);</li>
@@ -379,20 +388,32 @@ ActivityStack:Activity的栈管理类">
 <li><code>ActivityStack</code>.completePauseLocked()</li>
 <li><code>ActivityStackSupervisor</code>.resumeFocusedStackTopActivityLocked()</li>
 <li><code>ActivityStack</code>.resumeTopActivityUncheckedLocked()</li>
-<li><code>ActivityStack</code>.resumeTopActivityInnerLocked()</li>
-<li><code>ActivityStackSupervisor</code>.resumeTopActivityInnerLocked()</li>
+<li><code>ActivityStack</code>.resumeTopActivityInnerLocked(),<code>这个方法前面部分代码在前面会执行 startPausingLocked(),让栈顶activity onPause,前面 (2) 分析过</code></li>
 <li><code>ActivityStackSupervisor</code>.startSpecificActivityLocked()</li>
 </ul>
 <blockquote>
-<p><code>startSpecificActivityLocked</code> 会判断启动的 Activity 是否已经启动,启动的话直接调用 <code>realStartActivityLocked</code>.  否则调用 <code>startProcessLocked()</code>,启动应用进程</p>
+<p><code>startSpecificActivityLocked</code> 会判断启动的 Activity 所属进程是否已经启动,启动的话直接调用 <code>realStartActivityLocked</code>.  否则调用 <code>startProcessLocked()</code>,启动应用进程</p>
 </blockquote>
-<h2 id="4-启动Activity所属的应用进程"><a href="#4-启动Activity所属的应用进程" class="headerlink" title="4.启动Activity所属的应用进程"></a>4.启动Activity所属的应用进程</h2><p>涉及 <code>zygote</code>启动的源码暂时不分析了,我们知道 <code>Zygote</code>通过<code>Socket</code>方式让<code>Zygote fork</code>出一个新进程,然后根据<code>android.app.ActivityThread</code>字符串,反射出对象并且调用<code>main()</code>方法,这样我们的进程已经启动了</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public static void main(String[] args) &#123;</div><div class="line">        ...</div><div class="line">        Looper.prepareMainLooper();</div><div class="line"></div><div class="line">        ActivityThread thread = new ActivityThread();</div><div class="line">        thread.attach(false);</div><div class="line">        ...</div><div class="line">        Looper.loop();</div><div class="line">        throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<h2 id="4-启动Activity所属的应用进程"><a href="#4-启动Activity所属的应用进程" class="headerlink" title="4.启动Activity所属的应用进程"></a>4.启动Activity所属的应用进程</h2><p>前面分析了,如果Activity进程没有启动,会调用<code>startProcessLocked()</code>启动进程.</p>
+<h4 id="有如下步骤"><a href="#有如下步骤" class="headerlink" title="有如下步骤"></a>有如下步骤</h4><ul>
+<li><code>ActivityManagerService</code>.startPorcess()</li>
+<li><code>ActivityManagerService</code>.startProcessLocked()</li>
+<li><code>Process</code>.start()</li>
+<li><code>ZygoteProcess</code>.start()</li>
+<li><code>ZygoteProcess</code>.startViaZygote()</li>
+<li><code>ActivityThread</code>.main()</li>
+<li><code>ActivityThread</code>.attach()</li>
+<li><code>ActivityManagerService</code>.attachApplicationLocked()</li>
+<li><code>ActivityStackSupervisor</code>.attachApplicationLocked()</li>
+<li><code>ActivityStackSupervisor</code>.realStartActivityLocked</li>
+</ul>
+<p>涉及 <code>zygote</code>启动进程的源码暂时不分析了,我们只需要知道 <code>Zygote</code>通过<code>Socket</code>方式让<code>Zygote fork</code>出一个新进程,然后根据<code>android.app.ActivityThread</code>字符串,反射出<code>ActivityThread</code>对象并且调用<code>main()</code>方法,这样我们的进程已经启动了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public static void main(String[] args) &#123;</div><div class="line">    ...</div><div class="line">    Looper.prepareMainLooper();</div><div class="line"></div><div class="line">    ActivityThread thread = new ActivityThread();</div><div class="line">    thread.attach(false);</div><div class="line">    ...</div><div class="line">    Looper.loop();</div><div class="line">    throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>我们可以看到, <code>ActivityThread 的 main</code> 方法初始化并且启动了一个 <code>loop</code>,并且执行了自己的 <code>attch</code>方法</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">private void attach(boolean system) &#123;</div><div class="line">    ...</div><div class="line">    final IActivityManager mgr = ActivityManager.getService();</div><div class="line">    try &#123;</div><div class="line">        mgr.attachApplication(mAppThread);</div><div class="line">    &#125; catch (RemoteException ex) &#123;</div><div class="line">        throw ex.rethrowFromSystemServer();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>该方法通过<code>Binder</code>调用了<code>ActivityManagerService</code>的<code>attachApplication</code>方法</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">private final boolean attachApplicationLocked(IApplicationThread thread,</div><div class="line">            int pid) &#123;</div><div class="line">        ...</div><div class="line">        if (normalMode) &#123;</div><div class="line">            try &#123;</div><div class="line">                if (mStackSupervisor.attachApplicationLocked(app)) &#123;</div><div class="line">                    didSomething = true;</div><div class="line">                &#125;</div><div class="line">            &#125; catch (Exception e) &#123;</div><div class="line">                ...</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">        return true;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>在 <code>attachApplicationLocked(app)</code>中,启动了应用进程,并且开始 Activity 的启动</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">private final boolean attachApplicationLocked(IApplicationThread thread,</div><div class="line">            int pid) &#123;</div><div class="line">    ...</div><div class="line">    if (normalMode) &#123;</div><div class="line">        try &#123;</div><div class="line">            if (mStackSupervisor.attachApplicationLocked(app)) &#123;</div><div class="line">                didSomething = true;</div><div class="line">            &#125;</div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">    return true;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 <code>attachApplicationLocked(app)</code>中,启动了应用进程.调用了<code>realStartActivityLocked()</code>,开始 Activity 的启动.</p>
 <h2 id="5-启动-Activity"><a href="#5-启动-Activity" class="headerlink" title="5.启动 Activity"></a>5.启动 Activity</h2><h3 id="从启动了对应-应用进程-到启动-Activity-主要包括以下几个步骤"><a href="#从启动了对应-应用进程-到启动-Activity-主要包括以下几个步骤" class="headerlink" title="从启动了对应 应用进程,到启动 Activity,主要包括以下几个步骤"></a>从启动了对应 应用进程,到启动 Activity,主要包括以下几个步骤</h3><ul>
 <li><code>ActivityStackSupervisor</code>.attachApplicationLocked()</li>
 <li><code>ActivityStackSupervisor</code>.realStartActivityLocked()</li>
@@ -401,16 +422,25 @@ ActivityStack:Activity的栈管理类">
 <li><code>ActivityThread.H</code>.sendMessage()</li>
 <li><code>ActivityThread.H</code>.handleMessage()</li>
 <li><code>ActivityThread</code>.handleLauncherActivity()</li>
-<li><code>ActivityThread</code>.performLauncherActivity()</li>
+<li><code>ActivityThread</code>.performLauncherActivity(),这个方法比较重要</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">private Activity performLaunchActivity(ActivityClientRecord r, Intent customIntent) &#123;</div><div class="line">       //从 ActivityClientRecord 获取 Activity的组件信息</div><div class="line">       ActivityInfo aInfo = r.activityInfo;</div><div class="line">       if (r.packageInfo == null) &#123;</div><div class="line">           r.packageInfo = getPackageInfo(aInfo.applicationInfo, r.compatInfo,</div><div class="line">                   Context.CONTEXT_INCLUDE_CODE);</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       ComponentName component = r.intent.getComponent();</div><div class="line">       if (component == null) &#123;</div><div class="line">           component = r.intent.resolveActivity(</div><div class="line">               mInitialApplication.getPackageManager());</div><div class="line">           r.intent.setComponent(component);</div><div class="line">       &#125;</div><div class="line">       </div><div class="line">       //通过 Instrumentation 的 newActivity 使用类加载器创建 Activity 对象</div><div class="line">       if (r.activityInfo.targetActivity != null) &#123;</div><div class="line">           component = new ComponentName(r.activityInfo.packageName,</div><div class="line">                   r.activityInfo.targetActivity);</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       ContextImpl appContext = createBaseContextForActivity(r);</div><div class="line">       Activity activity = null;</div><div class="line">       try &#123;</div><div class="line">           java.lang.ClassLoader cl = appContext.getClassLoader();</div><div class="line">           activity = mInstrumentation.newActivity(</div><div class="line">                   cl, component.getClassName(), r.intent);</div><div class="line">          &#125;</div><div class="line">       ...</div><div class="line">       //通过 LoadedApk 的 makeApplication 创建 Application 对象</div><div class="line">       //在 makeApplication 中,通过 Instrumentation 的 callApplicationOnCreate 来调用 onCreate 方法</div><div class="line">       try &#123;</div><div class="line">           Application app = r.packageInfo.makeApplication(false, mInstrumentation);</div><div class="line"></div><div class="line">           if (activity != null) &#123;</div><div class="line">              ...</div><div class="line">              //调用 activity 的 attach 方法</div><div class="line">              //在 attach 方法中,ContextImpl会与Activity 建立联系</div><div class="line">              //attch 方法中,也会初始化Windows,将自己与Windows建立联系</div><div class="line">               activity.attach(appContext, this, getInstrumentation(), r.token,</div><div class="line">                       r.ident, app, r.intent, r.activityInfo, title, r.parent,</div><div class="line">                       r.embeddedID, r.lastNonConfigurationInstances, config,</div><div class="line">                       r.referrer, r.voiceInteractor, window, r.configCallback);</div><div class="line">               ...</div><div class="line">               //调用 callActivityOnCreate,最终调用了 onCreate</div><div class="line">               if (r.isPersistable()) &#123;</div><div class="line">                   mInstrumentation.callActivityOnCreate(activity, r.state, r.persistentState);</div><div class="line">               &#125; else &#123;</div><div class="line">                   mInstrumentation.callActivityOnCreate(activity, r.state);</div><div class="line">               &#125;</div><div class="line">               ...</div><div class="line">               if (!r.activity.mFinished) &#123;</div><div class="line">               //调用 performStart,最终是调用 onStart</div><div class="line">                   activity.performStart();</div><div class="line">                   r.stopped = false;</div><div class="line">               &#125;</div><div class="line">               ...</div><div class="line">       return activity;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"> private Activity performLaunchActivity(ActivityClientRecord r, Intent customIntent) &#123;</div><div class="line">    //从 ActivityClientRecord 获取 Activity的组件信息</div><div class="line">    ActivityInfo aInfo = r.activityInfo;</div><div class="line">    if (r.packageInfo == null) &#123;</div><div class="line">        r.packageInfo = getPackageInfo(aInfo.applicationInfo, r.compatInfo,</div><div class="line">                Context.CONTEXT_INCLUDE_CODE);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ComponentName component = r.intent.getComponent();</div><div class="line">    if (component == null) &#123;</div><div class="line">        component = r.intent.resolveActivity(</div><div class="line">            mInitialApplication.getPackageManager());</div><div class="line">        r.intent.setComponent(component);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    //通过 Instrumentation 的 newActivity </div><div class="line">    //使用类加载器 反射 创建 Activity 对象</div><div class="line">    if (r.activityInfo.targetActivity != null) &#123;</div><div class="line">        component = new ComponentName(r.activityInfo.packageName,</div><div class="line">                r.activityInfo.targetActivity);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ContextImpl appContext = createBaseContextForActivity(r);</div><div class="line">    Activity activity = null;</div><div class="line">    try &#123;</div><div class="line">        java.lang.ClassLoader cl = appContext.getClassLoader();</div><div class="line">        activity = mInstrumentation.newActivity(</div><div class="line">                cl, component.getClassName(), r.intent);</div><div class="line">       &#125;</div><div class="line">    ...</div><div class="line">    //通过 LoadedApk 的 makeApplication 创建 Application 对象</div><div class="line">    //也是通过反射创建的对象, makeApplication 内部创建完对象后,会调用 application.attach() 方法</div><div class="line">    //在 makeApplication 中,通过 Instrumentation 的 callApplicationOnCreate </div><div class="line">    //来调用 application 的 onCreate 方法</div><div class="line">    try &#123;</div><div class="line">        Application app = r.packageInfo.makeApplication(false, mInstrumentation);</div><div class="line"></div><div class="line">        if (activity != null) &#123;</div><div class="line">           ...</div><div class="line">           //调用 activity 的 attach 方法</div><div class="line">           //在 attach 方法中,ContextImpl会与Activity 建立联系</div><div class="line">           //attch 方法中,也会初始化Windows,将自己与Window建立联系</div><div class="line">            activity.attach(appContext, this, getInstrumentation(), r.token,</div><div class="line">                    r.ident, app, r.intent, r.activityInfo, title, r.parent,</div><div class="line">                    r.embeddedID, r.lastNonConfigurationInstances, config,</div><div class="line">                    r.referrer, r.voiceInteractor, window, r.configCallback);</div><div class="line">            ...</div><div class="line">            //调用 callActivityOnCreate,最终调用了 onCreate</div><div class="line">            if (r.isPersistable()) &#123;</div><div class="line">                mInstrumentation.callActivityOnCreate(activity, r.state, r.persistentState);</div><div class="line">            &#125; else &#123;</div><div class="line">                mInstrumentation.callActivityOnCreate(activity, r.state);</div><div class="line">            &#125;</div><div class="line">            ...</div><div class="line">            if (!r.activity.mFinished) &#123;</div><div class="line">            //调用 performStart,最终是调用 onStart</div><div class="line">                activity.performStart();</div><div class="line">                r.stopped = false;</div><div class="line">            &#125;</div><div class="line">            ...</div><div class="line">            //根据情况调用 onRestoreInstance</div><div class="line">            mInstrumentation.callActivityOnRestoreInstanceState(activity, r.state);</div><div class="line">            ...</div><div class="line">    return activity;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <ul>
 <li><code>Instrumentation</code>.callActivityOnCreate()</li>
 <li><code>Activity</code>.onCreate()</li>
 <li><code>Activity</code>.performStart()</li>
 <li><code>Activity</code>.onStart()</li>
 <li><code>Instrumentation</code>.callActivityOnStart()</li>
-<li><code>Activity</code>.onStart()</li>
+<li><code>Activity</code>.onStart()<ul>
+<li>如果需要的话</li>
+<li><code>Instrumentation</code>.callActivityOnRestoreInstanceState()</li>
+<li><code>Activity</code>.performRestoreInstanceState()</li>
+<li><code>Activity</code>.onRestoreInstanceState()<blockquote>
+<p>可以看到 onRestoreInstance 在 onStart()后 紧接着执行</p>
+</blockquote>
+</li>
+</ul>
+</li>
 <li>回到:<code>ActivityThread</code>.performLauncherActivity() -&gt; 继续执行<code>ActivityThread</code>.handleResumeActivity()</li>
 <li><code>ActivityThread</code>.performResumeActivity()</li>
 <li><code>Activity</code>.performResume()</li>
@@ -421,9 +451,9 @@ ActivityStack:Activity的栈管理类">
 <blockquote>
 <p>到这一步,利用<code>Binder</code>通知<code>ActivityManagerService</code>当前 Activity 已经<code>onResume()</code>了,接下来要做的就是之前栈顶的Activity <code>onStop</code></p>
 </blockquote>
-<h2 id="之前栈顶Activity的onStop"><a href="#之前栈顶Activity的onStop" class="headerlink" title="之前栈顶Activity的onStop"></a>之前栈顶Activity的onStop</h2><h3 id="之前的栈顶Activity执行-onStop-主要有下面几个步骤"><a href="#之前的栈顶Activity执行-onStop-主要有下面几个步骤" class="headerlink" title="之前的栈顶Activity执行 onStop 主要有下面几个步骤"></a>之前的栈顶Activity执行 onStop 主要有下面几个步骤</h3><ul>
-<li><code>ActivityThread</code>.handleResumeActivity()</li>
-<li>Looper.myQueue().addIdleHandler(new Idler());</li>
+<h2 id="6-之前栈顶Activity的onStop"><a href="#6-之前栈顶Activity的onStop" class="headerlink" title="6.之前栈顶Activity的onStop"></a>6.之前栈顶Activity的onStop</h2><h3 id="之前的栈顶Activity执行-onStop-主要有下面几个步骤"><a href="#之前的栈顶Activity执行-onStop-主要有下面几个步骤" class="headerlink" title="之前的栈顶Activity执行 onStop 主要有下面几个步骤"></a>之前的栈顶Activity执行 onStop 主要有下面几个步骤</h3><ul>
+<li>回到 (5) 的<code>ActivityThread</code>.handleResumeActivity(),方法尾部调用</li>
+<li><code>Looper.myQueue().addIdleHandler(new Idler())</code>;</li>
 <li>在 <code>Idler</code>方法内部,执行了 <code>ActivityManager</code>.getService().activityIdle()</li>
 <li><code>ActivityStackSupervisor</code>.activityIdleInternalLocked() </li>
 <li><code>ActivityStack</code>.stopActivityLocked()</li>
@@ -431,17 +461,29 @@ ActivityStack:Activity的栈管理类">
 <li><code>ActivityThread</code>.sendMessage()</li>
 <li><code>ActivityThread.H</code>.sendMessage()</li>
 <li><code>ActivityThread.H</code>.handleMessage()</li>
-<li><code>ActivityThread</code>.handleStopActivity()<ul>
-<li><code>ActivityThread</code>.performStopActivityInner()</li>
+<li><code>ActivityThread</code>.handleStopActivity()</li>
+<li><code>ActivityThread</code>.performStopActivityInner()<ul>
 <li><code>ActivityThread</code>.callCallActivityOnSaveInstanceState()</li>
 <li><code>Instrumentation</code>.callActivityOnSaveInstanceState()</li>
 <li><code>Activity</code>.performSaveInstanceState()</li>
-<li><code>Activity</code>.onSaveInstanceState(): 这个方法就是系统销毁时,还原状态数据的方法</li>
+<li><code>Activity</code>.onSaveInstanceState(): 这个方法就是系统销毁时,还原状态数据的方法<blockquote>
+<p>可以看到 onSaveInstance 在 onStop 执行前调用</p>
+</blockquote>
+</li>
 </ul>
 </li>
 <li>回到: <code>ActivityThread</code>.performStopActivityInner() -&gt; 执行了<code>Activity</code>.performStop()</li>
 <li><code>Instrumentation</code>.callActivityOnStop()</li>
 <li><code>Activity</code>.onStop()</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>Activity 启动最后都是通过<code>startActivityForResult()</code>来的.</li>
+<li><code>ActivityThread</code> 向 <code>AMS</code> 传消息通过<strong>ActivityManager</strong>.getService().startActivity(),他返回一个 <code>BinderProxy</code>.  而<code>AMS</code>向<code>ActivityThread</code>传递消息通过<code>ApplicationThread</code></li>
+<li><code>AMS</code>启动Activity前会先将当前系统栈顶<code>Activity</code>执行<code>onPause</code></li>
+<li><code>onPause</code>执行完后,会告诉<code>AMS</code>栈顶<code>Activity</code>已经 <code>onPause</code>了,这个时候<code>AMS</code>会执行启动<code>Activity</code>逻辑,首先会判断是否Activity所属应用进程已经创建启动了,没有的话先<code>Zygote</code>fork出一个应用进程,然后执行<code>ActivityThread</code>的main 方法</li>
+<li>有了应用进程后,<code>AMS</code>通过类加载器创建<code>Activity</code>,然后依次执行<code>onCreate(),onStart(),onResume()</code></li>
+<li>执行完<code>onResume()</code>后,<code>ActivityThread</code>告诉<code>AMS</code>当前Activity已经<code>onResume</code>了,接下来执行之前栈顶Activity的<code>onStop()</code></li>
+<li><code>ActivityThread</code>执行对应的<code>onStop()</code></li>
 </ul>
 
       
@@ -595,7 +637,7 @@ ActivityStack:Activity的栈管理类">
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#涉及到的几个类"><span class="nav-number">1.</span> <span class="nav-text">涉及到的几个类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-开始请求执行启动Actiivty"><span class="nav-number">2.</span> <span class="nav-text">1.开始请求执行启动Actiivty</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一般来说在Client端有如下步骤"><span class="nav-number">2.1.</span> <span class="nav-text">一般来说在Client端有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-ActivityManagerService-启动-Activity"><span class="nav-number">3.</span> <span class="nav-text">2.ActivityManagerService 启动 Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Server-端有如下步骤"><span class="nav-number">3.1.</span> <span class="nav-text">Server 端有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-栈顶-Activity-的-onPause-方法"><span class="nav-number">4.</span> <span class="nav-text">3.栈顶 Activity 的 onPause 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#启动新-Activity-之前栈顶的-Activity-onPause-主要下面几个步骤"><span class="nav-number">4.1.</span> <span class="nav-text">启动新 Activity ,之前栈顶的 Activity onPause 主要下面几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-启动Activity所属的应用进程"><span class="nav-number">5.</span> <span class="nav-text">4.启动Activity所属的应用进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-启动-Activity"><span class="nav-number">6.</span> <span class="nav-text">5.启动 Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#从启动了对应-应用进程-到启动-Activity-主要包括以下几个步骤"><span class="nav-number">6.1.</span> <span class="nav-text">从启动了对应 应用进程,到启动 Activity,主要包括以下几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#之前栈顶Activity的onStop"><span class="nav-number">7.</span> <span class="nav-text">之前栈顶Activity的onStop</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#之前的栈顶Activity执行-onStop-主要有下面几个步骤"><span class="nav-number">7.1.</span> <span class="nav-text">之前的栈顶Activity执行 onStop 主要有下面几个步骤</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#涉及到的几个类"><span class="nav-number">1.</span> <span class="nav-text">涉及到的几个类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-开始请求执行启动Actiivty"><span class="nav-number">2.</span> <span class="nav-text">1.开始请求执行启动Actiivty</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一般来说在Client端有如下步骤"><span class="nav-number">2.1.</span> <span class="nav-text">一般来说在Client端有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-ActivityManagerService-启动-Activity"><span class="nav-number">3.</span> <span class="nav-text">2.ActivityManagerService 启动 Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Server-端有如下步骤"><span class="nav-number">3.1.</span> <span class="nav-text">Server 端有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-栈顶-Activity-的-onPause-方法"><span class="nav-number">4.</span> <span class="nav-text">3.栈顶 Activity 的 onPause 方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#启动新-Activity-之前栈顶的-Activity-onPause-主要下面几个步骤"><span class="nav-number">4.1.</span> <span class="nav-text">启动新 Activity ,之前栈顶的 Activity onPause 主要下面几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-启动Activity所属的应用进程"><span class="nav-number">5.</span> <span class="nav-text">4.启动Activity所属的应用进程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#有如下步骤"><span class="nav-number">5.0.1.</span> <span class="nav-text">有如下步骤</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-启动-Activity"><span class="nav-number">6.</span> <span class="nav-text">5.启动 Activity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#从启动了对应-应用进程-到启动-Activity-主要包括以下几个步骤"><span class="nav-number">6.1.</span> <span class="nav-text">从启动了对应 应用进程,到启动 Activity,主要包括以下几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-之前栈顶Activity的onStop"><span class="nav-number">7.</span> <span class="nav-text">6.之前栈顶Activity的onStop</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#之前的栈顶Activity执行-onStop-主要有下面几个步骤"><span class="nav-number">7.1.</span> <span class="nav-text">之前的栈顶Activity执行 onStop 主要有下面几个步骤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
           </div>
         </section>
