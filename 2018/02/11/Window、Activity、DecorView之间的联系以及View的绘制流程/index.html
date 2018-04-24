@@ -87,15 +87,15 @@
 <meta name="description" content="ActivityActivity 只控制生命周期和处理事件.真正的视图容器是 Window.Activity像一个管理控制器,管理window来添加与显示View,以及通过其他回调方法,来与 Window 和 View 进行交互
 WindowView 的容器,内部持有一个 DecorView,DecorView是View 的根布局.Window 是抽象类,具体实现类是PhoneWindow,Pho">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Window、Activity、DecorView之间的联系以及View的绘制流程">
+<meta property="og:title" content="Activity的显示过程以及Window、Activity、DecorView之间的联系">
 <meta property="og:url" content="http://mashell.cn/2018/02/11/Window、Activity、DecorView之间的联系以及View的绘制流程/index.html">
 <meta property="og:site_name" content="mashell">
 <meta property="og:description" content="ActivityActivity 只控制生命周期和处理事件.真正的视图容器是 Window.Activity像一个管理控制器,管理window来添加与显示View,以及通过其他回调方法,来与 Window 和 View 进行交互
 WindowView 的容器,内部持有一个 DecorView,DecorView是View 的根布局.Window 是抽象类,具体实现类是PhoneWindow,Pho">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3985563-e773ab2cb83ad214.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-04-11T09:58:31.000Z">
+<meta property="og:updated_time" content="2018-04-24T09:41:40.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Window、Activity、DecorView之间的联系以及View的绘制流程">
+<meta name="twitter:title" content="Activity的显示过程以及Window、Activity、DecorView之间的联系">
 <meta name="twitter:description" content="ActivityActivity 只控制生命周期和处理事件.真正的视图容器是 Window.Activity像一个管理控制器,管理window来添加与显示View,以及通过其他回调方法,来与 Window 和 View 进行交互
 WindowView 的容器,内部持有一个 DecorView,DecorView是View 的根布局.Window 是抽象类,具体实现类是PhoneWindow,Pho">
 <meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/3985563-e773ab2cb83ad214.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
@@ -122,7 +122,7 @@ WindowView 的容器,内部持有一个 DecorView,DecorView是View 的根布局.
   <link rel="canonical" href="http://mashell.cn/2018/02/11/Window、Activity、DecorView之间的联系以及View的绘制流程/"/>
 
 
-  <title> Window、Activity、DecorView之间的联系以及View的绘制流程 | mashell </title>
+  <title> Activity的显示过程以及Window、Activity、DecorView之间的联系 | mashell </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -244,7 +244,7 @@ WindowView 的容器,内部持有一个 DecorView,DecorView是View 的根布局.
             
             
               
-                Window、Activity、DecorView之间的联系以及View的绘制流程
+                Activity的显示过程以及Window、Activity、DecorView之间的联系
               
             
           </h1>
@@ -278,7 +278,7 @@ WindowView 的容器,内部持有一个 DecorView,DecorView是View 的根布局.
 
           
           
-             <span id="/2018/02/11/Window、Activity、DecorView之间的联系以及View的绘制流程/" class="leancloud_visitors" data-flag-title="Window、Activity、DecorView之间的联系以及View的绘制流程">
+             <span id="/2018/02/11/Window、Activity、DecorView之间的联系以及View的绘制流程/" class="leancloud_visitors" data-flag-title="Activity的显示过程以及Window、Activity、DecorView之间的联系">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -419,7 +419,7 @@ WindowView 的容器,内部持有一个 DecorView,DecorView是View 的根布局.
   <div class="comments" id="comments">
     
       <div class="ds-thread" data-thread-key="2018/02/11/Window、Activity、DecorView之间的联系以及View的绘制流程/"
-           data-title="Window、Activity、DecorView之间的联系以及View的绘制流程" data-url="http://mashell.cn/2018/02/11/Window、Activity、DecorView之间的联系以及View的绘制流程/">
+           data-title="Activity的显示过程以及Window、Activity、DecorView之间的联系" data-url="http://mashell.cn/2018/02/11/Window、Activity、DecorView之间的联系以及View的绘制流程/">
       </div>
     
   </div>
