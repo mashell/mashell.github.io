@@ -241,6 +241,143 @@
             
               
                 
+                <a class="post-title-link" href="/2018/04/08/ContentProvider-启动流程/" itemprop="url">
+                  ContentProvider 启动流程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-04-08T16:40:47+08:00" content="2018-04-08">
+              2018-04-08
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/04/08/ContentProvider-启动流程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/08/ContentProvider-启动流程/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/04/08/ContentProvider-启动流程/" class="leancloud_visitors" data-flag-title="ContentProvider 启动流程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>我们在分析 Activity 的启动流程的时候说过,如果不存在对应的进程,<code>Zygote</code>会<code>fork</code>出一个新进程,然后反射出<code>ActivityThread</code>,执行<code>main()</code>函数,这也是应用的入口.在<code>main()</code>函数中,会调用<code>AMS.attachApplication()</code>,这个方法会先执行<code>ActivityThread.bindApplication</code>,然后通过<code>H.sendMessage() H.handleMessage()</code>,最终执行到<code>handleBindApplication</code>,这个方法会先<code>makeApplication</code>反射创建一个Application对象,然后调用<code>installContentProviders()</code>创建加载 ContentProvider,最后才执行<code>Application.onCreate()</code></p>
+<p><strong>ContentProvider的onCreate 要早执行于 Application.onCreate()</strong></p>
+<h3 id="具体流程"><a href="#具体流程" class="headerlink" title="具体流程"></a>具体流程</h3><h4 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h4><p>我们使用 ContentProvider 的时候,需要通过 ContentResolver,它是一个抽象类,具体的实现类是<code>ApplicationContentResolver</code>(它是ContextImpl的静态内部类),它继承自ContentResolver并且实现了抽象方法.当ContentProvider所在的进程未被启动时(没有其他App使用过该ContentProvider),这时第一次访问(增删改查)就会触发ContentProvider 的创建.我们看一下如何触发的,比如 query</p>
+<h4 id="query"><a href="#query" class="headerlink" title="query"></a>query</h4><p>我们调用 <code>getResolver().query()</code>,最终会到<code>ContentResolver.query()</code>,他会判断<code>acquireProvider(uri);</code>是否加载过该ContentProvider,该方法的具体实现是<code>ContextImpl.ApplicationContentResolver.acquireProvider()</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">protected IContentProvider acquireProvider(Context context, String auth) &#123;</div><div class="line">    return mMainThread.acquireProvider(context,</div><div class="line">            ContentProvider.getAuthorityWithoutUserId(auth),</div><div class="line">            resolveUserIdFromAuthority(auth), true);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>mMainThread也就是<code>ActivityThread</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">public final IContentProvider acquireProvider(</div><div class="line">            Context c, String auth, int userId, boolean stable) &#123;</div><div class="line">        //尝试在已加载列表中找该contentProvider</div><div class="line">        final IContentProvider provider = acquireExistingProvider(c, auth, userId, stable);</div><div class="line">        if (provider != null) &#123;</div><div class="line">            return provider;</div><div class="line">        &#125;</div><div class="line">        ContentProviderHolder holder = null;</div><div class="line">        try &#123;</div><div class="line">        //在列表中没找到,就通知 AMS 启动 ContentProvider</div><div class="line">            holder = ActivityManager.getService().getContentProvider(</div><div class="line">                    getApplicationThread(), auth, userId, stable);</div><div class="line">        &#125; catch (RemoteException ex) &#123;</div><div class="line">            throw ex.rethrowFromSystemServer();</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">        //加载 contentProvider</div><div class="line">        holder = installProvider(c, holder, holder.info,</div><div class="line">                true /*noisy*/, holder.noReleaseNeeded, stable);</div><div class="line">        return holder.provider;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">----------------acquireExistingProvider-----------</div><div class="line">public final IContentProvider acquireExistingProvider(</div><div class="line">            Context c, String auth, int userId, boolean stable) &#123;</div><div class="line">        synchronized (mProviderMap) &#123;</div><div class="line">        //是一个 ArrayMap</div><div class="line">            final ProviderClientRecord pr = mProviderMap.get(key);</div><div class="line">            //Map 中没找到返回null</div><div class="line">            if (pr == null) &#123;</div><div class="line">                return null;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,ActivityThread维护了一个ArrayMap保存已经加载过的ContentProvider,我们获取ContentProvider的时候首先回去ArrayMap中找,找不到的话再通知<code>AMS</code>启动对应ContentProvider</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">------------------AMS.getContentProvider-------------</div><div class="line">private ContentProviderHolder getContentProviderImpl(IApplicationThread caller,</div><div class="line">            String name, IBinder token, boolean stable, int userId) &#123;</div><div class="line">    ...</div><div class="line">    //尝试获取对应的进程</div><div class="line">    ProcessRecord proc = getProcessRecordLocked(...);</div><div class="line">    if(proc != null)&#123;</div><div class="line">        ...</div><div class="line">    &#125; else &#123;</div><div class="line">    //进程还未加载,那么 startProcessLocked 创建进程</div><div class="line">         proc = startProcessLocked(...);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 AMS 的getContentProvider中,会获取对应的进程,没有启动过对应进程的话,会用<code>startProcessLocked()</code>创建进程,这个方法我们在 <code>Activity 的启动流程</code> 分析过,大致就是<code>Zygote fork 新进程</code>,然后反射出<code>ActivityThread</code>对象,调用<code>ActivityThread.main()</code>方法</p>
+<h4 id="ActivityThread-main"><a href="#ActivityThread-main" class="headerlink" title="ActivityThread.main()"></a>ActivityThread.main()</h4><p>main()大致流程如下</p>
+<ul>
+<li><strong>ActivityThread</strong>.attach()</li>
+<li><strong>AMS</strong>.attachApplication()</li>
+<li><strong>ActivityThread</strong>.bindApplication()</li>
+<li><strong>ActivityThread.H</strong>.sendMessage()</li>
+<li><strong>ActivityThread.H</strong>.handleMessage()</li>
+<li><strong>ActivityThread</strong>.handleBindApplication()</li>
+</ul>
+<h4 id="ActivityThread-handleBindApplication"><a href="#ActivityThread-handleBindApplication" class="headerlink" title="ActivityThread.handleBindApplication()"></a>ActivityThread.handleBindApplication()</h4><p>这个方法比较重要</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">private void handleBindApplication(AppBindData data) &#123;</div><div class="line">    ...</div><div class="line">    //创建 ContextImpl 对象</div><div class="line">    final ContextImpl instrContext = ContextImpl.createAppContext(this, pi);</div><div class="line">    //通过反射创建 Instrumentation,用于 组件的生命周期管理</div><div class="line">    final ClassLoader cl = instrContext.getClassLoader();</div><div class="line">    mInstrumentation = (Instrumentation)</div><div class="line">        cl.loadClass(data.instrumentationName.getClassName()).newInstance();</div><div class="line">    ...</div><div class="line">    //makeApplication会调用 mInstrumentation.newApplication</div><div class="line">    //反射创建 Application 对象</div><div class="line">    //newApplication 内部会调用 Application.attach()</div><div class="line">    //由于 makeApplication( instrumentation = null)</div><div class="line">    //不会先执行 Application.onCreate</div><div class="line">    Application app = data.info.makeApplication(data.restrictedBackupMode, null);</div><div class="line">    ...</div><div class="line">    //加载 ContentProvider</div><div class="line">    installContentProviders(app, data.providers);</div><div class="line">    //调用Application的 onCreate</div><div class="line">    mInstrumentation.callApplicationOnCreate(app);</div><div class="line">&#125;</div><div class="line"></div><div class="line">-----------------installContentProviders()----------------</div><div class="line"></div><div class="line">private void installContentProviders(</div><div class="line">            Context context, List&lt;ProviderInfo&gt; providers) &#123;</div><div class="line">    for (ProviderInfo cpi : providers) &#123;</div><div class="line">    //依次加载 ContentProvider</div><div class="line">        ContentProviderHolder cph = installProvider(context, null, cpi,</div><div class="line">                false /*noisy*/, true /*noReleaseNeeded*/, true /*stable*/);</div><div class="line">    &#125;</div><div class="line">     ...</div><div class="line">     //通知 AMS 加载过那些 ContentProvider</div><div class="line">     ActivityManager.getService().publishContentProviders(</div><div class="line">                    getApplicationThread(), results);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,在<code>handleBindApplication()</code>中,创建了 <code>ContextImpl</code>,<code>Application</code>对象,然后调用了 installProvider(),最后才执行 Application.onCreate()</p>
+<p>ContentProvider 具体的启动流程就是在 <code>installProvider()</code>里面了</p>
+<h4 id="ContentProviderHolder-installProvider"><a href="#ContentProviderHolder-installProvider" class="headerlink" title="ContentProviderHolder.installProvider()"></a>ContentProviderHolder.installProvider()</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">private ContentProviderHolder installProvider(...) &#123;</div><div class="line">    ...</div><div class="line">    final java.lang.ClassLoader cl = c.getClassLoader();</div><div class="line">    //通过反射创建 ContentProvider 对象</div><div class="line">    localProvider = (ContentProvider)cl.</div><div class="line">        loadClass(info.name).newInstance();</div><div class="line">    provider = localProvider.getIContentProvider();</div><div class="line">    ...</div><div class="line">    //调用 attachInfo,内部是调用了 onCreate</div><div class="line">    localProvider.attachInfo(c, info);        </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>ContentProvider 也是跟Activity以及Application一样,通过反射得到的对象,对象创建完成后调用 ContentProvider.onCreate 方法</p>
+<h4 id="远程调用"><a href="#远程调用" class="headerlink" title="远程调用"></a>远程调用</h4><p>我们通过Binder机制,知道其他应用获取的Binder对象是<code>IContentProvider</code>,他的具体实现类是<code>ContentProvider.Transport</code>我们远程段调服务端方法,实际上是调用<code>ContentProvider.Transport.query()</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">class Transport extends ContentProviderNative &#123;</div><div class="line">     public Cursor query()&#123;</div><div class="line">        Cursor cursor = ContentProvider.this.query(</div><div class="line">                        uri, projection, queryArgs,</div><div class="line">                        CancellationSignal.fromTransport(cancellationSignal));</div><div class="line">        ...</div><div class="line">     &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到,最终还是调用回了自身<code>ContentProvider</code>对应的query()方法,而这个方法是抽象方法,需要我们继承<code>ContentProvider</code>去具体实现的.这样当我们执行的结果就会通过 Binder返回给客户端了.</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/04/02/invalidate-requestLayout与ViewGroup-draw/" itemprop="url">
                   Invalidate 与 requestLayout,ViewGroup.draw() 区别与联系
                 </a>
@@ -1843,180 +1980,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/23/HashMap-源码分析/" itemprop="url">
-                  HashMap 源码分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-06-23T19:32:13+08:00" content="2017-06-23">
-              2017-06-23
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/06/23/HashMap-源码分析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/06/23/HashMap-源码分析/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/06/23/HashMap-源码分析/" class="leancloud_visitors" data-flag-title="HashMap 源码分析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">HashMap&lt;String, Integer&gt; map = new HashMap&lt;String, Integer&gt;();</div><div class="line">//添加</div><div class="line">map.put(&quot;语文&quot;, 1);</div><div class="line">map.put(&quot;数学&quot;, 2);</div><div class="line">//查找</div><div class="line">for(Entry&lt;String, Integer&gt; entry : map.entrySet()) &#123;</div><div class="line">    System.out.println(entry.getKey() + &quot;: &quot; + entry.getValue());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>HashMap 存入的是<code>Key-Value</code>,对于键值对任意类型都可以,但是<code>Key</code>必须重写 <code>equals(),hashCode()</code> 保证key 唯一</p>
-<p><strong>HashMap由于需要计算hash确定index,不保证元素顺序</strong></p>
-<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">//默认容量 factor * capacity</div><div class="line">//默认加载因子</div><div class="line">static final float DEFAULT_LOAD_FACTOR = 0.75f;</div><div class="line">//加载因子</div><div class="line">final float loadFactor;</div><div class="line">//初始容量 16</div><div class="line">static final int DEFAULT_INITIAL_CAPACITY = 1 &lt;&lt; 4;</div><div class="line">//碰撞超过8个,自动转为红黑树</div><div class="line">static final int TREEIFY_THRESHOLD = 8;</div><div class="line">//存储在数组中</div><div class="line">transient Node&lt;K,V&gt;[] table;</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; &#123;</div><div class="line">    final int hash;</div><div class="line">    //key 值</div><div class="line">    final K key;</div><div class="line">    //value 值</div><div class="line">    V value;</div><div class="line">    //下一个节点的指针</div><div class="line">    Node&lt;K,V&gt; next;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到, HashMap 底层实现就是数组+链表(hash冲突时放在链表中)</p>
-<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">public HashMap() &#123;</div><div class="line">    //设置 loadFactor 为默认加载因子 0.75</div><div class="line">    this.loadFactor = DEFAULT_LOAD_FACTOR; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到,构造函数只是设置了 loadFactor,其他都没有初始化,在第一次 <code>put</code> 的时候会判断,然后初始化创建数组,我们待会分析.</p>
-<h3 id="put-方法"><a href="#put-方法" class="headerlink" title="put() 方法"></a>put() 方法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div></pre></td><td class="code"><pre><div class="line">public V put(K key, V value) &#123;</div><div class="line">    // 对key的调用hash()方法</div><div class="line">    return putVal(hash(key), key, value, false, true);</div><div class="line">&#125;</div><div class="line"></div><div class="line">-------------hash---------------</div><div class="line"></div><div class="line">static final int hash(Object key) &#123;</div><div class="line">    int h;</div><div class="line">    //对 key 的hash 与key.hashCode的高16位异或运算</div><div class="line">    return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);</div><div class="line">&#125;</div><div class="line"></div><div class="line">-------------------putVal----------------</div><div class="line"></div><div class="line">final V putVal(int hash, K key, V value, boolean onlyIfAbsent,</div><div class="line">                   boolean evict) &#123;</div><div class="line">    // p 用于操作链表的临时指针</div><div class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; int n, i;</div><div class="line">    //如果 table 为空,resize() 初始化一个,后面分析</div><div class="line">    if ((tab = table) == null || (n = tab.length) == 0)</div><div class="line">        n = (tab = resize()).length;</div><div class="line">        </div><div class="line">    //计算 index,利用 (n-1)&amp;hash &amp;运算获取数组索引</div><div class="line">    //如果index所在数组没有值,那么 newNode()</div><div class="line">    //直接在数组index位置赋值</div><div class="line">    if ((p = tab[i = (n - 1) &amp; hash]) == null)</div><div class="line">        tab[i] = newNode(hash, key, value, null);</div><div class="line">    else &#123;</div><div class="line">    //节点有值,可能有冲突,分情况讨论</div><div class="line">    //如果节点的 [hash值相等&amp;&amp;(节点.key相等||节点.key的内容相等)]</div><div class="line">    //证明是同一个位置的节点,直接覆盖原节点</div><div class="line">        // e 保存找到的节点</div><div class="line">        Node&lt;K,V&gt; e; K k;</div><div class="line">        if (p.hash == hash &amp;&amp;</div><div class="line">            ((k = p.key) == key || (key != null &amp;&amp; key.equals(k))))</div><div class="line">            //找到节点了,保存到 e ,准备覆盖写入数据</div><div class="line">            e = p;</div><div class="line">        //不是同一个节点,继续判断是否是红黑树</div><div class="line">        else if (p instanceof TreeNode)</div><div class="line">        //找到节点了,保存到e,准备覆盖写入原节点</div><div class="line">            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(this, tab, hash, key, value);</div><div class="line">        //不是红黑树,那么就是链表,进行链表操作</div><div class="line">        else &#123;</div><div class="line">        //遍历对应链表</div><div class="line">            for (int binCount = 0; ; ++binCount) &#123;</div><div class="line">            //判断 [节点hash是否相等&amp;&amp;(节点.key是否相等||节点.key的内容是否相等)]</div><div class="line">            //如果没有找到同一个节点,直接添加到链表尾部</div><div class="line">                if ((e = p.next) == null) &#123;</div><div class="line">                    p.next = newNode(hash, key, value, null);</div><div class="line">                    //添加完后判断是否超过红黑树冲突长度,需要转红黑树</div><div class="line">                    if (binCount &gt;= TREEIFY_THRESHOLD - 1) </div><div class="line">                        treeifyBin(tab, hash);</div><div class="line">                    break;</div><div class="line">                &#125;</div><div class="line">                //找到了同一个节点,跳出循环</div><div class="line">                if (e.hash == hash &amp;&amp;</div><div class="line">                    ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))</div><div class="line">                    break;</div><div class="line">                p = e;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        //前面找到节点了,现在写入数据</div><div class="line">         //如果是普通链表的插入操作,才会走到这一步</div><div class="line">        if (e != null) &#123; </div><div class="line">            V oldValue = e.value;</div><div class="line">            if (!onlyIfAbsent || oldValue == null)</div><div class="line">                e.value = value;</div><div class="line">            //访问元素后的调用,HashMap是空实现</div><div class="line">            //主要用于LinkedHashMap等实现特殊功能</div><div class="line">            afterNodeAccess(e);</div><div class="line">            return oldValue;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    //判断容量是否超过了,需要 resize() 扩容</div><div class="line">    ++modCount;</div><div class="line">    if (++size &gt; threshold)</div><div class="line">        resize();</div><div class="line">    //插入元素后的调用,HashMap是空实现,用于LinkedHashMap等实现特殊功能</div><div class="line">    afterNodeInsertion(evict);</div><div class="line">    return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><code>put()</code> 函数大致流程如下</p>
-<ul>
-<li>通过 <code>(n-1) &amp; hash</code> 找到对应的数组坐标</li>
-<li>如果原位置没有节点,那么直接赋值到原节点</li>
-<li>如果原位置有节点,那么发生碰撞了<ul>
-<li>首先判断链表第一个节点(也就是数组坐标节点),<code>[节点hash相等&amp;&amp;(节点.key相等||节点.key内容相等)]</code>,证明是同一个节点,直接覆盖</li>
-<li>判断对应的链表是不是红黑树,插入到红黑树中</li>
-<li>是链表,遍历判断,<ul>
-<li>没有冲突直接加入到链表尾部,同时判断链表长度过长转成红黑树</li>
-<li>有冲突那么就覆盖</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>容量超过了<code>load factor*current capacity</code>,需要<code>resize()</code>扩容</li>
-</ul>
-<h4 id="get-函数"><a href="#get-函数" class="headerlink" title="get() 函数"></a>get() 函数</h4><p>get() 用于通过key找到对应的value</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">final Node&lt;K,V&gt; getNode(int hash, Object key) &#123;</div><div class="line">        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; int n; K k;</div><div class="line">    if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;</div><div class="line">        (first = tab[(n - 1) &amp; hash]) != null) &#123;</div><div class="line">        //总是先判断第一个节点,命中直接返回</div><div class="line">        //通过 [节点hash相等&amp;&amp;(节点.key相等||节点.key内容相等)] 判断</div><div class="line">        if (first.hash == hash &amp;&amp; </div><div class="line">            ((k = first.key) == key || (key != null &amp;&amp; key.equals(k))))</div><div class="line">            return first;</div><div class="line">        //不是第一个,那么就遍历链表/红黑树</div><div class="line">        if ((e = first.next) != null) &#123;</div><div class="line">        //通过红黑树查找</div><div class="line">            if (first instanceof TreeNode)</div><div class="line">                return ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);</div><div class="line">            do &#123;</div><div class="line">            //是普通链表,遍历查找,找到的依据是[节点hash相等&amp;&amp;(节点.key相等||节点.key内容相等)]</div><div class="line">                if (e.hash == hash &amp;&amp;</div><div class="line">                    ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))</div><div class="line">                    return e;</div><div class="line">            &#125; while ((e = e.next) != null);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    //依旧没找到,返回null</div><div class="line">    return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>put() 函数大致流程如下</p>
-<ul>
-<li>先判断第一个节点,命中的话直接返回</li>
-<li>如果有冲突<ul>
-<li>是红黑树,在红黑树里面找</li>
-<li>是普通链表,遍历链表查找</li>
-</ul>
-</li>
-</ul>
-<h3 id="remove-函数"><a href="#remove-函数" class="headerlink" title="remove 函数"></a>remove 函数</h3><p>remove函数用于移除元素</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">final Node&lt;K,V&gt; removeNode(int hash, Object key, Object value,</div><div class="line">                               boolean matchValue, boolean movable) &#123;</div><div class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; int n, index;</div><div class="line">    if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;</div><div class="line">        (p = tab[index = (n - 1) &amp; hash]) != null) &#123;</div><div class="line">        //node 用于保存需要删除的元素</div><div class="line">        Node&lt;K,V&gt; node = null, e; K k; V v;</div><div class="line">        //需要删除的元素是数组index,链表头结点</div><div class="line">        if (p.hash == hash &amp;&amp;</div><div class="line">            ((k = p.key) == key || (key != null &amp;&amp; key.equals(k))))</div><div class="line">            node = p;</div><div class="line">        else if ((e = p.next) != null) &#123;</div><div class="line">            if (p instanceof TreeNode)</div><div class="line">            //需要删除的元素是红黑树,在红黑树里找</div><div class="line">                node = ((TreeNode&lt;K,V&gt;)p).getTreeNode(hash, key);</div><div class="line">            else &#123;</div><div class="line">            //普通链表</div><div class="line">                do &#123;</div><div class="line">                //遍历查找元素</div><div class="line">                    if (e.hash == hash &amp;&amp;</div><div class="line">                        ((k = e.key) == key ||</div><div class="line">                         (key != null &amp;&amp; key.equals(k)))) &#123;</div><div class="line">                        node = e;</div><div class="line">                        break;</div><div class="line">                    &#125;</div><div class="line">                    p = e;</div><div class="line">                &#125; while ((e = e.next) != null);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        //找到元素了,现在该移除元素了</div><div class="line">        if (node != null &amp;&amp; (!matchValue || (v = node.value) == value ||</div><div class="line">                             (value != null &amp;&amp; value.equals(v)))) &#123;</div><div class="line">             //红黑树元素移除</div><div class="line">            if (node instanceof TreeNode)</div><div class="line">                ((TreeNode&lt;K,V&gt;)node).removeTreeNode(this, tab, movable);</div><div class="line">            //链表头元素,直接将数组指向下一个元素</div><div class="line">            else if (node == p)</div><div class="line">                tab[index] = node.next;</div><div class="line">            else</div><div class="line">            //普通链表,那么就指针操作</div><div class="line">                p.next = node.next;</div><div class="line">            ++modCount;</div><div class="line">            --size;</div><div class="line">            //该方法用于移除元素后的操作,hashMap空实现</div><div class="line">            //LinkedHashMap等有具体实现</div><div class="line">            afterNodeRemoval(node);</div><div class="line">            return node;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    return null;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>删除元素比较简单,就是在三种不同的情况下找到元素,然后按照各自的方式移除元素即可</p>
-<h3 id="hash-函数的实现"><a href="#hash-函数的实现" class="headerlink" title="hash 函数的实现"></a>hash 函数的实现</h3><p>计算 index 时,HashMap是这样做的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">hash = (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);</div><div class="line"></div><div class="line">int index = (n-1)&amp;hash;</div></pre></td></tr></table></figure>
-<p>先将自己的hash<code>高16位 , 低16位</code>进行异或,而由于table数组的长度<strong>n为2的幂次方</strong>,这样就不会出现低4位失效,从而导致容易碰撞了.</p>
-<p>这么做可以在bucket的n比较小的时候，也能保证考虑到高低bit都参与到hash的计算中，同时不会有太大的开销。</p>
-<h3 id="resize-函数实现"><a href="#resize-函数实现" class="headerlink" title="resize 函数实现"></a>resize 函数实现</h3><p>当需要扩容的时候,会把原数组扩容成原来的两倍,然后重新计算index,把节点放入新的数组位置去.</p>
-<p>当需要 <code>resize()</code> 时,由于我们是<code>2次幂</code>扩展(扩展原来的两倍),所以元素要么在<strong>原来的位置</strong>,要么在<strong>原来的位置然后移动2次幂</strong></p>
-<h5 id="如何理解"><a href="#如何理解" class="headerlink" title="如何理解?"></a>如何理解?</h5><p>1.比如我们从16扩展为32,变化如下</p>
-<p><img src="https://cloud.githubusercontent.com/assets/1736354/6958256/ceb6e6ac-d93b-11e4-98e7-c5a5a07da8c4.png" alt=""></p>
-<p>2.因此元素在重新计算hash之后，因为n变为2倍，那么n-1的mask范围在高位多1bit(红色)，因此新的index就会发生这样的变化：</p>
-<p><img src="https://cloud.githubusercontent.com/assets/1736354/6958301/519be432-d93c-11e4-85bb-dff0a03af9d3.png" alt=""></p>
-<p><strong>因此我们扩容时,不需要重新计算hash,只需要看原来hash值新增的bit是1还是0,0的话索引没变,1的话变成 [原索引+ oldCap]</strong></p>
-<p><img src="https://cloud.githubusercontent.com/assets/1736354/6958677/d7acbad8-d941-11e4-9493-2c5e69d084c0.png" alt=""></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div></pre></td><td class="code"><pre><div class="line">final Node&lt;K,V&gt;[] resize() &#123;</div><div class="line">    Node&lt;K,V&gt;[] oldTab = table;</div><div class="line">    int oldCap = (oldTab == null) ? 0 : oldTab.length;</div><div class="line">    int oldThr = threshold;</div><div class="line">    int newCap, newThr = 0;</div><div class="line">    if (oldCap &gt; 0) &#123;</div><div class="line">    //超过最大值,那么不再扩容</div><div class="line">        if (oldCap &gt;= MAXIMUM_CAPACITY) &#123;</div><div class="line">            threshold = Integer.MAX_VALUE;</div><div class="line">            return oldTab;</div><div class="line">        &#125;</div><div class="line">        else if ((newCap = oldCap &lt;&lt; 1) &lt; MAXIMUM_CAPACITY &amp;&amp;</div><div class="line">                 oldCap &gt;= DEFAULT_INITIAL_CAPACITY)</div><div class="line">        //扩容为原来的两倍</div><div class="line">            newThr = oldThr &lt;&lt; 1; </div><div class="line">    &#125;</div><div class="line">    else if (oldThr &gt; 0) </div><div class="line">    //初始化时制定了容量,那么就按照要求初始化</div><div class="line">        newCap = oldThr;</div><div class="line">    else &#123;                </div><div class="line">    //空白初始化的时候就用 deafult_capacity 初始化</div><div class="line">        newCap = DEFAULT_INITIAL_CAPACITY;</div><div class="line">        newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);</div><div class="line">    &#125;</div><div class="line">    if (newThr == 0) &#123;</div><div class="line">        float ft = (float)newCap * loadFactor;</div><div class="line">        newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (float)MAXIMUM_CAPACITY ?</div><div class="line">                  (int)ft : Integer.MAX_VALUE);</div><div class="line">    &#125;</div><div class="line">    threshold = newThr;</div><div class="line">   //根据计算出的容量创建新数组</div><div class="line">        Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])new Node[newCap];</div><div class="line">    table = newTab;</div><div class="line">    if (oldTab != null) &#123;</div><div class="line">        for (int j = 0; j &lt; oldCap; ++j) &#123;</div><div class="line">            Node&lt;K,V&gt; e;</div><div class="line">            if ((e = oldTab[j]) != null) &#123;</div><div class="line">            //将原数组坐标的元素设置为null,以便于回收</div><div class="line">                oldTab[j] = null;</div><div class="line">                //数组index没有链表,那么直接新数组赋值</div><div class="line">                if (e.next == null)</div><div class="line">                    newTab[e.hash &amp; (newCap - 1)] = e;</div><div class="line">                else if (e instanceof TreeNode)</div><div class="line">                //是红黑树</div><div class="line">                    ((TreeNode&lt;K,V&gt;)e).split(this, newTab, j, oldCap);</div><div class="line">                else &#123; </div><div class="line">                //是普通链表</div><div class="line">                //原索引位置的链表</div><div class="line">                    Node&lt;K,V&gt; loHead = null, loTail = null;</div><div class="line">                //索引+oldCap 的链表</div><div class="line">                    Node&lt;K,V&gt; hiHead = null, hiTail = null;</div><div class="line">                    Node&lt;K,V&gt; next;</div><div class="line">                    do &#123;</div><div class="line">                        next = e.next;</div><div class="line">                        //就是原索引</div><div class="line">                        //遍历到尾节点,然后将头节点返回</div><div class="line">                        if ((e.hash &amp; oldCap) == 0) &#123;</div><div class="line">                            if (loTail == null)</div><div class="line">                                loHead = e;</div><div class="line">                            else</div><div class="line">                                loTail.next = e;</div><div class="line">                            loTail = e;</div><div class="line">                        &#125;</div><div class="line">                        //原索引 + oldCap</div><div class="line">                        //遍历到尾节点,然后将头节点作为新链表的头结点</div><div class="line">                        else &#123;</div><div class="line">                            if (hiTail == null)</div><div class="line">                                hiHead = e;</div><div class="line">                            else</div><div class="line">                                hiTail.next = e;</div><div class="line">                            hiTail = e;</div><div class="line">                        &#125;</div><div class="line">                    &#125; while ((e = next) != null);</div><div class="line">                    //按原索引放到数组里</div><div class="line">                    if (loTail != null) &#123;</div><div class="line">                        loTail.next = null;</div><div class="line">                        newTab[j] = loHead;</div><div class="line">                    &#125;</div><div class="line">                    //按[原索引 +oldCap]放到数组里</div><div class="line">                    if (hiTail != null) &#123;</div><div class="line">                        hiTail.next = null;</div><div class="line">                        newTab[j + oldCap] = hiHead;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    return newTab;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><code>resize()</code> 方法,会将数组扩容为原来的两倍,然后将原数据插入新数组相应位置.</p>
-<p>由于index的规律,所以新数组添加元素的时候并不需要重新计算hash,只需要按照 原位置/(yuanweizhi + oldCap) 即可.</p>
-<p>HashMap 在resize() 过程中创建了 1.原位置的<code>头尾节点.</code>2.[原索引+oldCap]的<code>头尾节点</code>,利用链表操作,遍历后链表<strong>非倒序</strong></p>
-<h4 id="HashMap-为什么非线程安全"><a href="#HashMap-为什么非线程安全" class="headerlink" title="HashMap 为什么非线程安全"></a>HashMap 为什么非线程安全</h4><ul>
-<li>多线程同时修改同一个节点,最后修改的会覆盖前面修改的值</li>
-<li>多线程同时扩容,复制数据,只有最后一个扩容生效</li>
-<li>多线程可能导致死循环(<strong>JDK1.8不会有这个问题了</strong>)</li>
-</ul>
-<p><strong>原因:</strong></p>
-<p>假设有两个线程A,B,以及<code>newTable[i]</code>对应的链表<code>a-&gt;b-&gt;null</code><br>-线程A先执行,<code>Entry&lt;K,V&gt; next = e.next;</code>后,线程阻塞,此时 <code>e =a; next =b</code><br>-此时线程B已经执行完代码了,执行完后逆序链表,<code>b-&gt;a-&gt;null</code></p>
-<ul>
-<li>线程A继续执行之后的代码,<code>e = next;</code>所以<code>newTable[i]</code>的链表为<code>a&lt;-&gt;b;</code>成环.</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2062,7 +2025,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">24</span>
+              <span class="site-state-item-count">25</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
