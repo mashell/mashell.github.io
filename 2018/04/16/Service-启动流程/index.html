@@ -1,0 +1,841 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.2" />
+
+
+
+
+
+
+<meta name="description" content="我们启动Service 一般有两种启动方式startService() 这样 Activity 与 Service 没有交互
+onCreate() 多次 startService 一次调用
+onStartCommand() 多次 startService 多次调用
+onDestroy()
+
+bindService() Activity 与 Service 有交互
+构造函数
+onCreate() 一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Service 启动流程">
+<meta property="og:url" content="http://mashell.cn/2018/04/16/Service-启动流程/index.html">
+<meta property="og:site_name" content="mashell">
+<meta property="og:description" content="我们启动Service 一般有两种启动方式startService() 这样 Activity 与 Service 没有交互
+onCreate() 多次 startService 一次调用
+onStartCommand() 多次 startService 多次调用
+onDestroy()
+
+bindService() Activity 与 Service 有交互
+构造函数
+onCreate() 一">
+<meta property="og:updated_time" content="2018-04-25T05:13:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Service 启动流程">
+<meta name="twitter:description" content="我们启动Service 一般有两种启动方式startService() 这样 Activity 与 Service 没有交互
+onCreate() 多次 startService 一次调用
+onStartCommand() 多次 startService 多次调用
+onDestroy()
+
+bindService() Activity 与 Service 有交互
+构造函数
+onCreate() 一">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://mashell.cn/2018/04/16/Service-启动流程/"/>
+
+
+  <title> Service 启动流程 | mashell </title>
+</head>
+
+<body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">mashell</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">你热爱生命吗？那别浪费时间</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="http://mashell.cn/resume/" rel="section">
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Service 启动流程
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-04-16T13:13:35+08:00" content="2018-04-16">
+              2018-04-16
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/04/16/Service-启动流程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/16/Service-启动流程/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/04/16/Service-启动流程/" class="leancloud_visitors" data-flag-title="Service 启动流程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="我们启动Service-一般有两种启动方式"><a href="#我们启动Service-一般有两种启动方式" class="headerlink" title="我们启动Service 一般有两种启动方式"></a>我们启动Service 一般有两种启动方式</h3><h5 id="startService-这样-Activity-与-Service-没有交互"><a href="#startService-这样-Activity-与-Service-没有交互" class="headerlink" title="startService() 这样 Activity 与 Service 没有交互"></a>startService() 这样 Activity 与 Service 没有交互</h5><ul>
+<li>onCreate() 多次 startService <strong>一次调用</strong></li>
+<li>onStartCommand() 多次 startService <strong>多次调用</strong></li>
+<li>onDestroy()</li>
+</ul>
+<h5 id="bindService-Activity-与-Service-有交互"><a href="#bindService-Activity-与-Service-有交互" class="headerlink" title="bindService() Activity 与 Service 有交互"></a>bindService() Activity 与 Service 有交互</h5><ul>
+<li>构造函数</li>
+<li>onCreate() <strong>一次调用</strong> </li>
+<li>onBind() [ Activity–&gt; onServiceConnected] <strong>一次调用</strong></li>
+<li>onUnbind()。</li>
+</ul>
+<p><strong>startService 与 bindService 混用的情况下,所有调用者都 unBindService()后,然后 stopService() 才能真正结束Service周期</strong></p>
+<h3 id="涉及到的几个类"><a href="#涉及到的几个类" class="headerlink" title="涉及到的几个类"></a>涉及到的几个类</h3><ul>
+<li><strong>ActiveServices</strong>:是辅助AMS进行Service管理的类</li>
+</ul>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><h3 id="startService"><a href="#startService" class="headerlink" title="startService()"></a>startService()</h3><h4 id="1-请求执行-Service"><a href="#1-请求执行-Service" class="headerlink" title="1.请求执行 Service"></a>1.请求执行 Service</h4><h5 id="在客户端-有如下步骤"><a href="#在客户端-有如下步骤" class="headerlink" title="在客户端,有如下步骤"></a>在客户端,有如下步骤</h5><ul>
+<li><strong>ContextImpl</strong>.startService()</li>
+<li><strong>ContextImpl</strong>.startServiceCommon()</li>
+<li><strong>ActivityManager</strong>.getService().startService()<ul>
+<li>getService:<code>IActivityManager.Stub.asInterface()</code></li>
+<li>IActivityManagerService的具体实现是<code>ActivityManagerService</code>getService会在<code>Client</code><strong>返回一个ActivityManagerProxy</strong>对象,API26以后采用的<code>ADIL</code>方式</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>到这里为止,Service 的启动已从<code>Client</code>到<code>Service</code></p>
+</blockquote>
+<h4 id="2-AMS-启动-Service"><a href="#2-AMS-启动-Service" class="headerlink" title="2.AMS 启动 Service"></a>2.AMS 启动 Service</h4><h5 id="在-Service-端-有如下步骤"><a href="#在-Service-端-有如下步骤" class="headerlink" title="在 Service 端,有如下步骤"></a>在 Service 端,有如下步骤</h5><ul>
+<li><strong>ActivityManager</strong>.getService().startService()</li>
+<li><strong>ActiveServices</strong>.startServiceLocked(),函数的末尾会调用</li>
+<li><strong>ActiveServices</strong>.startServiceInnerLocked()</li>
+<li><strong>ActiveServices</strong>.bringUpServiceLocked()</li>
+</ul>
+<blockquote>
+<p>在 <code>bringUpServiceLocked</code> 方法中,会判断 Service 所属进程是否已经启动,启动的话直接调用 realStartService(),否则调用 AMS.startProcessLocked() 启动应用进程</p>
+</blockquote>
+<h4 id="3-启动-Service-所属应用进程"><a href="#3-启动-Service-所属应用进程" class="headerlink" title="3.启动 Service 所属应用进程"></a>3.启动 Service 所属应用进程</h4><p>如果 Service 所属进程没有启动,那么会调用 <code>AMS.startProcessLocked()</code> 启动进程</p>
+<h5 id="有如下步骤"><a href="#有如下步骤" class="headerlink" title="有如下步骤"></a>有如下步骤</h5><ul>
+<li><code>ActivityManagerService</code>.startProcessLocked()</li>
+<li><code>Process</code>.start()</li>
+<li><code>ZygoteProcess</code>.start()</li>
+<li><code>ZygoteProcess</code>.startViaZygote()</li>
+<li><code>ActivityThread</code>.main()</li>
+<li><code>ActivityThread</code>.attach()</li>
+<li><code>ActivityManagerService</code>.attachApplication()</li>
+<li><code>ActivityManagerService</code>.attachApplicationLocked()<blockquote>
+<p>attachApplicationLocked 会先执行 <code>bindApplication()</code> 启动 创建 <strong>Application</strong> 以及启动 <strong>ContentProvider</strong>,在<code>ContentProvider启动流程</code>中分析过</p>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p>然后 attachApplicationLocked 执行 <code>mStackSupervisor.attachApplicationLocked(app)</code> 启动相关Activity ,在 <code>Activity 启动流程中分析过</code></p>
+<p>最后 attachApplicationLocked 执行 <code>mServices.attachApplicationLocked(app, processName)</code> 启动相关 Service</p>
+</blockquote>
+<ul>
+<li><code>ActiveServices</code>.attachApplicationLocked()</li>
+<li><code>ActiveServices</code>.realStartServiceLocked()</li>
+</ul>
+<h4 id="启动-Service-流程"><a href="#启动-Service-流程" class="headerlink" title="启动 Service 流程"></a>启动 Service 流程</h4><ul>
+<li><code>ActiveServices</code>.realStartServiceLocked()</li>
+<li><code>ActivityThread</code>.scheduleCreateService()</li>
+<li><code>ActivityThread</code>.H.sendMessage()</li>
+<li><code>ActivityThread</code>.H.handleMessage()</li>
+<li><code>ActivityThread</code>.handleCreateService(),<strong>这个方法比较重要</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">private void handleCreateService(CreateServiceData data) &#123;</div><div class="line">        ...</div><div class="line">        Service service = null;</div><div class="line">        try &#123;</div><div class="line">        //反射创建 Service 对象</div><div class="line">            java.lang.ClassLoader cl = packageInfo.getClassLoader();</div><div class="line">            service = (Service) cl.loadClass(data.info.name).newInstance();</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">        try &#123;</div><div class="line">            //创建 ContextImpl,与Service 联系在一起</div><div class="line">            ContextImpl context = ContextImpl.createAppContext(this, packageInfo);</div><div class="line">            context.setOuterContext(service);</div><div class="line">            // 创建 Application</div><div class="line">            Application app = packageInfo.makeApplication(false, mInstrumentation);</div><div class="line">            //执行 Service.attach()</div><div class="line">            service.attach(context, this, data.info.name, data.token, app,</div><div class="line">                    ActivityManager.getService());</div><div class="line">            //执行 Service.onCreate()</div><div class="line">            service.onCreate();</div><div class="line">            //将 Service 存入到 ActivityThread 维护的 ArrayMap 中,用于记录</div><div class="line">            mServices.put(data.token, service);</div><div class="line">            ...</div><div class="line">            //通知 AMS service 启动完成</div><div class="line">            ActivityManager.getService().serviceDoneExecuting(</div><div class="line">                    data.token, SERVICE_DONE_EXECUTING_ANON, 0, 0);</div><div class="line">           ...</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>在这个方法里执行了 Service 与 ContextImpl建立了联系.调用了Service.attach,以及Service.onCreate()</p>
+<ul>
+<li>回到 <code>ActiveServices</code>.realStartServiceLocked(),会接着执行<code>ActiveServices</code>.sendServiceArgsLocked</li>
+<li><code>ActivityThread</code>.scheduleServiceArgs()</li>
+<li><code>ActivityThread</code>.H.sendMessage()</li>
+<li><code>ActivityThread</code>.H.handleMessage()</li>
+<li><code>ActivityThread</code>.handleServiceArgs()</li>
+<li><code>Service</code>.onStartCommand()</li>
+</ul>
+</blockquote>
+<p>在这里,最终调用到了我们的 Service.onStartCommand(),<code>startService()</code>流程分析完了.</p>
+<h3 id="bindService"><a href="#bindService" class="headerlink" title="bindService()"></a>bindService()</h3><h4 id="1-请求执行-bindService"><a href="#1-请求执行-bindService" class="headerlink" title="1.请求执行 bindService()"></a>1.请求执行 bindService()</h4><ul>
+<li><strong>ContextImpl</strong>.bindService()</li>
+<li><strong>ContextImpl</strong>.bindServiceCommon,比较重要</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">private boolean bindServiceCommon(Intent service, ServiceConnection conn, int flags, Handler</div><div class="line">            handler, UserHandle user) &#123;</div><div class="line">        ...</div><div class="line">        IServiceConnection sd;</div><div class="line">        ...</div><div class="line">        sd = mPackageInfo.getServiceDispatcher(conn, getOuterContext(), handler, flags);</div><div class="line">        ...</div><div class="line">        ActivityManager.getService().bindService(...)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>bindServiceCommon</code>内部将<strong>ServiceConnection</strong>转为了ServiceDispatcher.<strong>InnerConnection</strong></p>
+<p>因为Service绑定有可能是跨进程的,那么就需要借助<code>Binder</code>,ServiceDispatcher.<strong>InnerConnection</strong>就充当了<code>Binder</code>的角色</p>
+<p><code>LoadApk</code>保存了一个Map,<code>ArrayMap&lt;ServiceConnection, LoadedApk.ServiceDispatcher&gt;</code>,key就是 serviceConnectin,value就是ServiceDispathcer,而ServiceDispatcher.<strong>InnerConnection</strong>就是一个 <strong>Stub类</strong></p>
+<ul>
+<li><strong>ActivityManager</strong>.getService().bindService()</li>
+</ul>
+<blockquote>
+<p>此时 Service 启动流程从 <code>Client</code> 到 <code>Service</code></p>
+</blockquote>
+<h4 id="2-AMS-执行-Service"><a href="#2-AMS-执行-Service" class="headerlink" title="2.AMS 执行 Service"></a>2.AMS 执行 Service</h4><ul>
+<li><strong>ActivityManager</strong>.getService().bindService()</li>
+<li><strong>ActiveServices</strong>.bindServiceLocked()</li>
+<li><strong>ActiveServices</strong>.bringUpServiceLocked()<blockquote>
+<p>bringUpServiceLocked 内部与 startService 逻辑类似,没有启动进程就先启动,然后调用 <strong>realStartServiceLocked()</strong>,接着执行 <code>Service.attach(),Service.onCreate()</code></p>
+</blockquote>
+</li>
+<li>回到 <strong>ActiveServices</strong>.realStartServiceLocked() -&gt; 接着执行 <strong>ActiveServices</strong>.<code>requestServiceBindingsLocked(...);</code></li>
+<li><strong>ActiveServices</strong>.requestServiceBindingLocked()</li>
+<li><strong>ActivityThread</strong>.scheduleBindService()</li>
+<li><strong>ActivityThread</strong>.H.sendMessage()</li>
+<li><strong>ActivityThread</strong>.H.handleMessage()</li>
+<li><strong>ActivityThread</strong>.handleBindService()</li>
+<li><strong>Service</strong>.onBind()<blockquote>
+<p>调用了 Service.onBind()</p>
+</blockquote>
+</li>
+<li><strong>ActiveServices</strong>.publishServiceLocked()</li>
+</ul>
+<p>这个方法会执行<code>c.conn.connected(r.name, service, false);</code><br>conn 是 <code>IServiceConnection</code>,他的具体实现是ServiceDispatcher.<strong>InnerConnection</strong>,我们看看他的 <code>connected()</code>方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">----------------InnerConnection---------------</div><div class="line">public void connected(ComponentName name, IBinder service, boolean dead)</div><div class="line">                    throws RemoteException &#123;</div><div class="line">    //拿到 ServiceDispatcher 对象</div><div class="line">    LoadedApk.ServiceDispatcher sd = mDispatcher.get();</div><div class="line">    if (sd != null) &#123;</div><div class="line">        sd.connected(name, service, dead);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">----------------------------------</div><div class="line">public void connected(ComponentName name, IBinder service, boolean dead) &#123;</div><div class="line">    if (mActivityThread != null) &#123;</div><div class="line">        mActivityThread.post(new RunConnection(name, service, 0, dead));</div><div class="line">    &#125; else &#123;</div><div class="line">        doConnected(name, service, dead);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>mActivityThread是一个 Handler 对象,post后就可以将<code>RunConnection</code>放回主线程中了.而<code>RunConnection</code>的run()方法做了以下操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">---------------------RunConnection---------------</div><div class="line">public void run() &#123;</div><div class="line">    if (mCommand == 0) &#123;</div><div class="line">        doConnected(mName, mService, mDead);</div><div class="line">    &#125; else if (mCommand == 1) &#123;</div><div class="line">        doDeath(mName, mService);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>RunConnection是<code>ServiceDispatcher</code>的内部类,run()方法也是调用了<code>ServiceDispatcher</code>的doConnected(),由于<code>ServiceDispatcher</code>保存了ServiceConnection对象,所以可以很方便的回调<code>保存了ServiceConnection对象.onServiceConnected()</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"> public void doConnected(ComponentName name, IBinder service, boolean dead) &#123;</div><div class="line">    ...</div><div class="line">    //回调客户端的 onServiceDisconnected</div><div class="line">    if (old != null) &#123;</div><div class="line">        mConnection.onServiceDisconnected(name);</div><div class="line">    &#125;</div><div class="line">    if (dead) &#123;</div><div class="line">        mConnection.onBindingDied(name);</div><div class="line">    &#125;</div><div class="line">    //回调客户端的 onServiceConnected</div><div class="line">    if (service != null) &#123;</div><div class="line">        mConnection.onServiceConnected(name, service);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>至此,bindService 的 onCreate() onBind(). onServiceConnected() 都被执行了</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/08/ContentProvider-启动流程/" rel="next" title="ContentProvider 启动流程">
+                <i class="fa fa-chevron-left"></i> ContentProvider 启动流程
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2018/04/16/Service-启动流程/"
+           data-title="Service 启动流程" data-url="http://mashell.cn/2018/04/16/Service-启动流程/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://img2.ph.126.net/6h6Q_uZfZJyGMEqRVeJEmQ==/6631626317608930421.png"
+               alt="mashell" />
+          <p class="site-author-name" itemprop="name">mashell</p>
+          <p class="site-description motion-element" itemprop="description">还有什么比不浪费时间更有意义的事呢？</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#我们启动Service-一般有两种启动方式"><span class="nav-number">1.</span> <span class="nav-text">我们启动Service 一般有两种启动方式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#startService-这样-Activity-与-Service-没有交互"><span class="nav-number">1.0.1.</span> <span class="nav-text">startService() 这样 Activity 与 Service 没有交互</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#bindService-Activity-与-Service-有交互"><span class="nav-number">1.0.2.</span> <span class="nav-text">bindService() Activity 与 Service 有交互</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#涉及到的几个类"><span class="nav-number">2.</span> <span class="nav-text">涉及到的几个类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number"></span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#startService"><span class="nav-number">1.</span> <span class="nav-text">startService()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-请求执行-Service"><span class="nav-number">1.1.</span> <span class="nav-text">1.请求执行 Service</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在客户端-有如下步骤"><span class="nav-number">1.1.1.</span> <span class="nav-text">在客户端,有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-AMS-启动-Service"><span class="nav-number">1.2.</span> <span class="nav-text">2.AMS 启动 Service</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在-Service-端-有如下步骤"><span class="nav-number">1.2.1.</span> <span class="nav-text">在 Service 端,有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-启动-Service-所属应用进程"><span class="nav-number">1.3.</span> <span class="nav-text">3.启动 Service 所属应用进程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#有如下步骤"><span class="nav-number">1.3.1.</span> <span class="nav-text">有如下步骤</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动-Service-流程"><span class="nav-number">1.4.</span> <span class="nav-text">启动 Service 流程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bindService"><span class="nav-number">2.</span> <span class="nav-text">bindService()</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-请求执行-bindService"><span class="nav-number">2.1.</span> <span class="nav-text">1.请求执行 bindService()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-AMS-执行-Service"><span class="nav-number">2.2.</span> <span class="nav-text">2.AMS 执行 Service</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mashell</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.2"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"mashell"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("F8tDrPhvnflgmUOz88q2X3v8-gzGzoHsz", "7G2z5hgOyivnxFAKfLDqhTfK");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>

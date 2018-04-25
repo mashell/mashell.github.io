@@ -241,6 +241,233 @@
             
               
                 
+                <a class="post-title-link" href="/2018/04/16/Service-启动流程/" itemprop="url">
+                  Service 启动流程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-04-16T13:13:35+08:00" content="2018-04-16">
+              2018-04-16
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/04/16/Service-启动流程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2018/04/16/Service-启动流程/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/04/16/Service-启动流程/" class="leancloud_visitors" data-flag-title="Service 启动流程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="我们启动Service-一般有两种启动方式"><a href="#我们启动Service-一般有两种启动方式" class="headerlink" title="我们启动Service 一般有两种启动方式"></a>我们启动Service 一般有两种启动方式</h3><h5 id="startService-这样-Activity-与-Service-没有交互"><a href="#startService-这样-Activity-与-Service-没有交互" class="headerlink" title="startService() 这样 Activity 与 Service 没有交互"></a>startService() 这样 Activity 与 Service 没有交互</h5><ul>
+<li>onCreate() 多次 startService <strong>一次调用</strong></li>
+<li>onStartCommand() 多次 startService <strong>多次调用</strong></li>
+<li>onDestroy()</li>
+</ul>
+<h5 id="bindService-Activity-与-Service-有交互"><a href="#bindService-Activity-与-Service-有交互" class="headerlink" title="bindService() Activity 与 Service 有交互"></a>bindService() Activity 与 Service 有交互</h5><ul>
+<li>构造函数</li>
+<li>onCreate() <strong>一次调用</strong> </li>
+<li>onBind() [ Activity–&gt; onServiceConnected] <strong>一次调用</strong></li>
+<li>onUnbind()。</li>
+</ul>
+<p><strong>startService 与 bindService 混用的情况下,所有调用者都 unBindService()后,然后 stopService() 才能真正结束Service周期</strong></p>
+<h3 id="涉及到的几个类"><a href="#涉及到的几个类" class="headerlink" title="涉及到的几个类"></a>涉及到的几个类</h3><ul>
+<li><strong>ActiveServices</strong>:是辅助AMS进行Service管理的类</li>
+</ul>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><h3 id="startService"><a href="#startService" class="headerlink" title="startService()"></a>startService()</h3><h4 id="1-请求执行-Service"><a href="#1-请求执行-Service" class="headerlink" title="1.请求执行 Service"></a>1.请求执行 Service</h4><h5 id="在客户端-有如下步骤"><a href="#在客户端-有如下步骤" class="headerlink" title="在客户端,有如下步骤"></a>在客户端,有如下步骤</h5><ul>
+<li><strong>ContextImpl</strong>.startService()</li>
+<li><strong>ContextImpl</strong>.startServiceCommon()</li>
+<li><strong>ActivityManager</strong>.getService().startService()<ul>
+<li>getService:<code>IActivityManager.Stub.asInterface()</code></li>
+<li>IActivityManagerService的具体实现是<code>ActivityManagerService</code>getService会在<code>Client</code><strong>返回一个ActivityManagerProxy</strong>对象,API26以后采用的<code>ADIL</code>方式</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>到这里为止,Service 的启动已从<code>Client</code>到<code>Service</code></p>
+</blockquote>
+<h4 id="2-AMS-启动-Service"><a href="#2-AMS-启动-Service" class="headerlink" title="2.AMS 启动 Service"></a>2.AMS 启动 Service</h4><h5 id="在-Service-端-有如下步骤"><a href="#在-Service-端-有如下步骤" class="headerlink" title="在 Service 端,有如下步骤"></a>在 Service 端,有如下步骤</h5><ul>
+<li><strong>ActivityManager</strong>.getService().startService()</li>
+<li><strong>ActiveServices</strong>.startServiceLocked(),函数的末尾会调用</li>
+<li><strong>ActiveServices</strong>.startServiceInnerLocked()</li>
+<li><strong>ActiveServices</strong>.bringUpServiceLocked()</li>
+</ul>
+<blockquote>
+<p>在 <code>bringUpServiceLocked</code> 方法中,会判断 Service 所属进程是否已经启动,启动的话直接调用 realStartService(),否则调用 AMS.startProcessLocked() 启动应用进程</p>
+</blockquote>
+<h4 id="3-启动-Service-所属应用进程"><a href="#3-启动-Service-所属应用进程" class="headerlink" title="3.启动 Service 所属应用进程"></a>3.启动 Service 所属应用进程</h4><p>如果 Service 所属进程没有启动,那么会调用 <code>AMS.startProcessLocked()</code> 启动进程</p>
+<h5 id="有如下步骤"><a href="#有如下步骤" class="headerlink" title="有如下步骤"></a>有如下步骤</h5><ul>
+<li><code>ActivityManagerService</code>.startProcessLocked()</li>
+<li><code>Process</code>.start()</li>
+<li><code>ZygoteProcess</code>.start()</li>
+<li><code>ZygoteProcess</code>.startViaZygote()</li>
+<li><code>ActivityThread</code>.main()</li>
+<li><code>ActivityThread</code>.attach()</li>
+<li><code>ActivityManagerService</code>.attachApplication()</li>
+<li><code>ActivityManagerService</code>.attachApplicationLocked()<blockquote>
+<p>attachApplicationLocked 会先执行 <code>bindApplication()</code> 启动 创建 <strong>Application</strong> 以及启动 <strong>ContentProvider</strong>,在<code>ContentProvider启动流程</code>中分析过</p>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p>然后 attachApplicationLocked 执行 <code>mStackSupervisor.attachApplicationLocked(app)</code> 启动相关Activity ,在 <code>Activity 启动流程中分析过</code></p>
+<p>最后 attachApplicationLocked 执行 <code>mServices.attachApplicationLocked(app, processName)</code> 启动相关 Service</p>
+</blockquote>
+<ul>
+<li><code>ActiveServices</code>.attachApplicationLocked()</li>
+<li><code>ActiveServices</code>.realStartServiceLocked()</li>
+</ul>
+<h4 id="启动-Service-流程"><a href="#启动-Service-流程" class="headerlink" title="启动 Service 流程"></a>启动 Service 流程</h4><ul>
+<li><code>ActiveServices</code>.realStartServiceLocked()</li>
+<li><code>ActivityThread</code>.scheduleCreateService()</li>
+<li><code>ActivityThread</code>.H.sendMessage()</li>
+<li><code>ActivityThread</code>.H.handleMessage()</li>
+<li><code>ActivityThread</code>.handleCreateService(),<strong>这个方法比较重要</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">private void handleCreateService(CreateServiceData data) &#123;</div><div class="line">        ...</div><div class="line">        Service service = null;</div><div class="line">        try &#123;</div><div class="line">        //反射创建 Service 对象</div><div class="line">            java.lang.ClassLoader cl = packageInfo.getClassLoader();</div><div class="line">            service = (Service) cl.loadClass(data.info.name).newInstance();</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">        try &#123;</div><div class="line">            //创建 ContextImpl,与Service 联系在一起</div><div class="line">            ContextImpl context = ContextImpl.createAppContext(this, packageInfo);</div><div class="line">            context.setOuterContext(service);</div><div class="line">            // 创建 Application</div><div class="line">            Application app = packageInfo.makeApplication(false, mInstrumentation);</div><div class="line">            //执行 Service.attach()</div><div class="line">            service.attach(context, this, data.info.name, data.token, app,</div><div class="line">                    ActivityManager.getService());</div><div class="line">            //执行 Service.onCreate()</div><div class="line">            service.onCreate();</div><div class="line">            //将 Service 存入到 ActivityThread 维护的 ArrayMap 中,用于记录</div><div class="line">            mServices.put(data.token, service);</div><div class="line">            ...</div><div class="line">            //通知 AMS service 启动完成</div><div class="line">            ActivityManager.getService().serviceDoneExecuting(</div><div class="line">                    data.token, SERVICE_DONE_EXECUTING_ANON, 0, 0);</div><div class="line">           ...</div><div class="line">        &#125;</div><div class="line">        ...</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>在这个方法里执行了 Service 与 ContextImpl建立了联系.调用了Service.attach,以及Service.onCreate()</p>
+<ul>
+<li>回到 <code>ActiveServices</code>.realStartServiceLocked(),会接着执行<code>ActiveServices</code>.sendServiceArgsLocked</li>
+<li><code>ActivityThread</code>.scheduleServiceArgs()</li>
+<li><code>ActivityThread</code>.H.sendMessage()</li>
+<li><code>ActivityThread</code>.H.handleMessage()</li>
+<li><code>ActivityThread</code>.handleServiceArgs()</li>
+<li><code>Service</code>.onStartCommand()</li>
+</ul>
+</blockquote>
+<p>在这里,最终调用到了我们的 Service.onStartCommand(),<code>startService()</code>流程分析完了.</p>
+<h3 id="bindService"><a href="#bindService" class="headerlink" title="bindService()"></a>bindService()</h3><h4 id="1-请求执行-bindService"><a href="#1-请求执行-bindService" class="headerlink" title="1.请求执行 bindService()"></a>1.请求执行 bindService()</h4><ul>
+<li><strong>ContextImpl</strong>.bindService()</li>
+<li><strong>ContextImpl</strong>.bindServiceCommon,比较重要</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">private boolean bindServiceCommon(Intent service, ServiceConnection conn, int flags, Handler</div><div class="line">            handler, UserHandle user) &#123;</div><div class="line">        ...</div><div class="line">        IServiceConnection sd;</div><div class="line">        ...</div><div class="line">        sd = mPackageInfo.getServiceDispatcher(conn, getOuterContext(), handler, flags);</div><div class="line">        ...</div><div class="line">        ActivityManager.getService().bindService(...)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>bindServiceCommon</code>内部将<strong>ServiceConnection</strong>转为了ServiceDispatcher.<strong>InnerConnection</strong></p>
+<p>因为Service绑定有可能是跨进程的,那么就需要借助<code>Binder</code>,ServiceDispatcher.<strong>InnerConnection</strong>就充当了<code>Binder</code>的角色</p>
+<p><code>LoadApk</code>保存了一个Map,<code>ArrayMap&lt;ServiceConnection, LoadedApk.ServiceDispatcher&gt;</code>,key就是 serviceConnectin,value就是ServiceDispathcer,而ServiceDispatcher.<strong>InnerConnection</strong>就是一个 <strong>Stub类</strong></p>
+<ul>
+<li><strong>ActivityManager</strong>.getService().bindService()</li>
+</ul>
+<blockquote>
+<p>此时 Service 启动流程从 <code>Client</code> 到 <code>Service</code></p>
+</blockquote>
+<h4 id="2-AMS-执行-Service"><a href="#2-AMS-执行-Service" class="headerlink" title="2.AMS 执行 Service"></a>2.AMS 执行 Service</h4><ul>
+<li><strong>ActivityManager</strong>.getService().bindService()</li>
+<li><strong>ActiveServices</strong>.bindServiceLocked()</li>
+<li><strong>ActiveServices</strong>.bringUpServiceLocked()<blockquote>
+<p>bringUpServiceLocked 内部与 startService 逻辑类似,没有启动进程就先启动,然后调用 <strong>realStartServiceLocked()</strong>,接着执行 <code>Service.attach(),Service.onCreate()</code></p>
+</blockquote>
+</li>
+<li>回到 <strong>ActiveServices</strong>.realStartServiceLocked() -&gt; 接着执行 <strong>ActiveServices</strong>.<code>requestServiceBindingsLocked(...);</code></li>
+<li><strong>ActiveServices</strong>.requestServiceBindingLocked()</li>
+<li><strong>ActivityThread</strong>.scheduleBindService()</li>
+<li><strong>ActivityThread</strong>.H.sendMessage()</li>
+<li><strong>ActivityThread</strong>.H.handleMessage()</li>
+<li><strong>ActivityThread</strong>.handleBindService()</li>
+<li><strong>Service</strong>.onBind()<blockquote>
+<p>调用了 Service.onBind()</p>
+</blockquote>
+</li>
+<li><strong>ActiveServices</strong>.publishServiceLocked()</li>
+</ul>
+<p>这个方法会执行<code>c.conn.connected(r.name, service, false);</code><br>conn 是 <code>IServiceConnection</code>,他的具体实现是ServiceDispatcher.<strong>InnerConnection</strong>,我们看看他的 <code>connected()</code>方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">----------------InnerConnection---------------</div><div class="line">public void connected(ComponentName name, IBinder service, boolean dead)</div><div class="line">                    throws RemoteException &#123;</div><div class="line">    //拿到 ServiceDispatcher 对象</div><div class="line">    LoadedApk.ServiceDispatcher sd = mDispatcher.get();</div><div class="line">    if (sd != null) &#123;</div><div class="line">        sd.connected(name, service, dead);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">----------------------------------</div><div class="line">public void connected(ComponentName name, IBinder service, boolean dead) &#123;</div><div class="line">    if (mActivityThread != null) &#123;</div><div class="line">        mActivityThread.post(new RunConnection(name, service, 0, dead));</div><div class="line">    &#125; else &#123;</div><div class="line">        doConnected(name, service, dead);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>mActivityThread是一个 Handler 对象,post后就可以将<code>RunConnection</code>放回主线程中了.而<code>RunConnection</code>的run()方法做了以下操作</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">---------------------RunConnection---------------</div><div class="line">public void run() &#123;</div><div class="line">    if (mCommand == 0) &#123;</div><div class="line">        doConnected(mName, mService, mDead);</div><div class="line">    &#125; else if (mCommand == 1) &#123;</div><div class="line">        doDeath(mName, mService);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>RunConnection是<code>ServiceDispatcher</code>的内部类,run()方法也是调用了<code>ServiceDispatcher</code>的doConnected(),由于<code>ServiceDispatcher</code>保存了ServiceConnection对象,所以可以很方便的回调<code>保存了ServiceConnection对象.onServiceConnected()</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"> public void doConnected(ComponentName name, IBinder service, boolean dead) &#123;</div><div class="line">    ...</div><div class="line">    //回调客户端的 onServiceDisconnected</div><div class="line">    if (old != null) &#123;</div><div class="line">        mConnection.onServiceDisconnected(name);</div><div class="line">    &#125;</div><div class="line">    if (dead) &#123;</div><div class="line">        mConnection.onBindingDied(name);</div><div class="line">    &#125;</div><div class="line">    //回调客户端的 onServiceConnected</div><div class="line">    if (service != null) &#123;</div><div class="line">        mConnection.onServiceConnected(name, service);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>至此,bindService 的 onCreate() onBind(). onServiceConnected() 都被执行了</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/04/08/ContentProvider-启动流程/" itemprop="url">
                   ContentProvider 启动流程
                 </a>
@@ -1858,128 +2085,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/07/06/LinkedHashMap-源码分析/" itemprop="url">
-                  LinkedHashMap 源码分析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-07-06T20:32:13+08:00" content="2017-07-06">
-              2017-07-06
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/07/06/LinkedHashMap-源码分析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/06/LinkedHashMap-源码分析/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/07/06/LinkedHashMap-源码分析/" class="leancloud_visitors" data-flag-title="LinkedHashMap 源码分析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">LinkedHashMap&lt;String, Integer&gt; lmap = new LinkedHashMap&lt;String, Integer&gt;();</div><div class="line">lmap.put(&quot;语文&quot;, 1);</div><div class="line">lmap.put(&quot;数学&quot;, 2);</div><div class="line">for(Entry&lt;String, Integer&gt; entry : lmap.entrySet()) &#123;</div><div class="line">    System.out.println(entry.getKey() + &quot;: &quot; + entry.getValue());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>LinkedHashMap 继承自 HashMap</p>
-<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">//头结点</div><div class="line">transient LinkedHashMap.Entry&lt;K,V&gt; head;</div><div class="line">//尾节点</div><div class="line">transient LinkedHashMap.Entry&lt;K,V&gt; tail;</div><div class="line">//true表示实现FIFO的顺序排列元素,false表示按照插入顺序排列元素</div><div class="line">final boolean accessOrder;</div></pre></td></tr></table></figure>
-<p>LinkedHashMap 保存了头尾节点,内部实现是<strong>双链表</strong></p>
-<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">public LinkedHashMap() &#123;</div><div class="line">    super();</div><div class="line">    accessOrder = false;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="三个重要的函数"><a href="#三个重要的函数" class="headerlink" title="三个重要的函数"></a>三个重要的函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">void afterNodeAccess(Node&lt;K,V&gt; p) &#123; &#125;</div><div class="line">void afterNodeInsertion(boolean evict) &#123; &#125;</div><div class="line">void afterNodeRemoval(Node&lt;K,V&gt; p) &#123; &#125;</div></pre></td></tr></table></figure>
-<h4 id="afterNodeAccess函数"><a href="#afterNodeAccess函数" class="headerlink" title="afterNodeAccess函数"></a>afterNodeAccess函数</h4><p>访问链表节点后的操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">void afterNodeAccess(Node&lt;K,V&gt; e) &#123; </div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; last;</div><div class="line">    if (accessOrder &amp;&amp; (last = tail) != e) &#123;</div><div class="line">    //p作为指针,b为p的前指针,a为p的后指针</div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</div><div class="line">            (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</div><div class="line">        //p的后节点置null</div><div class="line">        p.after = null;</div><div class="line">        if (b == null)</div><div class="line">            head = a;</div><div class="line">        else</div><div class="line">        //设置 before 的后节点,为了移除 p</div><div class="line">            b.after = a;</div><div class="line">        if (a != null)</div><div class="line">        //设置 after 的前节点,为了移除 p</div><div class="line">            a.before = b;</div><div class="line">        else</div><div class="line">            last = b;</div><div class="line">        //空链表,那么 p 就是头结点</div><div class="line">        if (last == null)</div><div class="line">            head = p;</div><div class="line">        else &#123;</div><div class="line">        //将移除的P节点,移动到链表尾部</div><div class="line">            p.before = last;</div><div class="line">            last.after = p;</div><div class="line">        &#125;</div><div class="line">        tail = p;</div><div class="line">        ++modCount;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>可以看到,这个函数就是为了访问元素后,将元素移动到链表尾部,保证 FIFO</p>
-<h4 id="afterNodeInsertion函数"><a href="#afterNodeInsertion函数" class="headerlink" title="afterNodeInsertion函数"></a>afterNodeInsertion函数</h4><p>节点插入后的操作,可能会因为超过容量而移除最早最少使用的元素<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">void afterNodeInsertion(boolean evict) &#123; </div><div class="line">    LinkedHashMap.Entry&lt;K,V&gt; first;</div><div class="line">    if (evict &amp;&amp; (first = head) != null &amp;&amp; removeEldestEntry(first)) &#123;</div><div class="line">        K key = first.key;</div><div class="line">        //移除第一个元素,也就是最近最少使用的元素</div><div class="line">        removeNode(hash(key), key, null, false, true);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h4 id="afterNodeRemoval函数"><a href="#afterNodeRemoval函数" class="headerlink" title="afterNodeRemoval函数"></a>afterNodeRemoval函数</h4><p>用于移除节点操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">void afterNodeRemoval(Node&lt;K,V&gt; e) &#123; // unlink</div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</div><div class="line">        (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</div><div class="line">    p.before = p.after = null;</div><div class="line">    if (b == null)</div><div class="line">        head = a;</div><div class="line">    else</div><div class="line">        b.after = a;</div><div class="line">    if (a == null)</div><div class="line">        tail = b;</div><div class="line">    else</div><div class="line">        a.before = b;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h4 id="以上三个函数就是为了保证链表始终保持最近最少使用的规则"><a href="#以上三个函数就是为了保证链表始终保持最近最少使用的规则" class="headerlink" title="以上三个函数就是为了保证链表始终保持最近最少使用的规则"></a>以上三个函数就是为了保证链表始终保持最近最少使用的规则</h4><h3 id="put-函数"><a href="#put-函数" class="headerlink" title="put()函数"></a>put()函数</h3><p>put函数在LinkedHashMap中未重新实现，只是实现了afterNodeAccess和afterNodeInsertion两个回调函数。</p>
-<p>对于<code>LinkedHashMap</code>的put(),每次操作都会调用<code>afterNodeAccess()</code>,这样就将节点插入到双链表了.</p>
-<h3 id="get-函数"><a href="#get-函数" class="headerlink" title="get()函数"></a>get()函数</h3><p>get()则重新实现了,在函数中加入了 <code>accessOrder</code> 来保证访问顺序</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public V get(Object key) &#123;</div><div class="line">    Node&lt;K,V&gt; e;</div><div class="line">    if ((e = getNode(hash(key), key)) == null)</div><div class="line">        return null;</div><div class="line">    //如果是需要按照访问的顺序排序</div><div class="line">    if (accessOrder)</div><div class="line">    //回调这个方法,实现是将元素放在最后面</div><div class="line">        afterNodeAccess(e);</div><div class="line">    return e.value;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2025,7 +2130,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-count">26</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

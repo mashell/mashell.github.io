@@ -241,6 +241,128 @@
             
               
                 
+                <a class="post-title-link" href="/2017/07/06/LinkedHashMap-源码分析/" itemprop="url">
+                  LinkedHashMap 源码分析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-07-06T20:32:13+08:00" content="2017-07-06">
+              2017-07-06
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/07/06/LinkedHashMap-源码分析/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/07/06/LinkedHashMap-源码分析/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/06/LinkedHashMap-源码分析/" class="leancloud_visitors" data-flag-title="LinkedHashMap 源码分析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">LinkedHashMap&lt;String, Integer&gt; lmap = new LinkedHashMap&lt;String, Integer&gt;();</div><div class="line">lmap.put(&quot;语文&quot;, 1);</div><div class="line">lmap.put(&quot;数学&quot;, 2);</div><div class="line">for(Entry&lt;String, Integer&gt; entry : lmap.entrySet()) &#123;</div><div class="line">    System.out.println(entry.getKey() + &quot;: &quot; + entry.getValue());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>LinkedHashMap 继承自 HashMap</p>
+<h3 id="成员属性分析"><a href="#成员属性分析" class="headerlink" title="成员属性分析"></a>成员属性分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">//头结点</div><div class="line">transient LinkedHashMap.Entry&lt;K,V&gt; head;</div><div class="line">//尾节点</div><div class="line">transient LinkedHashMap.Entry&lt;K,V&gt; tail;</div><div class="line">//true表示实现FIFO的顺序排列元素,false表示按照插入顺序排列元素</div><div class="line">final boolean accessOrder;</div></pre></td></tr></table></figure>
+<p>LinkedHashMap 保存了头尾节点,内部实现是<strong>双链表</strong></p>
+<h3 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">public LinkedHashMap() &#123;</div><div class="line">    super();</div><div class="line">    accessOrder = false;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="三个重要的函数"><a href="#三个重要的函数" class="headerlink" title="三个重要的函数"></a>三个重要的函数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">void afterNodeAccess(Node&lt;K,V&gt; p) &#123; &#125;</div><div class="line">void afterNodeInsertion(boolean evict) &#123; &#125;</div><div class="line">void afterNodeRemoval(Node&lt;K,V&gt; p) &#123; &#125;</div></pre></td></tr></table></figure>
+<h4 id="afterNodeAccess函数"><a href="#afterNodeAccess函数" class="headerlink" title="afterNodeAccess函数"></a>afterNodeAccess函数</h4><p>访问链表节点后的操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">void afterNodeAccess(Node&lt;K,V&gt; e) &#123; </div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; last;</div><div class="line">    if (accessOrder &amp;&amp; (last = tail) != e) &#123;</div><div class="line">    //p作为指针,b为p的前指针,a为p的后指针</div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</div><div class="line">            (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</div><div class="line">        //p的后节点置null</div><div class="line">        p.after = null;</div><div class="line">        if (b == null)</div><div class="line">            head = a;</div><div class="line">        else</div><div class="line">        //设置 before 的后节点,为了移除 p</div><div class="line">            b.after = a;</div><div class="line">        if (a != null)</div><div class="line">        //设置 after 的前节点,为了移除 p</div><div class="line">            a.before = b;</div><div class="line">        else</div><div class="line">            last = b;</div><div class="line">        //空链表,那么 p 就是头结点</div><div class="line">        if (last == null)</div><div class="line">            head = p;</div><div class="line">        else &#123;</div><div class="line">        //将移除的P节点,移动到链表尾部</div><div class="line">            p.before = last;</div><div class="line">            last.after = p;</div><div class="line">        &#125;</div><div class="line">        tail = p;</div><div class="line">        ++modCount;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到,这个函数就是为了访问元素后,将元素移动到链表尾部,保证 FIFO</p>
+<h4 id="afterNodeInsertion函数"><a href="#afterNodeInsertion函数" class="headerlink" title="afterNodeInsertion函数"></a>afterNodeInsertion函数</h4><p>节点插入后的操作,可能会因为超过容量而移除最早最少使用的元素<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">void afterNodeInsertion(boolean evict) &#123; </div><div class="line">    LinkedHashMap.Entry&lt;K,V&gt; first;</div><div class="line">    if (evict &amp;&amp; (first = head) != null &amp;&amp; removeEldestEntry(first)) &#123;</div><div class="line">        K key = first.key;</div><div class="line">        //移除第一个元素,也就是最近最少使用的元素</div><div class="line">        removeNode(hash(key), key, null, false, true);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="afterNodeRemoval函数"><a href="#afterNodeRemoval函数" class="headerlink" title="afterNodeRemoval函数"></a>afterNodeRemoval函数</h4><p>用于移除节点操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">void afterNodeRemoval(Node&lt;K,V&gt; e) &#123; // unlink</div><div class="line">        LinkedHashMap.Entry&lt;K,V&gt; p =</div><div class="line">        (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;</div><div class="line">    p.before = p.after = null;</div><div class="line">    if (b == null)</div><div class="line">        head = a;</div><div class="line">    else</div><div class="line">        b.after = a;</div><div class="line">    if (a == null)</div><div class="line">        tail = b;</div><div class="line">    else</div><div class="line">        a.before = b;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h4 id="以上三个函数就是为了保证链表始终保持最近最少使用的规则"><a href="#以上三个函数就是为了保证链表始终保持最近最少使用的规则" class="headerlink" title="以上三个函数就是为了保证链表始终保持最近最少使用的规则"></a>以上三个函数就是为了保证链表始终保持最近最少使用的规则</h4><h3 id="put-函数"><a href="#put-函数" class="headerlink" title="put()函数"></a>put()函数</h3><p>put函数在LinkedHashMap中未重新实现，只是实现了afterNodeAccess和afterNodeInsertion两个回调函数。</p>
+<p>对于<code>LinkedHashMap</code>的put(),每次操作都会调用<code>afterNodeAccess()</code>,这样就将节点插入到双链表了.</p>
+<h3 id="get-函数"><a href="#get-函数" class="headerlink" title="get()函数"></a>get()函数</h3><p>get()则重新实现了,在函数中加入了 <code>accessOrder</code> 来保证访问顺序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public V get(Object key) &#123;</div><div class="line">    Node&lt;K,V&gt; e;</div><div class="line">    if ((e = getNode(hash(key), key)) == null)</div><div class="line">        return null;</div><div class="line">    //如果是需要按照访问的顺序排序</div><div class="line">    if (accessOrder)</div><div class="line">    //回调这个方法,实现是将元素放在最后面</div><div class="line">        afterNodeAccess(e);</div><div class="line">    return e.value;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/06/23/HashMap-源码分析/" itemprop="url">
                   HashMap 源码分析
                 </a>
@@ -1580,172 +1702,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/01/AsyncTask源码解析/" itemprop="url">
-                  AsyncTask源码解析
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-01T00:42:37+08:00" content="2017-02-01">
-              2017-02-01
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/02/01/AsyncTask源码解析/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/01/AsyncTask源码解析/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/02/01/AsyncTask源码解析/" class="leancloud_visitors" data-flag-title="AsyncTask源码解析">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">MyAsyncTask</span> <span class="keyword">extends</span> <span class="title">AsyncTask</span>&lt;<span class="title">Void</span>, <span class="title">Integer</span>, <span class="title">Void</span>&gt;  </span></div><div class="line">   &#123;  </div><div class="line"> </div><div class="line">       <span class="meta">@Override</span>  </div><div class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onPreExecute</span><span class="params">()</span>  </span></div><div class="line">       &#123;  </div><div class="line">           <span class="comment">//启动前的准备工作</span></div><div class="line">       &#125;  </div><div class="line"> </div><div class="line">       <span class="meta">@Override</span>  </div><div class="line">       <span class="function"><span class="keyword">protected</span> Void <span class="title">doInBackground</span><span class="params">(Void... params)</span>  </span></div><div class="line">       &#123;  </div><div class="line"> </div><div class="line">           <span class="comment">//后台耗时操作</span></div><div class="line">           <span class="comment">//....</span></div><div class="line"></div><div class="line">           <span class="comment">//调用 publishProgress 方法,会自动调用 onProgressUpdate</span></div><div class="line">           publishProgress(<span class="number">100</span>);</div><div class="line">       &#125;  </div><div class="line"> </div><div class="line">       <span class="meta">@Override</span>  </div><div class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onProgressUpdate</span><span class="params">(Integer... values)</span>  </span></div><div class="line">       &#123;  </div><div class="line">           <span class="comment">//可以通过参数更新进度,在主线程</span></div><div class="line">       &#125;  </div><div class="line"> </div><div class="line">       <span class="meta">@Override</span>  </div><div class="line">       <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onPostExecute</span><span class="params">(Void result)</span>  </span></div><div class="line">       &#123; </div><div class="line">          <span class="comment">//耗时操作完成后更新UI操作,在主线程</span></div><div class="line">       &#125;  </div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<p>这样一来我们就创建了自己的 AsyncTask 类,然后我们就可以使用了</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> MyAsyncTask().execute();</div></pre></td></tr></table></figure>
-<p>那么,我们就从就直接的 <code>excute</code> 方法入手,excute 是串行的.</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> AsyncTask&lt;Params, Progress, Result&gt; <span class="title">execute</span><span class="params">(Params... params)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> executeOnExecutor(sDefaultExecutor, params);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>可以看到 excute 方法中调用了 <code>executeOnExecutor</code> 方法,而这个方法传入了一个默认的  <code>sDefaultExecutor</code> ,我们跟着步伐进入 <code>executeOnExecutor</code> 看看</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> AsyncTask&lt;Params, Progress, Result&gt; <span class="title">executeOnExecutor</span><span class="params">(Executor exec, Params... params)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (mStatus != Status.PENDING) &#123;</div><div class="line">            <span class="keyword">switch</span> (mStatus) &#123;</div><div class="line">                <span class="keyword">case</span> RUNNING:</div><div class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Cannot execute task:"</span></div><div class="line">                            + <span class="string">" the task is already running."</span>);</div><div class="line">                <span class="keyword">case</span> FINISHED:</div><div class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Cannot execute task:"</span></div><div class="line">                            + <span class="string">" the task has already been executed "</span></div><div class="line">                            + <span class="string">"(a task can be executed only once)"</span>);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        mStatus = Status.RUNNING;</div><div class="line"></div><div class="line">        onPreExecute();</div><div class="line"></div><div class="line">        mWorker.mParams = params;</div><div class="line">        exec.execute(mFuture);</div><div class="line"></div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>在这个我们最直观调用的方法中,我们看到了 <code>onPreExecute()</code> 方法被调用了,我们可以在这初始化一些操作.然后紧接着,我们看到 mWorker的 mParams 被初始化了,最后调用了 <code>exec.execute</code> 方法,然后整个方法就结束了,在这里我们可以猜测到 <code>doInbackgroud()</code> <code>onProgressUpdate()</code> <code>onPostExecute ()</code> 肯定都在 execute 方法之后进行了.<br>这里我们留下了疑问</p>
-<ul>
-<li>赋值形参<code>exec</code>的  <code>sDefaultExecutor</code> 是什么线程池</li>
-<li><code>mWorker</code> 是什么</li>
-<li><code>mFuture</code> 是什么</li>
-</ul>
-<p>接下来,我们带着疑问从AsyncTask构造函数入手</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">AsyncTask</span><span class="params">()</span> </span>&#123;</div><div class="line">        mWorker = <span class="keyword">new</span> WorkerRunnable&lt;Params, Result&gt;() &#123;</div><div class="line">            <span class="function"><span class="keyword">public</span> Result <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">                mTaskInvoked.set(<span class="keyword">true</span>);</div><div class="line"></div><div class="line">                Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);</div><div class="line">                <span class="comment">//noinspection unchecked</span></div><div class="line">                Result result = doInBackground(mParams);</div><div class="line">                Binder.flushPendingCommands();</div><div class="line">                <span class="keyword">return</span> postResult(result);</div><div class="line">            &#125;</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        mFuture = <span class="keyword">new</span> FutureTask&lt;Result&gt;(mWorker) &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">done</span><span class="params">()</span> </span>&#123;</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    postResultIfNotInvoked(get());</div><div class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">                    android.util.Log.w(LOG_TAG, e);</div><div class="line">                &#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</div><div class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"An error occurred while executing doInBackground()"</span>,</div><div class="line">                            e.getCause());</div><div class="line">                &#125; <span class="keyword">catch</span> (CancellationException e) &#123;</div><div class="line">                    postResultIfNotInvoked(<span class="keyword">null</span>);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>我们看到了 <code>mWorker</code> 被初始化了,这也是我们刚才的疑问1,在源码最后的位置我们可以找到 <code>WorkerRunnable</code>,</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">WorkerRunnable</span>&lt;<span class="title">Params</span>, <span class="title">Result</span>&gt; <span class="keyword">implements</span> <span class="title">Callable</span>&lt;<span class="title">Result</span>&gt; </span>&#123;</div><div class="line">        Params[] mParams;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>原来就是一个 Callable 的抽象类,接着我们看看 <code>mFuture</code>,在构造函数中它将 <code>Worker</code> 传入了</p>
-<p>然后我们继续分析 <code>sDefaultExcutor</code> ,我们看到源码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Executor SERIAL_EXECUTOR = <span class="keyword">new</span> SerialExecutor();  </div><div class="line">……  </div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Executor sDefaultExecutor = SERIAL_EXECUTOR;</div></pre></td></tr></table></figure>
-<p>原来他是一个 内部实现的 <code>SerialExecutor</code>,那么我们接着看他的源码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SerialExecutor</span> <span class="keyword">implements</span> <span class="title">Executor</span> </span>&#123;  </div><div class="line">    <span class="keyword">final</span> ArrayDeque&lt;Runnable&gt; mTasks = <span class="keyword">new</span> ArrayDeque&lt;Runnable&gt;();  </div><div class="line">    Runnable mActive;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(<span class="keyword">final</span> Runnable r)</span> </span>&#123;  </div><div class="line">        mTasks.offer(<span class="keyword">new</span> Runnable() &#123;  </div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </div><div class="line">                <span class="keyword">try</span> &#123;  </div><div class="line">                    r.run();  </div><div class="line">                &#125; <span class="keyword">finally</span> &#123;  </div><div class="line">                    scheduleNext();  </div><div class="line">                &#125;  </div><div class="line">            &#125;  </div><div class="line">        &#125;);  </div><div class="line">        <span class="keyword">if</span> (mActive == <span class="keyword">null</span>) &#123;  </div><div class="line">            scheduleNext();  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">scheduleNext</span><span class="params">()</span> </span>&#123;  </div><div class="line">        <span class="keyword">if</span> ((mActive = mTasks.poll()) != <span class="keyword">null</span>) &#123;  </div><div class="line">            THREAD_POOL_EXECUTOR.execute(mActive);  </div><div class="line">        &#125;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>首先重点分析这个 execute 方法,这里引用郭神的分析</p>
-<blockquote>
-<p>可以看到，SerialExecutor是使用ArrayDeque这个队列来管理Runnable对象的，如果我们一次性启动了很多个任务，首先在第一次运行execute()方法的时候，会调用ArrayDeque的offer()方法将传入的Runnable对象添加到队列的尾部，然后判断mActive对象是不是等于null，第一次运行当然是等于null了，于是会调用scheduleNext()方法。在这个方法中会从队列的头部取值，并赋值给mActive对象，然后调用THREAD_POOL_EXECUTOR去执行取出的取出的Runnable对象。之后如何又有新的任务被执行，同样还会调用offer()方法将传入的Runnable添加到队列的尾部，但是再去给mActive对象做非空检查的时候就会发现mActive对象已经不再是null了，于是就不会再调用scheduleNext()方法。</p>
-<p>那么后面添加的任务岂不是永远得不到处理了？当然不是，看一看offer()方法里传入的Runnable匿名类，这里使用了一个try finally代码块，并在finally中调用了scheduleNext()方法，保证无论发生什么情况，这个方法都会被调用。也就是说，每次当一个任务执行完毕后，下一个任务才会得到执行，SerialExecutor模仿的是单一线程池的效果</p>
-</blockquote>
-<p>所以这里我们也可以知道默认的 AsyncTask 是单线程 执行的.</p>
-<p>在线程池的<code>execute</code>方法中,执行了 <code>Runnable</code> 的run方法, 在<code>AsyncTask</code>的execute 方法中我们知道这个 <code>r</code>是 FutureTask ,在<code>FutureTask</code>的run方法中,</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">   ....</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        Callable&lt;V&gt; c = callable;</div><div class="line">        <span class="keyword">if</span> (c != <span class="keyword">null</span> &amp;&amp; state == NEW) &#123;</div><div class="line">            V result;</div><div class="line">            <span class="keyword">boolean</span> ran;</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                result = c.call();</div><div class="line">                ran = <span class="keyword">true</span>;</div><div class="line">            &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</div><div class="line">                result = <span class="keyword">null</span>;</div><div class="line">                ran = <span class="keyword">false</span>;</div><div class="line">                setException(ex);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span> (ran)</div><div class="line">                set(result);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">       ....</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>执行了 c的 <code>call()</code>方法,这个 <code>callable</code> 就是我们在AsyncTask 构造函数中的初始化 <code>FutrueTask</code> 的时候传入的 <code>Worker</code>,那我们回到构造函数中看看 Worker 的 <code>call</code> 做了哪些操作</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mTaskInvoked.set(<span class="keyword">true</span>);</div><div class="line"></div><div class="line">Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);</div><div class="line"><span class="comment">//noinspection unchecked</span></div><div class="line">Result result = doInBackground(mParams);</div><div class="line">Binder.flushPendingCommands();</div><div class="line"><span class="keyword">return</span> postResult(result);</div></pre></td></tr></table></figure>
-<p>首先将 mTaskInvoked 设置为了 true,然后在这里调用了 <code>doInBackgroud</code> 方法,最后调用<code>postResult()</code>,我们继续前往这个方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"> <span class="function"><span class="keyword">private</span> Result <span class="title">postResult</span><span class="params">(Result result)</span> </span>&#123;</div><div class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</div><div class="line">    Message message = getHandler().obtainMessage(MESSAGE_POST_RESULT,</div><div class="line">            <span class="keyword">new</span> AsyncTaskResult&lt;Result&gt;(<span class="keyword">this</span>, result));</div><div class="line">    message.sendToTarget();</div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>我们通过 Handler 发送了一个消息,消息的 msg 为 <code>MESSAGE_POST_RESULT</code>,obj 为新建的一个 AsyncTaskResult,这个AsyncTaskResult 的 mTask 为AsyncTask 本身,mData 为 doInbackgroud的result</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">AsyncTaskResult</span>&lt;<span class="title">Data</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">final</span> AsyncTask mTask;</div><div class="line">    <span class="keyword">final</span> Data[] mData;</div><div class="line"></div><div class="line">    AsyncTaskResult(AsyncTask task, Data... data) &#123;</div><div class="line">        mTask = task;</div><div class="line">        mData = data;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这个 <code>getHandler</code> 从源码中很容易看出来是<code>InternalHandler</code>,那么处理消息也是在这个 Handler 内部了,我们看看他的 <code>handleMessage</code>方法,</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">    AsyncTaskResult&lt;?&gt; result = (AsyncTaskResult&lt;?&gt;) msg.obj;</div><div class="line">    <span class="keyword">switch</span> (msg.what) &#123;</div><div class="line">        <span class="keyword">case</span> MESSAGE_POST_RESULT:</div><div class="line">            <span class="comment">// There is only one result</span></div><div class="line">            result.mTask.finish(result.mData[<span class="number">0</span>]);</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        <span class="keyword">case</span> MESSAGE_POST_PROGRESS:</div><div class="line">            result.mTask.onProgressUpdate(result.mData);</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">            </div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这里处理两种类型的 Message ,我们 postResult 方法传入<code>MESSAGE_POST_RESULT</code>,他会调用<code>mTask(也就是 AsyncTask 本身)</code>的<code>finish()</code>方法,我们走进去看看</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">finish</span><span class="params">(Result result)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (isCancelled()) &#123;</div><div class="line">        onCancelled(result);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        onPostExecute(result);</div><div class="line">    &#125;</div><div class="line">    mStatus = Status.FINISHED;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>终于, onPostExecute()方法的调用也被我们找到了,如果当前任务没有被取消,那么就调用 <code>onPostExecute</code> 方法,否则调用 <code>onCancelled</code> 方法<br>那么还有一种消息,<code>MESSAGE_POST_PROGRESS</code>在哪里发送的呢?其实通过名字我们也可以猜到,应该是是剩下的最后一个方法<code>publishProgress()</code>发送的,我们继续分析</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">publishProgress</span><span class="params">(Progress... values)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (!isCancelled()) &#123;</div><div class="line">        getHandler().obtainMessage(MESSAGE_POST_PROGRESS,</div><div class="line">                <span class="keyword">new</span> AsyncTaskResult&lt;Progress&gt;(<span class="keyword">this</span>, values)).sendToTarget();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>如果没有被取消,那么就会发送一个 <code>MESSAGE_POST_PROGRESS</code> 的消息,然后在 InternalHandler 的<code>handleMessage</code>中调用<code>onProgressUpdate</code><br>至此,AsyncTask 也被我们大致分析完了.</p>
-<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><ul>
-<li>关于AsyncTask,也有挺多疑问的,比如网上最常见的超过128+5就抛出 RejectException 异常,我的源码是 <code>sdk 25</code> 的源码,在默认的 <code>SerialExecutor</code> 中,我们前面引用的郭神分析<code>SerialExcutor</code>,它是单一线程执行,并不存在多线程的任务问题.</li>
-</ul>
-<p>当然,Android 3.0 及以后的AsyncTask 允许我们切换为多线程指定,只需要改成以下代码,</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> MyAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);</div></pre></td></tr></table></figure>
-<p>这个时候问题依然会出现的,我们看看 <code>AsyncTask.THREAD_POOL_EXECUTOR</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CORE_POOL_SIZE = Math.max(<span class="number">2</span>, Math.min(CPU_COUNT - <span class="number">1</span>, <span class="number">4</span>));</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAXIMUM_POOL_SIZE = CPU_COUNT * <span class="number">2</span> + <span class="number">1</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> KEEP_ALIVE_SECONDS = <span class="number">30</span>;</div><div class="line"></div><div class="line">	 <span class="comment">//ThreadFactory 初始化</span></div><div class="line">    ....</div><div class="line">    </div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> BlockingQueue&lt;Runnable&gt; sPoolWorkQueue =</div><div class="line">            <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;(<span class="number">128</span>);</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Executor THREAD_POOL_EXECUTOR;</div><div class="line"></div><div class="line">    <span class="keyword">static</span> &#123;</div><div class="line">        ThreadPoolExecutor threadPoolExecutor = <span class="keyword">new</span> ThreadPoolExecutor(</div><div class="line">                CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS,</div><div class="line">                sPoolWorkQueue, sThreadFactory);</div><div class="line">        threadPoolExecutor.allowCoreThreadTimeOut(<span class="keyword">true</span>);</div><div class="line">        THREAD_POOL_EXECUTOR = threadPoolExecutor;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>我们看到 AsyncTask 的默认线程规定最大运行线程数 <code>CPU_COUNT * 2 + 1</code>,缓冲线程池大小 128,超过了规定线程处,就会抛出异常,综上所述,这个观点不完全正确.</p>
-<ul>
-<li><p>当我们执行 <code>call</code> 方法时,并不会立即停止 doInBackground()仍然会执行到方法结束，只是不会去调用onPostExecute()方法。会去执行 <code>onCancelled(result);</code> 方法,所以这个时候 call 方法也不是很有意义,我们在必须的耗时操作中判断 <code>`isCalled</code> 从而决定是否继续执行.</p>
-</li>
-<li><p>在 Android 1.6 之前, AsyncTask 为串行, 1.6-2.3 改为了并行,后来 Google 发现有些问题,又在 3.0 后改为了默认串行,但是可以修改为并行.</p>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1791,7 +1747,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-count">26</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
